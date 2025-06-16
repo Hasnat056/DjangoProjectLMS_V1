@@ -23,9 +23,9 @@ ROLE_MODEL_MAP = {
 
 # Role-based redirect URLs
 ROLE_REDIRECT_MAP = {
-    "Admin": "person/admin/dashboard/",
-    "Faculty": "faculty/dashboard/",
-    "Student": "person/student/dashboard/",
+    "Admin": "/person/admin/dashboard/",
+    "Faculty": "/faculty/dashboard/",
+    "Student": "/person/student/dashboard/",
 }
 
 
