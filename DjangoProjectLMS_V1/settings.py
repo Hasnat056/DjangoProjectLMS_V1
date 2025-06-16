@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +23,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eksy&y%u2hzay@cq=(x(em(603u^2%b7z3w@sd1387@*cq&x=f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ALLOWED_HOSTS = ['*']  # We'll secure this later
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+# Allowed hosts - supports both local and Railway
+ALLOWED_HOSTS = [
+    'djangoprojectlmsv1-production.up.railway.app',  # Railway production
+    'localhost',                                      # Local development
+    '127.0.0.1',                                     # Local development alternative
+]
+
+# CSRF settings for Railway deployment
+CSRF_TRUSTED_ORIGINS = [
+    'https://djangoprojectlmsv1-production.up.railway.app',  # Railway production
+    'http://localhost:8000',                                  # Local development
+    'http://127.0.0.1:8000',                                 # Local development alternative
+]
+
+# Security settings for production
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
 
 # Application definition
 INSTALLED_APPS = [
@@ -78,31 +93,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DjangoProjectLMS_V1.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'mysql.connector.django',
-        'NAME': 'railway',
-        'USER': 'root',
-        'PASSWORD': 'OfIdpzYBYZLTWhASnwvGOPqpKrsNGWVU',
-        'HOST': 'crossover.proxy.rlwy.net',
-        'PORT': 58556,
-        'OPTIONS': {
-            'autocommit': True,
-        },
+# Database configuration - Railway vs Local
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    # Production (Railway) - Hardcoded MySQL connection
+    DATABASES = {
+        'default': {
+            'ENGINE': 'mysql.connector.django',
+            'NAME': 'railway',
+            'USER': 'root',
+            'PASSWORD': 'OfIdpzYBYZLTWhASnwvGOPqpKrsNGWVU',
+            'HOST': 'crossover.proxy.rlwy.net',
+            'PORT': 58556,
+            'OPTIONS': {
+                'autocommit': True,
+            },
+        }
     }
-}
-
-# Debug output
-print(f"HARDCODED DATABASE ENGINE: {DATABASES['default']['ENGINE']}")
-print(f"HARDCODED DATABASE HOST: {DATABASES['default']['HOST']}")
-print(f"HARDCODED DATABASE PORT: {DATABASES['default']['PORT']}")
+    print("Using Railway MySQL database")
+else:
+    # Local development - Your PC MySQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'LMS',
+            'USER': 'root',
+            'PASSWORD': '@databaselab123',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
+    print("Using local MySQL database")
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -119,23 +141,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
