@@ -13,25 +13,25 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-eksy&y%u2hzay@cq=(x(em(603u^2%b7z3w@sd1387@*cq&x=f'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eksy&y%u2hzay@cq=(x(em(603u^2%b7z3w@sd1387@*cq&x=f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
 ALLOWED_HOSTS = ['*']  # We'll secure this later
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-# Application definition
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'pages.apps.PagesConfig',
     'accounts.apps.AccountsConfig',
     'django_extensions',
-
 ]
 
 MIDDLEWARE = [
@@ -65,8 +64,7 @@ ROOT_URLCONF = 'DjangoProjectLMS_V1.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,12 +78,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DjangoProjectLMS_V1.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-
-import os
 
 # MySQL Database configuration
 if 'DATABASE_URL' in os.environ:
@@ -119,6 +113,7 @@ else:
             'PORT': '3306',
         }
     }
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -137,7 +132,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -149,12 +143,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eksy&y%u2hzay@cq=(x(em(603u^2%b7z3w@sd1387@*cq&x=f')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
