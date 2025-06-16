@@ -129,22 +129,15 @@ def register_view(request):
         return JsonResponse({"error": "Registration failed. Please try again."}, status=500)
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def login_view(request):
-    """Handle login via standard form submission"""
-
-    if request.method == "GET":
-        # Show login form
-        return render(request, 'accounts/login.html')  # Replace with your actual template
-
-    # Handle POST request
+    """Handle login via AJAX"""
     try:
         email = request.POST.get("email", "").strip()
         password = request.POST.get("password", "")
 
         if not email or not password:
-            messages.error(request, "Email and password are required")
-            return render(request, 'accounts/login.html')  # Stay on login form with error
+            return JsonResponse({"error": "Email and password are required"}, status=400)
 
         user = authenticate(request, username=email, password=password)
 
@@ -161,24 +154,21 @@ def login_view(request):
                         redirect_url = ROLE_REDIRECT_MAP.get(role, "/")
                         break
 
-                # Add success message
-                messages.success(request, "Login successful! Welcome back.")
-
-                # Return HTTP redirect, not JSON
-                return redirect(redirect_url)
+                return JsonResponse({
+                    "success": "Login successful! Redirecting...",
+                    "redirect_url": redirect_url
+                }, status=200)
             else:
-                messages.error(request, "Your account has been deactivated")
-                return render(request, 'accounts/login.html')
+                return JsonResponse({"error": "Your account has been deactivated"}, status=400)
         else:
-            messages.error(request, "Invalid email or password")
-            return render(request, 'accounts/login.html')
+            return JsonResponse({"error": "Invalid email or password"}, status=400)
 
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"Login error: {str(e)}")
-        messages.error(request, "Login failed. Please try again.")
-        return render(request, 'accounts/login.html')
+
+        return JsonResponse({"error": "Login failed. Please try again."}, status=500)
 
 
 @login_required

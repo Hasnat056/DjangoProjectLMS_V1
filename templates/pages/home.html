@@ -885,19 +885,26 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Success case - show success message and redirect
-          showNotification(data.success, 'success');
-          if (data.redirect_url) {
-            setTimeout(() => {
-              window.location.href = data.redirect_url;
-            }, 1000);
-          } else {
-            // Fallback redirect for login
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-          }
-        } else {
+  // Debug logging
+  console.log('Login successful, response data:', data);
+  console.log('Redirect URL:', data.redirect_url);
+
+  // Success case - show success message and redirect
+  showNotification(data.success, 'success');
+
+  if (data.redirect_url) {
+    console.log('Redirecting to:', data.redirect_url);
+    setTimeout(() => {
+      window.location.href = data.redirect_url;
+    }, 1000);
+  } else {
+    console.log('No redirect_url found, reloading page');
+    // Fallback redirect for login
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  }
+} else {
           // Error case - show the exact error message from Django
           const errorMessage = data.error || 'Something went wrong';
           showNotification(errorMessage, 'error');
