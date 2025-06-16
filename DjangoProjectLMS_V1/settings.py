@@ -113,7 +113,15 @@ else:
             'PORT': '3306',
         }
     }
-
+# Add this right after the database configuration block
+print("=== DEBUG DATABASE CONFIG ===")
+print(f"DATABASE_URL exists: {'DATABASE_URL' in os.environ}")
+if 'DATABASE_URL' in os.environ:
+    print(f"DATABASE_URL value: {os.environ.get('DATABASE_URL', 'NOT_FOUND')}")
+print(f"Database ENGINE: {DATABASES['default']['ENGINE']}")
+print(f"Database NAME: {DATABASES['default']['NAME']}")
+print(f"Database HOST: {DATABASES['default']['HOST']}")
+print("=== END DEBUG ===")
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
