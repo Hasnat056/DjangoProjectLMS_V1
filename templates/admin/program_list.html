@@ -1,0 +1,342 @@
+<!-- admin/templates/admin/program_list.html -->
+<!-- Program Management Section -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Program Management</h3>
+            <div class="flex space-x-3">
+                <div class="relative">
+                    <input type="text" placeholder="Search programs..." class="px-4 py-2 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent" id="program-search">
+                    <svg class="w-5 h-5 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <select id="department-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                    <option value="">All Departments</option>
+                    {% for department in departments %}
+                    <option value="{{ department.departmentid }}">{{ department.departmentname }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn-primary text-white px-4 py-2 rounded-lg" onclick="addRecord('program')">
+                    <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"></path>
+                    </svg>
+                    Add Program
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-6">
+        <div class="overflow-x-auto">
+            <table class="w-full" id="program-table">
+                <thead>
+                    <tr class="text-left border-b border-gray-200">
+                        <th class="pb-3 text-sm font-medium text-gray-500">Program ID</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Program Name</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Department</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Total Semesters</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Student Count</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="program-tbody">
+                    {% for program in programs %}
+                    <tr class="table-row border-b border-gray-100" data-program-id="{{ program.programid }}">
+                        <td class="py-4 text-sm font-mono">{{ program.programid }}</td>
+                        <td class="py-4 text-sm font-medium">{{ program.programname }}</td>
+                        <td class="py-4 text-sm">
+                            {% if program.departmentid %}
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">{{ program.departmentid.departmentname }}</span>
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 text-sm">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">{{ program.totalsemesters }} semesters</span>
+                        </td>
+                        <td class="py-4 text-sm">
+                            <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">
+                                {{ program.student_set.count }} students
+                            </span>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex space-x-2">
+                                <button class="text-emerald-600 hover:text-emerald-800 text-sm font-medium" onclick="editProgram('{{ program.programid }}')">Edit</button>
+                                <button class="text-red-600 hover:text-red-800 text-sm font-medium" onclick="deleteProgram('{{ program.programid }}')">Delete</button>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="viewProgramDetails('{{ program.programid }}')">View</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-500">
+                            No programs found. <button class="text-emerald-600 hover:text-emerald-800" onclick="addRecord('program')">Add the first program</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if programs.has_other_pages %}
+        <div class="flex items-center justify-between pt-6">
+            <div class="text-sm text-gray-500">
+                Showing {{ programs.start_index }} to {{ programs.end_index }} of {{ programs.paginator.count }} results
+            </div>
+            <div class="flex space-x-1">
+                {% if programs.has_previous %}
+                    <button onclick="loadProgramPage({{ programs.previous_page_number }})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Previous</button>
+                {% endif %}
+
+                {% for num in programs.paginator.page_range %}
+                    {% if programs.number == num %}
+                        <button class="px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg">{{ num }}</button>
+                    {% else %}
+                        <button onclick="loadProgramPage({{ num }})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</button>
+                    {% endif %}
+                {% endfor %}
+
+                {% if programs.has_next %}
+                    <button onclick="loadProgramPage({{ programs.next_page_number }})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Program-specific JavaScript functions
+
+function editProgram(programId) {
+    // Load edit form for program
+    fetch(`/admin/programs/${programId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadEditProgramForm(data.program);
+        } else {
+            showError('Failed to load program data');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Network error');
+    });
+}
+
+function deleteProgram(programId) {
+    if (confirm('Are you sure you want to delete this program? This will also affect all related students and courses.')) {
+        fetch(`/admin/programs/${programId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess(data.message);
+                document.querySelector(`[data-program-id="${programId}"]`).remove();
+            } else {
+                showError(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Network error');
+        });
+    }
+}
+
+function viewProgramDetails(programId) {
+    // Load detailed view of program
+    const detailsHtml = `
+        <div class="space-y-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Program Information</h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><span class="font-medium">Program ID:</span> ${programId}</div>
+                    <div><span class="font-medium">Status:</span> <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Active</span></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Academic Structure</h4>
+                <div class="text-sm">
+                    <div class="mb-2"><span class="font-medium">Total Semesters:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Department:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Total Courses:</span> Loading...</div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Student Statistics</h4>
+                <div class="text-sm">
+                    <div class="mb-2"><span class="font-medium">Total Students:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Active Students:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Graduated Students:</span> Loading...</div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Recent Enrollments</h4>
+                <div class="text-sm text-gray-500">
+                    Loading recent enrollments...
+                </div>
+            </div>
+        </div>
+    `;
+
+    openModal('Program Details', detailsHtml);
+}
+
+function loadEditProgramForm(programData) {
+    const editFormHtml = `
+        <form id="edit-program-form" class="space-y-4">
+            <input type="hidden" name="program_id" value="${programData.programid}">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Program Name</label>
+                <input type="text" name="programname" value="${programData.programname}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Semesters</label>
+                    <input type="number" name="totalsemesters" value="${programData.totalsemesters}" min="1" max="12" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                    <select name="department" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+                        <option value="">Select Department</option>
+                        <!-- Department options will be loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+            <div class="flex space-x-3 pt-4">
+                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg flex-1">Update Program</button>
+                <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg">Cancel</button>
+            </div>
+        </form>
+    `;
+
+    openModal('Edit Program', editFormHtml);
+
+    // Load departments for dropdown
+    fetch('/admin/api/departments/')
+    .then(response => response.json())
+    .then(departments => {
+        const select = document.querySelector('select[name="department"]');
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept.departmentid;
+            option.textContent = dept.departmentname;
+            option.selected = dept.departmentid === programData.department;
+            select.appendChild(option);
+        });
+    });
+
+    // Handle form submission
+    document.getElementById('edit-program-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        const programId = data.program_id;
+        delete data.program_id;
+
+        try {
+            const response = await fetch(`/admin/programs/${programId}/update/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeModal();
+                loadSectionContent('programs');
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Network error. Please try again.');
+        }
+    });
+}
+
+// Search functionality
+document.getElementById('program-search').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#program-tbody tr');
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Department filter functionality
+document.getElementById('department-filter').addEventListener('change', function(e) {
+    const departmentId = e.target.value;
+    const url = new URL(window.location.href.split('#')[0] + 'admin/programs/');
+
+    if (departmentId) {
+        url.searchParams.set('department', departmentId);
+    }
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('programs-section').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to filter programs');
+    });
+});
+
+// Pagination function
+function loadProgramPage(pageNumber) {
+    const url = new URL(window.location.href.split('#')[0] + 'admin/programs/');
+    url.searchParams.set('page', pageNumber);
+
+    const departmentFilter = document.getElementById('department-filter')?.value;
+    if (departmentFilter) {
+        url.searchParams.set('department', departmentFilter);
+    }
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('programs-section').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to load page');
+    });
+}
+</script>

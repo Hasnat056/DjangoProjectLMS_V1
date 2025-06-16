@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token }}" />
+  <title>Namal Learning Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .hero-bg {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.8)),
+                  url('https://live.staticflickr.com/1919/31771305328_4d5a05bcf2_b.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .glass-effect {
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .role-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .role-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      max-height: 90vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #e2e8f0 #f8fafc;
+    }
+
+    .modal-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .slide-up {
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+
+    .floating {
+      animation: floating 8s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 768px) {
+      .hero-bg {
+        background-attachment: scroll;
+      }
+
+      .modal-content {
+        max-height: 85vh;
+        margin: 1rem;
+      }
+
+      .role-card {
+        padding: 1.5rem;
+      }
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border: 1px solid #475569;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #334155 0%, #475569 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 350px;
+      word-wrap: break-word;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      background: #10b981;
+      color: white;
+    }
+
+    .notification.error {
+      background: #ef4444;
+      color: white;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff3d;
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Password field styles */
+    .password-container {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #64748b;
+      transition: color 0.2s ease;
+      z-index: 10;
+    }
+
+    .password-toggle:hover {
+      color: #1e293b;
+    }
+
+    .password-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Validation styles */
+    .validation-message {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .validation-message.error {
+      color: #ef4444;
+    }
+
+    .validation-message.success {
+      color: #10b981;
+    }
+
+    .input-error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .input-success {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .password-requirements {
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .requirement {
+      display: flex;
+      align-items: center;
+      font-size: 0.75rem;
+      margin-bottom: 0.25rem;
+      transition: color 0.2s ease;
+    }
+
+    .requirement:last-child {
+      margin-bottom: 0;
+    }
+
+    .requirement.met {
+      color: #10b981;
+    }
+
+    .requirement.unmet {
+      color: #ef4444;
+    }
+
+    .requirement-icon {
+      width: 12px;
+      height: 12px;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="min-h-screen hero-bg overflow-x-hidden">
+  <!-- Django CSRF Token -->
+  {% csrf_token %}
+
+  <!-- Navigation -->
+  <nav class="glass-effect fixed w-full top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+            <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                 alt="Namal University Logo"
+                 class="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-lg hidden items-center justify-center">
+              <span class="text-white font-bold text-lg sm:text-xl">N</span>
+            </div>
+          </div>
+          <span class="text-white font-semibold text-lg sm:text-xl tracking-wide">NLMS</span>
+        </div>
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="#" class="text-white/90 hover:text-white transition-colors text-sm font-medium">About</a>
+          <a href="#" class="text-white/90 hover:text-white transition-colors text-sm font-medium">Features</a>
+          <a href="#" class="text-white/90 hover:text-white transition-colors text-sm font-medium">Contact</a>
+        </div>
+        <!-- Mobile menu button -->
+        <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Mobile menu -->
+      <div id="mobileMenu" class="hidden md:hidden mt-4 pb-4 border-t border-white/10">
+        <div class="flex flex-col space-y-3 mt-4">
+          <a href="#" class="text-white/90 hover:text-white transition-colors text-sm font-medium">About</a>
+          <a href="#" class="text-white/90 hover:text-white transition-colors text-sm font-medium">Features</a>
+          <a href="#" class="text-white/90 hover:text-white transition-colors text-sm font-medium">Contact</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="min-h-screen flex items-center justify-center px-4 pt-20 sm:pt-24">
+    <div class="max-w-6xl mx-auto text-center">
+      <!-- Main Title -->
+      <div class="fade-in mb-8 sm:mb-12">
+        <h1 class="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-light text-white mb-4 sm:mb-6 leading-tight tracking-tight">
+          Namal Learning
+          <br class="hidden sm:block">
+          <span class="text-emerald-200 font-medium">Management System</span>
+        </h1>
+        <p class="text-base sm:text-lg lg:text-xl text-white/85 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4 font-light">
+          Excellence in education through our comprehensive platform designed for Namal University's academic community and institutional success.
+        </p>
+      </div>
+
+      <!-- Role Selection Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto mb-12 sm:mb-16">
+        <!-- Admin Card -->
+        <div class="role-card rounded-xl sm:rounded-2xl p-6 sm:p-8 cursor-pointer fade-in stagger-1 floating"
+             onclick="openModal('admin')" style="animation-delay: 0.1s;">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-medium text-white mb-3 sm:mb-4">Administrator</h3>
+          <p class="text-white/75 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed font-light">System management, user administration, and institutional oversight with comprehensive control tools.</p>
+          <div class="inline-flex items-center text-white text-sm sm:text-base font-medium">
+            Access Panel
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Faculty Card -->
+        <div class="role-card rounded-xl sm:rounded-2xl p-6 sm:p-8 cursor-pointer fade-in stagger-2 floating"
+             onclick="openModal('faculty')" style="animation-delay: 0.3s;">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-medium text-white mb-3 sm:mb-4">Faculty</h3>
+          <p class="text-white/75 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed font-light">Course creation, student assessment, and academic management tools for educators and instructors.</p>
+          <div class="inline-flex items-center text-white text-sm sm:text-base font-medium">
+            Teaching Portal
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Student Card -->
+        <div class="role-card rounded-xl sm:rounded-2xl p-6 sm:p-8 cursor-pointer fade-in stagger-3 floating"
+             onclick="openModal('student')" style="animation-delay: 0.5s;">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-medium text-white mb-3 sm:mb-4">Student</h3>
+          <p class="text-white/75 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed font-light">Course enrollment, assignment submission, and academic progress tracking in a streamlined interface.</p>
+          <div class="inline-flex items-center text-white text-sm sm:text-base font-medium">
+            Learning Hub
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto fade-in" style="animation-delay: 0.8s;">
+        <div class="text-center p-4">
+          <div class="text-2xl sm:text-3xl font-semibold text-white">1K+</div>
+          <div class="text-white/75 text-sm sm:text-base font-light">Active Students</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-2xl sm:text-3xl font-semibold text-white">100+</div>
+          <div class="text-white/75 text-sm sm:text-base font-light">Faculty Members</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-2xl sm:text-3xl font-semibold text-white">50+</div>
+          <div class="text-white/75 text-sm sm:text-base font-light">Courses</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-2xl sm:text-3xl font-semibold text-white">90%</div>
+          <div class="text-white/75 text-sm sm:text-base font-light">Success Rate</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="authModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4" onclick="closeModal()">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl max-w-md w-full slide-up" onclick="event.stopPropagation()">
+      <div class="p-6 sm:p-8">
+        <div class="text-center mb-6 sm:mb-8">
+          <div id="modalIcon" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"></div>
+          <h2 id="modalTitle" class="text-xl sm:text-2xl font-bold text-slate-900 mb-2"></h2>
+          <p id="modalDescription" class="text-slate-600 text-sm sm:text-base"></p>
+        </div>
+
+        <!-- Login/Register Toggle -->
+        <div class="flex bg-slate-100 rounded-xl p-1 mb-6">
+          <button id="loginTab" class="flex-1 py-2.5 px-4 rounded-lg font-medium transition-all bg-white text-slate-900 shadow-sm text-sm sm:text-base" onclick="switchTab('login')">
+            Login
+          </button>
+          <button id="registerTab" class="flex-1 py-2.5 px-4 rounded-lg font-medium transition-all text-slate-600 text-sm sm:text-base" onclick="switchTab('register')">
+            Register
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <form onsubmit="handleAuth(event, 'login')">
+            <div class="space-y-4 mb-6">
+              <div>
+                <input type="email" name="email" placeholder="Email Address" required
+                       class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base">
+              </div>
+              <div class="password-container">
+                <input type="password" name="password" id="loginPassword" placeholder="Password" required
+                       class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base">
+                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+              </div>
+              <input type="hidden" name="role" id="loginRole" value="">
+              <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center">
+                  <input type="checkbox" name="remember" class="rounded border-slate-300 text-slate-600 focus:ring-slate-500">
+                  <span class="ml-2 text-slate-700">Remember me</span>
+                </label>
+                <a href="#" class="text-slate-600 hover:text-slate-800">Forgot password?</a>
+              </div>
+            </div>
+            <button type="submit" class="w-full btn-primary text-white py-3 rounded-xl font-semibold text-sm sm:text-base" id="loginButton">
+              Sign In
+            </button>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+          <form onsubmit="handleAuth(event, 'register')">
+            <div class="space-y-4 mb-6">
+              <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                <input type="text" name="firstName" placeholder="First Name" required
+                       class="px-3 sm:px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base">
+                <input type="text" name="lastName" placeholder="Last Name" required
+                       class="px-3 sm:px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base">
+              </div>
+              <div>
+                <input type="email" name="Username" placeholder="Email Address" required
+                       class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base">
+              </div>
+              <div class="password-container">
+                <input type="password" name="password" id="registerPassword" placeholder="Password" required
+                       class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                       oninput="validatePassword(this.value)">
+                <button type="button" class="password-toggle" onclick="togglePassword('registerPassword', this)">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+                <!-- Password Requirements -->
+                <div id="passwordRequirements" class="password-requirements hidden">
+                  <div class="text-sm font-medium text-slate-700 mb-2">Password Requirements:</div>
+                  <div class="requirement unmet" id="req-length">
+                    <svg class="requirement-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    At least 8 characters
+                  </div>
+                  <div class="requirement unmet" id="req-uppercase">
+                    <svg class="requirement-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    One uppercase letter
+                  </div>
+                  <div class="requirement unmet" id="req-lowercase">
+                    <svg class="requirement-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    One lowercase letter
+                  </div>
+                  <div class="requirement unmet" id="req-number">
+                    <svg class="requirement-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    One number
+                  </div>
+                </div>
+              </div>
+              <div class="password-container">
+                <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required
+                       class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                       oninput="validatePasswordMatch()">
+                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+                <div id="passwordMatchMessage" class="validation-message hidden"></div>
+              </div>
+              <input type="hidden" name="role" id="registerRole" value="">
+              <div class="flex items-start">
+                <input type="checkbox" name="terms" required class="rounded border-slate-300 text-slate-600 focus:ring-slate-500 mt-1">
+                <span class="ml-2 text-xs sm:text-sm text-slate-700">I agree to the Terms of Service and Privacy Policy</span>
+              </div>
+            </div>
+            <button type="submit" class="w-full btn-primary text-white py-3 rounded-xl font-semibold text-sm sm:text-base" id="registerButton">
+              Create Account
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
+
+  <script>
+    let currentRole = '';
+    let passwordValid = false;
+    let passwordsMatch = false;
+
+    const roleData = {
+      admin: {
+        title: 'Administrator Access',
+        description: 'Secure access for system administrators',
+        iconSvg: `<svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>`
+      },
+      faculty: {
+        title: 'Faculty Portal',
+        description: 'Access for educators and instructors',
+        iconSvg: `<svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>`
+      },
+      student: {
+        title: 'Student Portal',
+        description: 'Access your academic dashboard',
+        iconSvg: `<svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+        </svg>`
+      }
+    };
+
+    // Password visibility toggle function
+    function togglePassword(inputId, button) {
+      const input = document.getElementById(inputId);
+      const svg = button.querySelector('svg');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        // Eye slash icon
+        svg.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+        `;
+      } else {
+        input.type = 'password';
+        // Eye icon
+        svg.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        `;
+      }
+    }
+
+    // Password validation function
+    function validatePassword(password) {
+      const passwordInput = document.getElementById('registerPassword');
+      const requirements = document.getElementById('passwordRequirements');
+
+      // Show requirements when user starts typing
+      if (password.length > 0) {
+        requirements.classList.remove('hidden');
+      } else {
+        requirements.classList.add('hidden');
+        passwordInput.classList.remove('input-error', 'input-success');
+        return;
+      }
+
+      // Check each requirement
+      const checks = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /\d/.test(password)
+      };
+
+      // Update requirement indicators
+      updateRequirement('req-length', checks.length);
+      updateRequirement('req-uppercase', checks.uppercase);
+      updateRequirement('req-lowercase', checks.lowercase);
+      updateRequirement('req-number', checks.number);
+
+      // Check if all requirements are met
+      passwordValid = Object.values(checks).every(check => check);
+
+      // Update input styling
+      if (passwordValid) {
+        passwordInput.classList.remove('input-error');
+        passwordInput.classList.add('input-success');
+        // Hide requirements when all criteria are met
+        setTimeout(() => {
+          requirements.classList.add('hidden');
+        }, 1000); // Wait 1 second before hiding
+      } else {
+        passwordInput.classList.remove('input-success');
+        passwordInput.classList.add('input-error');
+      }
+
+      // Re-validate password match if confirm password has value
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      if (confirmPassword) {
+        validatePasswordMatch();
+      }
+    }
+
+    function updateRequirement(elementId, met) {
+      const element = document.getElementById(elementId);
+      const icon = element.querySelector('.requirement-icon');
+
+      if (met) {
+        element.classList.remove('unmet');
+        element.classList.add('met');
+        icon.innerHTML = `<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>`;
+      } else {
+        element.classList.remove('met');
+        element.classList.add('unmet');
+        icon.innerHTML = `<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>`;
+      }
+    }
+
+    function validatePasswordMatch() {
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const confirmInput = document.getElementById('confirmPassword');
+      const messageDiv = document.getElementById('passwordMatchMessage');
+
+      if (confirmPassword.length === 0) {
+        messageDiv.classList.add('hidden');
+        confirmInput.classList.remove('input-error', 'input-success');
+        passwordsMatch = false;
+        return;
+      }
+
+      passwordsMatch = password === confirmPassword;
+
+      if (passwordsMatch) {
+        messageDiv.textContent = 'Passwords match';
+        messageDiv.classList.remove('error', 'hidden');
+        messageDiv.classList.add('success');
+        confirmInput.classList.remove('input-error');
+        confirmInput.classList.add('input-success');
+      } else {
+        messageDiv.textContent = 'Passwords do not match';
+        messageDiv.classList.remove('success', 'hidden');
+        messageDiv.classList.add('error');
+        confirmInput.classList.remove('input-success');
+        confirmInput.classList.add('input-error');
+      }
+    }
+
+    function openModal(role) {
+      currentRole = role;
+      const data = roleData[role];
+
+      // Set modal icon with proper background
+      const modalIcon = document.getElementById('modalIcon');
+      modalIcon.className = 'w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4';
+      modalIcon.innerHTML = data.iconSvg;
+
+      document.getElementById('modalTitle').textContent = data.title;
+      document.getElementById('modalDescription').textContent = data.description;
+      document.getElementById('loginRole').value = role;
+      document.getElementById('registerRole').value = role;
+
+      // Reset to login tab
+      switchTab('login');
+
+      document.getElementById('authModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('authModal').classList.add('hidden');
+
+      // Reset form validation states
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => form.reset());
+
+      // Reset validation classes
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.classList.remove('input-error', 'input-success');
+      });
+
+      // Hide validation messages
+      const validationMessages = document.querySelectorAll('.validation-message');
+      validationMessages.forEach(msg => msg.classList.add('hidden'));
+
+      document.getElementById('passwordRequirements').classList.add('hidden');
+
+      // Reset password fields to password type
+      const passwordInputs = document.querySelectorAll('input[type="text"][id*="Password"]');
+      passwordInputs.forEach(input => {
+        input.type = 'password';
+        const button = input.parentElement.querySelector('.password-toggle');
+        if (button) {
+          const svg = button.querySelector('svg');
+          svg.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          `;
+        }
+      });
+
+      passwordValid = false;
+      passwordsMatch = false;
+    }
+
+    function switchTab(tab) {
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        loginTab.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+        loginTab.classList.remove('text-slate-600');
+        registerTab.classList.add('text-slate-600');
+        registerTab.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+      } else {
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        registerTab.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+        registerTab.classList.remove('text-slate-600');
+        loginTab.classList.add('text-slate-600');
+        loginTab.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+      }
+
+      // Reset validation states when switching tabs
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.classList.remove('input-error', 'input-success');
+      });
+
+      const validationMessages = document.querySelectorAll('.validation-message');
+      validationMessages.forEach(msg => msg.classList.add('hidden'));
+
+      document.getElementById('passwordRequirements').classList.add('hidden');
+    }
+
+    function showNotification(message, type) {
+      const notif = document.getElementById('notification');
+      notif.textContent = message;
+      notif.className = `notification show ${type}`;
+      setTimeout(() => {
+        notif.classList.remove('show');
+      }, 4000);
+    }
+
+    function toggleMobileMenu() {
+      const mobileMenu = document.getElementById('mobileMenu');
+      mobileMenu.classList.toggle('hidden');
+    }
+
+    // Enhanced handleAuth function with proper error handling
+    async function handleAuth(event, mode) {
+      event.preventDefault();
+      const form = event.target;
+      const role = currentRole;
+
+      // Additional validation for registration
+      if (mode === 'register') {
+        if (!passwordValid) {
+          showNotification('Please ensure your password meets all requirements', 'error');
+          return;
+        }
+
+        if (!passwordsMatch) {
+          showNotification('Passwords do not match', 'error');
+          return;
+        }
+      }
+
+      const url = mode === 'login' ? '/accounts/login/' : '/accounts/register/';
+      const formData = new FormData(form);
+      formData.append('role', role);
+
+      // Enhanced CSRF token retrieval
+      function getCSRFToken() {
+        // Method 1: From hidden input
+        let token = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (token && token.value) {
+          return token.value;
+        }
+
+        // Method 2: From cookie (if Django CSRF_USE_SESSIONS = False)
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === 'csrftoken') {
+            return value;
+          }
+        }
+
+        // Method 3: From meta tag (if you add one)
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+          return metaToken.getAttribute('content');
+        }
+
+        return null;
+      }
+
+      const csrfToken = getCSRFToken();
+      if (!csrfToken) {
+        showNotification('Security token not found. Please refresh the page.', 'error');
+        return;
+      }
+
+      // Add CSRF token to form data as well
+      formData.append('csrfmiddlewaretoken', csrfToken);
+
+      // Add loading state
+      const button = mode === 'login' ? document.getElementById('loginButton') : document.getElementById('registerButton');
+      const originalText = button.textContent;
+      button.innerHTML = '<span class="loading"></span> Processing...';
+      button.disabled = true;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken
+          },
+          body: formData
+        });
+
+        // Parse response as JSON
+        const data = await response.json();
+
+        if (response.ok) {
+          // Success case - show success message and redirect
+          showNotification(data.success, 'success');
+          if (data.redirect_url) {
+            setTimeout(() => {
+              window.location.href = data.redirect_url;
+            }, 1000);
+          } else {
+            // Fallback redirect for login
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+        } else {
+          // Error case - show the exact error message from Django
+          const errorMessage = data.error || 'Something went wrong';
+          showNotification(errorMessage, 'error');
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        showNotification('Network error. Please check your connection and try again.', 'error');
+      } finally {
+        // Reset button state
+        button.textContent = originalText;
+        button.disabled = false;
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('authModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - {{ course.coursecode }} - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Courses (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                        </svg>
+                        <span class="font-medium">Courses</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Course Management</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">{{ course.coursecode }}</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">{{ course.coursename }}</h2>
+                        <p class="text-gray-600">Course Details & Allocations</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="openCourseEditModal('{{ course.coursecode }}')"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                            </svg>
+                            <span>Edit Course</span>
+                        </button>
+                        <a href="/person/admin/dashboard/?section=courses"
+                           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Courses</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-7xl mx-auto space-y-6">
+                    <!-- Display Messages -->
+                    {% if messages %}
+                        <div class="mb-6">
+                            {% for message in messages %}
+                                <div class="p-4 rounded-lg mb-4 {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Course Information Cards -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Course Details -->
+                        <div class="lg:col-span-2 card-gradient p-6 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                                </svg>
+                                Course Information
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
+                                    <p class="text-lg font-semibold text-emerald-600">{{ course.coursecode }}</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Credit Hours</label>
+                                    <p class="text-lg font-semibold text-blue-600">{{ course.credithours }} Credit{{ course.credithours|pluralize }}</p>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+                                    <p class="text-lg text-gray-900">{{ course.coursename }}</p>
+                                </div>
+
+                                {% if course.prerequisite %}
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Prerequisite Course</label>
+                                    <a href="/person/admin/academic/courses/{{ course.prerequisite.coursecode }}/"
+                                       class="text-purple-600 hover:text-purple-900 font-medium">
+                                        {{ course.prerequisite.coursecode }} - {{ course.prerequisite.coursename }}
+                                    </a>
+                                </div>
+                                {% endif %}
+
+                                {% if course.description %}
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <p class="text-gray-700 leading-relaxed">{{ course.description }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if departments %}
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Offered by Departments</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for dept in departments %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                {{ dept.departmentname }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Statistics -->
+                        <div class="space-y-4">
+                            <div class="stat-card p-4 rounded-xl border-l-blue-500">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-blue-600">{{ stats.total_allocations }}</p>
+                                    <p class="text-sm text-gray-600">Total Allocations</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card p-4 rounded-xl border-l-emerald-500">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-emerald-600">{{ stats.active_allocations }}</p>
+                                    <p class="text-sm text-gray-600">Active Allocations</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card p-4 rounded-xl border-l-purple-500">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-purple-600">{{ stats.total_enrollments }}</p>
+                                    <p class="text-sm text-gray-600">Total Enrollments</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card p-4 rounded-xl border-l-orange-500">
+                                <div class="text-center">
+                                    <p class="text-2xl font-bold text-orange-600">{{ stats.dependent_courses_count }}</p>
+                                    <p class="text-sm text-gray-600">Dependent Courses</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Allocations -->
+                    {% if active_allocations %}
+                    <div class="card-gradient p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Active Allocations
+                        </h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Allocation ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teacher</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Session</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Enrollments</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for allocation in active_allocations %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <a href="/person/admin/academic/allocations/{{ allocation.allocationid }}/"
+                                               class="text-emerald-600 hover:text-emerald-900 font-medium">
+                                                #{{ allocation.allocationid }}
+                                            </a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ allocation.teacherid }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm text-gray-900">{{ allocation.session }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {{ allocation.status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm text-gray-900">
+                                                {{ allocation.enrollment_set.count }} students
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Allocation History -->
+                    <div class="card-gradient p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Allocation History
+                        </h3>
+
+                        {% if allocation_history %}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Allocation ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teacher</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Session</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Enrollments</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for allocation in allocation_history %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <a href="/person/admin/academic/allocations/{{ allocation.allocationid }}/"
+                                               class="text-emerald-600 hover:text-emerald-900 font-medium">
+                                                #{{ allocation.allocationid }}
+                                            </a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ allocation.teacherid }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm text-gray-900">{{ allocation.session }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                {% if allocation.status == 'Ongoing' %}bg-green-100 text-green-800
+                                                {% elif allocation.status == 'Completed' %}bg-blue-100 text-blue-800
+                                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                                {{ allocation.status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm text-gray-900">
+                                                {{ allocation.enrollment_set.count }} students
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            <p class="text-gray-500">No allocations found for this course.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dependent Courses -->
+                    {% if dependent_courses %}
+                    <div class="card-gradient p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+                            </svg>
+                            Courses Requiring This as Prerequisite
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% for dep_course in dependent_courses %}
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <a href="/person/admin/academic/courses/{{ dep_course.coursecode }}/"
+                                   class="block">
+                                    <div class="font-medium text-emerald-600 mb-1">{{ dep_course.coursecode }}</div>
+                                    <div class="text-sm text-gray-900">{{ dep_course.coursename }}</div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ dep_course.credithours }} Credits</div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Course Edit Modal -->
+    <div id="course-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <!-- Modal content will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminProfile();
+        });
+
+        // Course edit modal
+        async function openCourseEditModal(courseCode) {
+            const modal = document.getElementById('course-edit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            try {
+                const response = await fetch(`/person/admin/academic/courses/${courseCode}/edit/`);
+                const html = await response.text();
+                modal.querySelector('div').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading edit form:', error);
+                modal.querySelector('div').innerHTML = '<div class="p-6 text-center"><p class="text-red-500">Error loading edit form</p><button onclick="closeCourseEditModal()" class="mt-4 px-4 py-2 bg-gray-200 rounded">Close</button></div>';
+            }
+        }
+
+        // Close course edit modal
+        function closeCourseEditModal() {
+            const modal = document.getElementById('course-edit-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Reload page to show updated data
+            window.location.reload();
+        }
+
+        // Handle modal background click
+        document.getElementById('course-edit-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCourseEditModal();
+            }
+        });
+
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/person/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        }
+    </script>
+</body>
+</html>

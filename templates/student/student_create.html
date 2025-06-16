@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Add Student - Namal LMS{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d5f5a, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+            transform: translateY(-1px);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .form-check-input {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-check-input:checked {
+            background-color: #059669;
+            border-color: #059669;
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .qualification-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .qualification-card:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .qualification-card.new {
+            border-color: #059669;
+            background: rgba(5, 150, 105, 0.02);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Students (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                        <span class="font-medium">Students</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">{{ admin_profile.initials }}</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">{{ admin_profile.name }}</p>
+                        <p class="text-xs text-white/70" id="admin-role">{{ admin_profile.role }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Student Management</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            {% block breadcrumb %}
+                            <span class="text-emerald-600 font-medium">Add Student</span>
+                            {% endblock %}
+                        </div>
+                    {% block page_title %}
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Add New Student</h2>
+                    {% endblock %}
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        {% block header_button %}
+                        <a href="/person/admin/dashboard/?section=students" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Dashboard</span>
+                        </a>
+                        {% endblock %}
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <!-- Form Container -->
+                <div class="max-w-4xl mx-auto">
+                    <!-- Display Messages -->
+                    {% if messages %}
+                        <div class="mb-6">
+                            {% for message in messages %}
+                                <div class="p-4 rounded-lg mb-4 {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Form -->
+                    <div class="card-gradient rounded-xl p-8">
+                        <form method="POST" action="{% block form_action %}/person/admin/students/create/{% endblock %}" id="studentForm">
+                            {% csrf_token %}
+
+                            <div class="space-y-8">
+                                <!-- Personal Information Section -->
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                        <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                                        </svg>
+                                        Personal Information
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Student ID -->
+                                        <div>
+                                            <label for="id_studentid" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.studentid.label }} <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.studentid }}
+                                            {% if form.studentid.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.studentid.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.studentid.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.studentid.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- First Name -->
+                                        <div>
+                                            <label for="id_fname" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.fname.label }} <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.fname }}
+                                            {% if form.fname.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.fname.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Last Name -->
+                                        <div>
+                                            <label for="id_lname" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.lname.label }} <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.lname }}
+                                            {% if form.lname.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.lname.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Institutional Email -->
+                                        <div>
+                                            <label for="id_institutionalemail" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.institutionalemail.label }} <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.institutionalemail }}
+                                            {% if form.institutionalemail.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.institutionalemail.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.institutionalemail.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.institutionalemail.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Personal Email -->
+                                        <div>
+                                            <label for="id_personalemail" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.personalemail.label }}
+                                            </label>
+                                            {{ form.personalemail }}
+                                            {% if form.personalemail.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.personalemail.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- CNIC -->
+                                        <div>
+                                            <label for="id_cnic" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.cnic.label }}
+                                            </label>
+                                            {{ form.cnic }}
+                                            {% if form.cnic.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.cnic.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.cnic.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.cnic.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Gender -->
+                                        <div>
+                                            <label for="id_gender" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.gender.label }}
+                                            </label>
+                                            {{ form.gender }}
+                                            {% if form.gender.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.gender.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Date of Birth -->
+                                        <div>
+                                            <label for="id_dob" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.dob.label }}
+                                            </label>
+                                            {{ form.dob }}
+                                            {% if form.dob.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.dob.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Contact Number -->
+                                        <div>
+                                            <label for="id_cnumber" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.cnumber.label }}
+                                            </label>
+                                            {{ form.cnumber }}
+                                            {% if form.cnumber.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.cnumber.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Academic Information Section -->
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                        <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                                        </svg>
+                                        Academic Information
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <!-- Program -->
+                                        <div>
+                                            <label for="id_programid" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Program <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.programid }}
+                                            {% if form.programid.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.programid.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.programid.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.programid.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Class -->
+                                        <div>
+                                            <label for="id_classid" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Class
+                                            </label>
+                                            {{ form.classid }}
+                                            {% if form.classid.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.classid.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.classid.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.classid.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Status -->
+                                        <div>
+                                            <label for="id_status" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Status <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.status }}
+                                            {% if form.status.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.status.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.status.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.status.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Address Information Section -->
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                        <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Address Information
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Country -->
+                                        <div>
+                                            <label for="id_country" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.country.label }}
+                                            </label>
+                                            {{ form.country }}
+                                            {% if form.country.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.country.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Province -->
+                                        <div>
+                                            <label for="id_province" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.province.label }}
+                                            </label>
+                                                {{ form.province }}
+                                                {% if form.province.errors %}
+                                                    <p class="text-xs text-red-500 mt-1">{{ form.province.errors.0 }}</p>
+                                                {% endif %}
+                                        </div>
+
+                                        <!-- City -->
+                                        <div>
+                                            <label for="id_city" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.city.label }}
+                                            </label>
+                                            {{ form.city }}
+                                            {% if form.city.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.city.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- ZIP Code -->
+                                        <div>
+                                            <label for="id_zipcode" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.zipcode.label }}
+                                            </label>
+                                            {{ form.zipcode }}
+                                            {% if form.zipcode.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.zipcode.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Street Address -->
+                                        <div class="md:col-span-2">
+                                            <label for="id_streetaddress" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ form.streetaddress.label }}
+                                            </label>
+                                            {{ form.streetaddress }}
+                                            {% if form.streetaddress.errors %}
+                                                <p class="text-xs text-red-500 mt-1">{{ form.streetaddress.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Qualification Information Section -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-6">
+                                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                            <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                                            </svg>
+                                            Qualification Information
+                                        </h3>
+                                        <button type="button" onclick="addQualification()" class="btn-secondary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>Add Qualification</span>
+                                        </button>
+                                    </div>
+
+                                    <div id="qualifications-container">
+                                        <!-- First qualification (default) -->
+                                        <div class="qualification-card" data-qualification-index="0">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <h4 class="font-medium text-gray-800">Qualification #1</h4>
+                                                <button type="button" onclick="removeQualification(0)" class="btn-danger text-white px-3 py-1 rounded text-sm hidden">
+                                                    Remove
+                                                </button>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <!-- Degree Title -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Degree Title
+                                                    </label>
+                                                    <input type="text" name="qualifications[0][degreetitle]" class="form-control" placeholder="e.g., Intermediate in Pre-Engineering">
+                                                </div>
+
+                                                <!-- Education Board - UPDATED TO DROPDOWN -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Education Board
+                                                    </label>
+                                                    <select name="qualifications[0][educationboard]" class="form-control education-board-select">
+                                                        <option value="">Select Education Board</option>
+                                                        <!-- Federal -->
+                                                        <optgroup label="Federal">
+                                                            <option value="BISE Federal">BISE Federal</option>
+                                                        </optgroup>
+                                                        <!-- Punjab -->
+                                                        <optgroup label="Punjab">
+                                                            <option value="BISE Lahore">BISE Lahore</option>
+                                                            <option value="BISE Gujrawala">BISE Gujrawala</option>
+                                                            <option value="BISE Sahiwal">BISE Sahiwal</option>
+                                                            <option value="BISE Bahawalpur">BISE Bahawalpur</option>
+                                                            <option value="BISE DG Khan">BISE DG Khan</option>
+                                                            <option value="BISE Faisalabad">BISE Faisalabad</option>
+                                                            <option value="BISE Multan">BISE Multan</option>
+                                                            <option value="BISE Rawalpindi">BISE Rawalpindi</option>
+                                                            <option value="BISE Sargodha">BISE Sargodha</option>
+                                                        </optgroup>
+                                                        <!-- Sindh -->
+                                                        <optgroup label="Sindh">
+                                                            <option value="BISE Hyderabad">BISE Hyderabad</option>
+                                                            <option value="BISE Larkana">BISE Larkana</option>
+                                                            <option value="BISE MirpurKhas">BISE MirpurKhas</option>
+                                                            <option value="BISE Sukkur">BISE Sukkur</option>
+                                                            <option value="BISE Karachi">BISE Karachi</option>
+                                                            <option value="BSEK Karachi">BSEK Karachi</option>
+                                                            <option value="BSEK Agha Khan">BSEK Agha Khan</option>
+                                                        </optgroup>
+                                                        <!-- Khyber Pakhtunkhwa -->
+                                                        <optgroup label="Khyber Pakhtunkhwa">
+                                                            <option value="BISE Sawat">BISE Sawat</option>
+                                                            <option value="BISE DI Khan">BISE DI Khan</option>
+                                                            <option value="BISE Mardan">BISE Mardan</option>
+                                                            <option value="BISE Peshawar">BISE Peshawar</option>
+                                                            <option value="BISE Kohat">BISE Kohat</option>
+                                                            <option value="BISE Malakand">BISE Malakand</option>
+                                                            <option value="BISE Abbotabad">BISE Abbotabad</option>
+                                                            <option value="BISE Bannu">BISE Bannu</option>
+                                                        </optgroup>
+                                                        <!-- Balochistan -->
+                                                        <optgroup label="Balochistan">
+                                                            <option value="BISE Quetta">BISE Quetta</option>
+                                                            <option value="BISE Turbat">BISE Turbat</option>
+                                                            <option value="BISE Zhob">BISE Zhob</option>
+                                                        </optgroup>
+                                                        <!-- AJK -->
+                                                        <optgroup label="Azad Jammu and Kashmir">
+                                                            <option value="BISE AJK">BISE AJK</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Institution -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Institution
+                                                    </label>
+                                                    <input type="text" name="qualifications[0][institution]" class="form-control" placeholder="Previous institution name">
+                                                </div>
+
+                                                <!-- Passing Year -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Passing Year
+                                                    </label>
+                                                    <input type="text" name="qualifications[0][passingyear]" class="form-control" placeholder="Year of passing">
+                                                </div>
+
+                                                <!-- Total Marks -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Total Marks
+                                                    </label>
+                                                    <input type="number" name="qualifications[0][totalmarks]" class="form-control" placeholder="Total marks">
+                                                </div>
+
+                                                <!-- Obtained Marks -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Obtained Marks
+                                                    </label>
+                                                    <input type="number" name="qualifications[0][obtainedmarks]" class="form-control" placeholder="Obtained marks">
+                                                </div>
+
+                                                <!-- Currently Pursuing -->
+                                                <div class="md:col-span-2">
+                                                    <div class="flex items-center">
+                                                        <input type="checkbox" name="qualifications[0][iscurrent]" class="form-check-input">
+                                                        <label class="ml-2 text-sm text-gray-700">
+                                                            Currently Pursuing
+                                                        </label>
+                                                    </div>
+                                                    <p class="text-xs text-gray-500 mt-1">Check if this qualification is currently being pursued</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            {% block submit_buttons %}
+                            <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                                <a href="/person/admin/dashboard/section=students" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                                    Cancel
+                                </a>
+                                <button type="submit" name="action" value="add_another" class="btn-primary text-white px-6 py-2 rounded-lg flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Add & Add Another</span>
+                                </button>
+                                <button type="submit" name="action" value="done" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Add & Done</span>
+                                </button>
+                            </div>
+                        {% endblock %}
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let qualificationCount = {{ qualifications|length|default:1 }};
+
+        // CNIC formatting - auto-add dashes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cnicField = document.getElementById('id_cnic');
+
+            if (cnicField) {
+                cnicField.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+
+                    // Format as 12345-1234567-1
+                    if (value.length >= 5) {
+                        value = value.substring(0, 5) + '-' + value.substring(5);
+                    }
+                    if (value.length >= 13) {
+                        value = value.substring(0, 13) + '-' + value.substring(13, 14);
+                    }
+
+                    // Limit to 15 characters (13 digits + 2 dashes)
+                    if (value.length > 15) {
+                        value = value.substring(0, 15);
+                    }
+
+                    e.target.value = value;
+                });
+
+                // Set placeholder
+                cnicField.placeholder = '12345-1234567-1';
+                cnicField.maxLength = 15;
+            }
+
+
+            loadAdminProfile();
+
+            // Program change handler to load classes
+            const programField = document.getElementById('id_programid');
+            if (programField) {
+                programField.addEventListener('change', function() {
+                    loadProgramClasses(this.value);
+                });
+            }
+        });
+
+        // Load classes based on selected program
+        function loadProgramClasses(programId) {
+            const classField = document.getElementById('id_classid');
+
+            if (!programId) {
+                classField.innerHTML = '<option value="">Select Class</option>';
+                return;
+            }
+
+            // Clear current options
+            classField.innerHTML = '<option value="">Loading...</option>';
+
+            // Fetch classes for the selected program
+            fetch(`/person/admin/api/program-classes/${programId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    classField.innerHTML = '<option value="">Select Class</option>';
+                    data.classes.forEach(cls => {
+                        const option = document.createElement('option');
+                        option.value = cls.id;
+                        option.textContent = `${cls.program_id} - ${cls.batch_year}`;
+                        classField.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading classes:', error);
+                    classField.innerHTML = '<option value="">Error loading classes</option>';
+                });
+        }
+
+       // Updated function to include education board dropdown
+        function addQualification() {
+            const container = document.getElementById('qualifications-container');
+            const newIndex = qualificationCount;
+
+            const qualificationHtml = `
+                <div class="qualification-card new" data-qualification-index="${newIndex}">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-medium text-gray-800">Qualification #${newIndex + 1}</h4>
+                        <button type="button" onclick="removeQualification(${newIndex})" class="btn-danger text-white px-3 py-1 rounded text-sm">
+                        Remove
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Degree Title -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Degree Title
+                    </label>
+                    <input type="text" name="qualifications[${newIndex}][degreetitle]" class="form-control" placeholder="e.g., Bachelor in Computer Science">
+                </div>
+
+                <!-- Education Board - DROPDOWN -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Education Board
+                    </label>
+                    <select name="qualifications[${newIndex}][educationboard]" class="form-control education-board-select">
+                        <option value="">Select Education Board</option>
+                        <!-- Federal -->
+                        <optgroup label="Federal">
+                            <option value="BISE Federal">BISE Federal</option>
+                        </optgroup>
+                        <!-- Punjab -->
+                        <optgroup label="Punjab">
+                            <option value="BISE Lahore">BISE Lahore</option>
+                            <option value="BISE Gujrawala">BISE Gujrawala</option>
+                            <option value="BISE Sahiwal">BISE Sahiwal</option>
+                            <option value="BISE Bahawalpur">BISE Bahawalpur</option>
+                            <option value="BISE DG Khan">BISE DG Khan</option>
+                            <option value="BISE Faisalabad">BISE Faisalabad</option>
+                            <option value="BISE Multan">BISE Multan</option>
+                            <option value="BISE Rawalpindi">BISE Rawalpindi</option>
+                            <option value="BISE Sargodha">BISE Sargodha</option>
+                        </optgroup>
+                        <!-- Sindh -->
+                        <optgroup label="Sindh">
+                            <option value="BISE Hyderabad">BISE Hyderabad</option>
+                            <option value="BISE Larkana">BISE Larkana</option>
+                            <option value="BISE MirpurKhas">BISE MirpurKhas</option>
+                            <option value="BISE Sukkur">BISE Sukkur</option>
+                            <option value="BISE Karachi">BISE Karachi</option>
+                            <option value="BSEK Karachi">BSEK Karachi</option>
+                            <option value="BSEK Agha Khan">BSEK Agha Khan</option>
+                        </optgroup>
+                        <!-- Khyber Pakhtunkhwa -->
+                        <optgroup label="Khyber Pakhtunkhwa">
+                            <option value="BISE Sawat">BISE Sawat</option>
+                            <option value="BISE DI Khan">BISE DI Khan</option>
+                            <option value="BISE Mardan">BISE Mardan</option>
+                            <option value="BISE Peshawar">BISE Peshawar</option>
+                            <option value="BISE Kohat">BISE Kohat</option>
+                            <option value="BISE Malakand">BISE Malakand</option>
+                            <option value="BISE Abbotabad">BISE Abbotabad</option>
+                            <option value="BISE Bannu">BISE Bannu</option>
+                        </optgroup>
+                        <!-- Balochistan -->
+                        <optgroup label="Balochistan">
+                            <option value="BISE Quetta">BISE Quetta</option>
+                            <option value="BISE Turbat">BISE Turbat</option>
+                            <option value="BISE Zhob">BISE Zhob</option>
+                        </optgroup>
+                        <!-- AJK -->
+                        <optgroup label="Azad Jammu and Kashmir">
+                            <option value="BISE AJK">BISE AJK</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Institution -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Institution
+                    </label>
+                    <input type="text" name="qualifications[${newIndex}][institution]" class="form-control" placeholder="Institution name">
+                </div>
+
+                <!-- Passing Year -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Passing Year
+                    </label>
+                    <input type="text" name="qualifications[${newIndex}][passingyear]" class="form-control" placeholder="Year of passing">
+                </div>
+
+                <!-- Total Marks -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Total Marks
+                    </label>
+                    <input type="number" name="qualifications[${newIndex}][totalmarks]" class="form-control" placeholder="Total marks">
+                </div>
+
+                <!-- Obtained Marks -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Obtained Marks
+                    </label>
+                    <input type="number" name="qualifications[${newIndex}][obtainedmarks]" class="form-control" placeholder="Obtained marks">
+                </div>
+
+                <!-- Currently Pursuing -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="qualifications[${newIndex}][iscurrent]" class="form-check-input">
+                        <label class="ml-2 text-sm text-gray-700">
+                            Currently Pursuing
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Check if this qualification is currently being pursued</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', qualificationHtml);
+    qualificationCount++;
+
+    // Show remove button for first qualification if more than one exists
+    updateRemoveButtons();
+
+    // Scroll to new qualification
+    const newCard = container.lastElementChild;
+    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Remove 'new' class after animation
+    setTimeout(() => {
+        newCard.classList.remove('new');
+    }, 500);
+}
+
+        // Remove qualification
+        function removeQualification(index) {
+            const card = document.querySelector(`[data-qualification-index="${index}"]`);
+            if (card) {
+                card.remove();
+                updateRemoveButtons();
+                renumberQualifications();
+            }
+        }
+
+        // Update remove button visibility
+        function updateRemoveButtons() {
+            const cards = document.querySelectorAll('.qualification-card');
+            cards.forEach((card, index) => {
+                const removeBtn = card.querySelector('button[onclick*="removeQualification"]');
+                if (removeBtn) {
+                    if (cards.length > 1) {
+                        removeBtn.classList.remove('hidden');
+                    } else {
+                        removeBtn.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // Renumber qualifications after removal
+        function renumberQualifications() {
+            const cards = document.querySelectorAll('.qualification-card');
+            cards.forEach((card, index) => {
+                // Update header
+                const header = card.querySelector('h4');
+                if (header) {
+                    header.textContent = `Qualification #${index + 1}`;
+                }
+
+                // Update data attribute
+                card.setAttribute('data-qualification-index', index);
+
+                // Update input names
+                const inputs = card.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name && name.includes('qualifications[')) {
+                        const fieldName = name.split('][')[1];
+                        input.setAttribute('name', `qualifications[${index}][${fieldName}`);
+                    }
+                });
+
+                // Update remove button onclick
+                const removeBtn = card.querySelector('button[onclick*="removeQualification"]');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeQualification(${index})`);
+                }
+            });
+        }
+
+        // Form validation and submission handling
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            const requiredFields = [
+                'id_studentid',
+                'id_fname',
+                'id_lname',
+                'id_institutionalemail',
+                'id_programid',
+                'id_status'
+            ];
+
+            let hasErrors = false;
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && !field.value.trim()) {
+                    hasErrors = true;
+                    field.classList.add('border-red-500');
+                    field.classList.remove('border-gray-300');
+                } else if (field) {
+                    field.classList.remove('border-red-500');
+                    field.classList.add('border-gray-300');
+                }
+            });
+
+            if (hasErrors) {
+                e.preventDefault();
+                alert('Please fill in all required fields marked with *');
+                return false;
+            }
+
+            // Show loading state on submit buttons
+            const submitButtons = document.querySelectorAll('button[type="submit"]');
+            const clickedButton = e.submitter;
+
+            submitButtons.forEach(btn => {
+                btn.disabled = true;
+                if (btn === clickedButton) {
+                    const span = btn.querySelector('span');
+                    const originalText = span.textContent;
+                    span.textContent = 'Processing...';
+                    btn.dataset.originalText = originalText;
+                }
+            });
+
+            // Scroll to top to show any messages after form processes
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        });
+
+        // Load admin profile via API
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/person/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+                // Keep default values if API fails
+            }
+        }
+    </script>
+</body>
+</html>

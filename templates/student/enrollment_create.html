@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .form-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: #059669;
+            border-color: #059669;
+        }
+
+        .form-error {
+            color: #dc2626;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d5f5a, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .radio-group {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .radio-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 8px 16px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            background: white;
+            color: #059669;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            border-top-color: #059669;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .student-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background: white;
+        }
+
+        .student-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .student-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .student-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-checkbox {
+            margin-right: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Enrollments (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="font-medium">Enrollments</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Enrollment Management</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">{{ title }}</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">{{ title }}</h2>
+                        <p class="text-gray-600">Create student enrollments for course allocations</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/person/admin/dashboard/?section=enrollments"
+                           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Enrollments</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Display Messages -->
+                    {% if messages %}
+                        <div class="mb-6">
+                            {% for message in messages %}
+                                <div class="p-4 rounded-lg mb-4 {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border border-yellow-200 text-yellow-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Form Card -->
+                    <div class="card-gradient rounded-xl p-8">
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Enrollment Information</h3>
+                            <p class="text-gray-600">Fill in the details to create the enrollment.</p>
+                        </div>
+
+                        <!-- Mode Selection -->
+                        <div class="form-field">
+                            <label class="form-label">Enrollment Mode</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="mode-single" name="enrollment_mode" value="single"
+                                           {% if mode == "single" %}checked{% endif %} onchange="switchMode('single')">
+                                    <label for="mode-single">Single Student</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="mode-bulk" name="enrollment_mode" value="bulk"
+                                           {% if mode == "bulk" %}checked{% endif %} onchange="switchMode('bulk')">
+                                    <label for="mode-bulk">Bulk Students</label>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">Choose whether to enroll a single student or multiple students</p>
+                        </div>
+
+                        <form method="post" class="space-y-6" id="enrollment-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="current_mode" value="{{ mode }}" id="current-mode-input">
+
+                            <!-- Course Allocation Selection (Always First) -->
+                            <div class="form-field">
+                                <label for="allocationid" class="form-label">
+                                    Course Allocation <span class="text-red-500">*</span>
+                                </label>
+                                <select name="allocationid" id="allocationid" class="form-input" required>
+                                    <option value="">Select Course Allocation</option>
+                                    {% for allocation in allocations %}
+                                        <option value="{{ allocation.allocationid }}">
+                                            {{ allocation.coursecode.coursename }} - {{ allocation.teacherid.employeeid.fname }} {{ allocation.teacherid.employeeid.lname }} ({{ allocation.session }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <p class="text-sm text-gray-500 mt-1">Select the course allocation (course + teacher + session)</p>
+                            </div>
+
+                            <!-- Single Student Mode -->
+<div id="single-mode-fields" class="{% if mode != 'single' %}hidden{% endif %}">
+    <!-- Class Selection for Single Mode -->
+    <div class="form-field">
+        <label for="single-class-select" class="form-label">
+            Class (Optional) <span class="text-gray-400">- Filter students by class</span>
+        </label>
+        <div class="relative">
+            <select name="single_class" id="single-class-select" class="form-input">
+                <option value="">All Students</option>
+            </select>
+            <div id="single-class-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Selection for Single Mode -->
+    <div class="form-field">
+        <label for="single-student" class="form-label">
+            Student <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+            <select name="single_student" id="single-student" class="form-input" {% if mode == 'single' %}required{% endif %}>
+                <option value="">Loading students...</option>
+            </select>
+            <div id="single-student-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+        <div id="single-student-error" class="form-error hidden"></div>
+        <p class="text-sm text-gray-500 mt-1">Select the student to enroll</p>
+    </div>
+</div>
+
+<!-- Bulk Students Mode -->
+<div id="bulk-mode-fields" class="{% if mode != 'bulk' %}hidden{% endif %}">
+    <!-- Class Selection for Bulk Mode -->
+    <div class="form-field">
+        <label for="bulk-class-select" class="form-label">
+            Class <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+            <select name="bulk_class" id="bulk-class-select" class="form-input" {% if mode == 'bulk' %}required{% endif %}>
+                <option value="">Select Class</option>
+            </select>
+            <div id="bulk-class-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-1">Select the class to load students</p>
+    </div>
+
+    <!-- Student Selection for Bulk Mode -->
+    <div class="form-field">
+        <label class="form-label">
+            Select Students <span class="text-red-500">*</span>
+        </label>
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex space-x-2">
+                <button type="button" onclick="selectAllStudents()" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                    Select All
+                </button>
+                <button type="button" onclick="deselectAllStudents()" class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200">
+                    Deselect All
+                </button>
+            </div>
+            <span id="selected-count" class="text-sm text-gray-600">0 selected</span>
+        </div>
+        <div id="students-list" class="student-list hidden">
+            <div class="p-4 text-center text-gray-500">
+                Select a class to load students
+            </div>
+        </div>
+        <input type="hidden" name="selected_students" id="selected-students-input">
+        <div id="bulk-students-error" class="form-error hidden"></div>
+    </div>
+</div>
+                            <!-- Form Actions -->
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                                <a href="/person/admin/dashboard/?section=enrollments"
+                                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Cancel</span>
+                                </a>
+
+                                <button type="submit" class="btn-primary text-white px-8 py-3 rounded-lg flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>{{ submit_text }}</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Helper Information -->
+                    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Enrollment Guidelines -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-yellow-800 mb-3">Enrollment Guidelines</h4>
+                            <ul class="text-sm text-yellow-700 space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Students can only be enrolled in active course allocations</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Each student can only be enrolled once per course allocation</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Use single mode for individual enrollments, bulk mode for class-wide enrollments</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Mode Information -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-blue-800 mb-3">Mode Descriptions</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-start">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-3">
+                                        Single
+                                    </span>
+                                    <span class="text-blue-700">Enroll one student at a time with optional class filtering</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-3">
+                                        Bulk
+                                    </span>
+                                    <span class="text-blue-700">Select multiple students from a specific class for batch enrollment</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let selectedStudents = new Set();
+        let currentMode = '{{ mode }}';
+
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/person/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        }
+
+        function switchMode(mode) {
+            // Redirect to the URL with the new mode
+            window.location.href = `/person/admin/enrollments/create/?mode=${mode}`;
+        }
+
+        async function loadClassesForSingle() {
+            const classSelect = document.getElementById('single-class-select');
+            showLoading('single-class-loading', true);
+
+            try {
+                const response = await fetch('/person/admin/api/classes/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const classes = await response.json();
+
+                classSelect.innerHTML = '<option value="">All Students</option>';
+                classes.forEach(cls => {
+                    const option = document.createElement('option');
+                    option.value = cls.classid;
+                    option.textContent = cls.display_name;
+                    classSelect.appendChild(option);
+                });
+
+                classSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        loadClassStudents(this.value, 'single');
+                    } else {
+                        loadAllStudents();
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading classes:', error);
+                classSelect.innerHTML = '<option value="">Error loading classes</option>';
+            } finally {
+                showLoading('single-class-loading', false);
+            }
+        }
+
+        async function loadClassesForBulk() {
+            const classSelect = document.getElementById('bulk-class-select');
+            showLoading('bulk-class-loading', true);
+
+            try {
+                const response = await fetch('/person/admin/api/classes/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const classes = await response.json();
+
+                classSelect.innerHTML = '<option value="">Select Class</option>';
+                classes.forEach(cls => {
+                    const option = document.createElement('option');
+                    option.value = cls.classid;
+                    option.textContent = cls.display_name;
+                    classSelect.appendChild(option);
+                });
+
+                classSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        loadClassStudents(this.value, 'bulk');
+                    } else {
+                        document.getElementById('students-list').classList.add('hidden');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading classes:', error);
+                classSelect.innerHTML = '<option value="">Error loading classes</option>';
+            } finally {
+                showLoading('bulk-class-loading', false);
+            }
+        }
+
+        async function loadAllStudents() {
+            const studentSelect = document.getElementById('single-student');
+            showLoading('single-student-loading', true);
+
+            try {
+                const response = await fetch('/person/admin/api/all-students/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const students = await response.json();
+
+                studentSelect.innerHTML = '<option value="">Select Student</option>';
+                students.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.student_id;
+                    option.textContent = `${student.name} (${student.student_id})${student.class_display ? ' - ' + student.class_display : ''}`;
+                    studentSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading students:', error);
+                showError('single-student-error', 'Failed to load students');
+                studentSelect.innerHTML = '<option value="">Error loading students</option>';
+            } finally {
+                showLoading('single-student-loading', false);
+            }
+        }
+
+        async function loadClassStudents(classId, mode) {
+            const loadingId = mode === 'single' ? 'single-student-loading' : 'bulk-class-loading';
+            showLoading(loadingId, true);
+
+            try {
+                const response = await fetch(`/person/admin/api/class-students/${classId}/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const students = await response.json();
+
+                if (mode === 'single') {
+                    const studentSelect = document.getElementById('single-student');
+                    studentSelect.innerHTML = '<option value="">Select Student</option>';
+                    students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.student_id;
+                        option.textContent = `${student.name} (${student.student_id})`;
+                        studentSelect.appendChild(option);
+                    });
+                } else {
+                    // Bulk mode - show student list with checkboxes
+                    const studentsList = document.getElementById('students-list');
+                    studentsList.innerHTML = '';
+
+                    if (students.length === 0) {
+                        studentsList.innerHTML = '<div class="p-4 text-center text-gray-500">No students found in this class</div>';
+                    } else {
+                        students.forEach(student => {
+                            const studentItem = document.createElement('div');
+                            studentItem.className = 'student-item';
+                            studentItem.innerHTML = `
+                                <input type="checkbox" class="student-checkbox" value="${student.student_id}"
+                                       onchange="toggleStudent('${student.student_id}', this.checked)">
+                                <div class="flex-1">
+                                    <div class="font-medium">${student.name}</div>
+                                    <div class="text-sm text-gray-500">${student.student_id} • ${student.email}</div>
+                                </div>
+                                <div class="text-sm text-gray-400">${student.status}</div>
+                            `;
+                            studentsList.appendChild(studentItem);
+                        });
+                    }
+
+                    studentsList.classList.remove('hidden');
+                    selectedStudents.clear();
+                    updateSelectedCount();
+                }
+
+            } catch (error) {
+                console.error('Error loading class students:', error);
+                if (mode === 'single') {
+                    showError('single-student-error', 'Failed to load students');
+                    document.getElementById('single-student').innerHTML = '<option value="">Error loading students</option>';
+                } else {
+                    showError('bulk-students-error', 'Failed to load students');
+                    document.getElementById('students-list').innerHTML = '<div class="p-4 text-center text-red-500">Error loading students</div>';
+                }
+            } finally {
+                showLoading(loadingId, false);
+            }
+        }
+
+        function toggleStudent(studentId, checked) {
+            if (checked) {
+                selectedStudents.add(studentId);
+            } else {
+                selectedStudents.delete(studentId);
+            }
+            updateSelectedCount();
+            updateSelectedStudentsInput();
+        }
+
+        function selectAllStudents() {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                selectedStudents.add(checkbox.value);
+            });
+            updateSelectedCount();
+            updateSelectedStudentsInput();
+        }
+
+        function deselectAllStudents() {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            selectedStudents.clear();
+            updateSelectedCount();
+            updateSelectedStudentsInput();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selected-count').textContent = `${selectedStudents.size} selected`;
+        }
+
+        function updateSelectedStudentsInput() {
+            document.getElementById('selected-students-input').value = JSON.stringify(Array.from(selectedStudents));
+        }
+
+        function showLoading(loadingId, show) {
+            const loadingElement = document.getElementById(loadingId);
+            if (loadingElement) {
+                if (show) {
+                    loadingElement.classList.remove('hidden');
+                } else {
+                    loadingElement.classList.add('hidden');
+                }
+            }
+        }
+
+        function showError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        function hideError(errorId) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.classList.add('hidden');
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // Clear previous errors
+            hideError('single-student-error');
+            hideError('bulk-students-error');
+
+            const allocationId = document.getElementById('allocationid').value;
+            if (!allocationId) {
+                alert('Please select a course allocation.');
+                return false;
+            }
+
+            if (currentMode === 'single') {
+                const studentId = document.getElementById('single-student').value;
+                if (!studentId) {
+                    showError('single-student-error', 'Please select a student');
+                    isValid = false;
+                }
+            } else {
+                const classId = document.getElementById('bulk-class-select').value;
+                if (!classId) {
+                    showError('bulk-students-error', 'Please select a class');
+                    isValid = false;
+                } else if (selectedStudents.size === 0) {
+                    showError('bulk-students-error', 'Please select at least one student');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, current mode:', currentMode);
+            loadAdminProfile();
+
+            // Initialize based on current mode
+            if (currentMode === 'single') {
+                loadAllStudents();
+                loadClassesForSingle();
+            } else {
+                loadClassesForBulk();
+            }
+
+            // Form validation
+            document.getElementById('enrollment-form').addEventListener('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                }
+            });
+
+            // Add change listeners for error clearing
+            const singleStudentSelect = document.getElementById('single-student');
+            if (singleStudentSelect) {
+                singleStudentSelect.addEventListener('change', function() {
+                    hideError('single-student-error');
+                });
+            }
+
+            const bulkClassSelect = document.getElementById('bulk-class-select');
+            if (bulkClassSelect) {
+                bulkClassSelect.addEventListener('change', function() {
+                    hideError('bulk-students-error');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

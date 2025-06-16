@@ -1,0 +1,742 @@
+<!-- Enrollment Management Section -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Enrollment Management</h3>
+            <div class="flex space-x-3">
+                <div class="relative">
+                    <input type="text" placeholder="Search enrollments..." class="px-4 py-2 border border-gray-300 rounded-lg pr-10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent" id="enrollment-search">
+                    <svg class="w-5 h-5 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" id="status-filter">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" id="course-filter">
+                    <option value="">All Courses</option>
+                    {% for allocation in course_allocations %}
+                    <option value="{{ allocation.allocationid }}">{{ allocation.coursecode.coursename }} - {{ allocation.session }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn-primary text-white px-4 py-2 rounded-lg" onclick="addRecord('enrollment')">
+                    <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"></path>
+                    </svg>
+                    Add Enrollment
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-6">
+        <!-- Quick Actions -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 class="text-sm font-semibold text-gray-700 mb-2">Quick Actions</h4>
+            <div class="flex space-x-3">
+                <button class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700" onclick="showBulkEnrollmentModal()">
+                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Bulk Enrollment
+                </button>
+                <button class="bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700" onclick="exportEnrollments()">
+                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M12 10l-2-2m0 0l-2 2m2-2v6m4-8V6a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"></path>
+                    </svg>
+                    Export
+                </button>
+                <button class="bg-orange-600 text-white px-3 py-2 rounded text-sm hover:bg-orange-700" onclick="showEnrollmentStats()">
+                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Statistics
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full" id="enrollment-table">
+                <thead>
+                    <tr class="text-left border-b border-gray-200">
+                        <th class="pb-3 text-sm font-medium text-gray-500">
+                            <input type="checkbox" id="select-all" class="rounded border-gray-300">
+                        </th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Enrollment ID</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Student</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Course</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Teacher</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Session</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Date</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Status</th>
+                        <th class="pb-3 text-sm font-medium text-gray-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="enrollment-tbody">
+                    {% for enrollment in enrollments %}
+                    <tr class="table-row border-b border-gray-100" data-enrollment-id="{{ enrollment.enrollmentid }}">
+                        <td class="py-4">
+                            <input type="checkbox" class="enrollment-checkbox rounded border-gray-300" value="{{ enrollment.enrollmentid }}">
+                        </td>
+                        <td class="py-4 text-sm font-mono">{{ enrollment.enrollmentid }}</td>
+                        <td class="py-4 text-sm font-medium">
+                            {{ enrollment.studentid.studentid.fname }} {{ enrollment.studentid.studentid.lname }}
+                            <div class="text-xs text-gray-500">{{ enrollment.studentid.studentid.personid }}</div>
+                        </td>
+                        <td class="py-4 text-sm">
+                            {{ enrollment.allocationid.coursecode.coursename }}
+                            <div class="text-xs text-gray-500">{{ enrollment.allocationid.coursecode.coursecode }} ({{ enrollment.allocationid.coursecode.credithours }} credits)</div>
+                        </td>
+                        <td class="py-4 text-sm">
+                            {% if enrollment.allocationid.teacherid %}
+                                {{ enrollment.allocationid.teacherid.employeeid.fname }} {{ enrollment.allocationid.teacherid.employeeid.lname }}
+                                <div class="text-xs text-gray-500">{{ enrollment.allocationid.teacherid.designation }}</div>
+                            {% else %}
+                                <span class="text-gray-400">No teacher assigned</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 text-sm">
+                            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs">{{ enrollment.allocationid.session }}</span>
+                        </td>
+                        <td class="py-4 text-sm">{{ enrollment.enrollmentdate|date:"M d, Y" }}</td>
+                        <td class="py-4 text-sm">
+                            {% if enrollment.status == 'Active' %}
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Active</span>
+                            {% elif enrollment.status == 'Completed' %}
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Completed</span>
+                            {% elif enrollment.status == 'Dropped' %}
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Dropped</span>
+                            {% elif enrollment.status == 'Inactive' %}
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Inactive</span>
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ enrollment.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4">
+                            <div class="flex space-x-2">
+                                <button class="text-emerald-600 hover:text-emerald-800 text-sm font-medium" onclick="editEnrollment('{{ enrollment.enrollmentid }}')">Edit</button>
+                                <button class="text-red-600 hover:text-red-800 text-sm font-medium" onclick="deleteEnrollment('{{ enrollment.enrollmentid }}')">Delete</button>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="viewEnrollmentDetails('{{ enrollment.enrollmentid }}')">View</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="py-8 text-center text-gray-500">
+                            No enrollments found. <button class="text-emerald-600 hover:text-emerald-800" onclick="addRecord('enrollment')">Add the first enrollment</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div id="bulk-actions-bar" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg p-4 border border-gray-200">
+            <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-gray-700" id="selected-count">0 selected</span>
+                <button class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700" onclick="bulkChangeStatus()">Change Status</button>
+                <button class="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700" onclick="bulkDelete()">Delete Selected</button>
+                <button class="text-gray-600 hover:text-gray-800 text-sm" onclick="clearSelection()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if enrollments.has_other_pages %}
+        <div class="flex items-center justify-between pt-6">
+            <div class="text-sm text-gray-500">
+                Showing {{ enrollments.start_index }} to {{ enrollments.end_index }} of {{ enrollments.paginator.count }} results
+            </div>
+            <div class="flex space-x-1">
+                {% if enrollments.has_previous %}
+                    <button onclick="loadEnrollmentPage({{ enrollments.previous_page_number }})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Previous</button>
+                {% endif %}
+
+                {% for num in enrollments.paginator.page_range %}
+                    {% if enrollments.number == num %}
+                        <button class="px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg">{{ num }}</button>
+                    {% else %}
+                        <button onclick="loadEnrollmentPage({{ num }})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</button>
+                    {% endif %}
+                {% endfor %}
+
+                {% if enrollments.has_next %}
+                    <button onclick="loadEnrollmentPage({{ enrollments.next_page_number }})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Enrollment-specific JavaScript functions
+
+function editEnrollment(enrollmentId) {
+    // Load edit form for enrollment
+    fetch(`/admin/enrollment/${enrollmentId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadEditEnrollmentForm(data.enrollment);
+        } else {
+            showError('Failed to load enrollment data');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Network error');
+    });
+}
+
+function deleteEnrollment(enrollmentId) {
+    if (confirm('Are you sure you want to delete this enrollment? This action cannot be undone.')) {
+        fetch(`/admin/enrollment/${enrollmentId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess(data.message);
+                document.querySelector(`[data-enrollment-id="${enrollmentId}"]`).remove();
+            } else {
+                showError(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Network error');
+        });
+    }
+}
+
+function viewEnrollmentDetails(enrollmentId) {
+    // Load detailed view of enrollment
+    const detailsHtml = `
+        <div class="space-y-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Enrollment Information</h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><span class="font-medium">Enrollment ID:</span> ${enrollmentId}</div>
+                    <div><span class="font-medium">Status:</span> <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Loading...</span></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Student Information</h4>
+                <div class="text-sm">
+                    <div class="mb-2"><span class="font-medium">Student Name:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Student ID:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Program:</span> Loading...</div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Course Information</h4>
+                <div class="text-sm">
+                    <div class="mb-2"><span class="font-medium">Course:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Teacher:</span> Loading...</div>
+                    <div class="mb-2"><span class="font-medium">Session:</span> Loading...</div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">Academic Progress</h4>
+                <div class="text-sm text-gray-500">
+                    Loading attendance and assessment data...
+                </div>
+            </div>
+        </div>
+    `;
+
+    openModal('Enrollment Details', detailsHtml);
+
+    // Load actual enrollment details
+    fetch(`/admin/enrollment/${enrollmentId}/details/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('modal-content').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to load enrollment details');
+    });
+}
+
+function loadEditEnrollmentForm(enrollmentData) {
+    const editFormHtml = `
+        <form id="edit-enrollment-form" class="space-y-4">
+            <input type="hidden" name="enrollment_id" value="${enrollmentData.enrollmentid}">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+                    <option value="Active" ${enrollmentData.status === 'Active' ? 'selected' : ''}>Active</option>
+                    <option value="Inactive" ${enrollmentData.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                    <option value="Completed" ${enrollmentData.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                    <option value="Dropped" ${enrollmentData.status === 'Dropped' ? 'selected' : ''}>Dropped</option>
+                </select>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-sm mb-2">Current Enrollment Details</h4>
+                <div class="text-sm text-gray-600">
+                    <div>Student: ${enrollmentData.student_name}</div>
+                    <div>Course: ${enrollmentData.course_name}</div>
+                    <div>Enrollment Date: ${enrollmentData.enrollment_date}</div>
+                </div>
+            </div>
+            <div class="flex space-x-3 pt-4">
+                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg flex-1">Update Enrollment</button>
+                <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg">Cancel</button>
+            </div>
+        </form>
+    `;
+
+    openModal('Edit Enrollment', editFormHtml);
+
+    // Handle form submission
+    document.getElementById('edit-enrollment-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        const enrollmentId = data.enrollment_id;
+        delete data.enrollment_id;
+
+        try {
+            const response = await fetch(`/admin/enrollment/${enrollmentId}/update/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeModal();
+                loadSectionContent('enrollment');
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Network error. Please try again.');
+        }
+    });
+}
+
+// Search functionality
+document.getElementById('enrollment-search').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#enrollment-tbody tr');
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Status filter functionality
+document.getElementById('status-filter').addEventListener('change', function(e) {
+    const status = e.target.value;
+    filterEnrollments();
+});
+
+// Course filter functionality
+document.getElementById('course-filter').addEventListener('change', function(e) {
+    const allocationId = e.target.value;
+    filterEnrollments();
+});
+
+function filterEnrollments() {
+    const status = document.getElementById('status-filter').value;
+    const allocationId = document.getElementById('course-filter').value;
+
+    const url = new URL(window.location.href.split('#')[0] + 'admin/enrollment/');
+
+    if (status) {
+        url.searchParams.set('status', status);
+    }
+    if (allocationId) {
+        url.searchParams.set('allocation', allocationId);
+    }
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('enrollment-section').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to filter enrollments');
+    });
+}
+
+// Bulk selection functionality
+document.getElementById('select-all').addEventListener('change', function(e) {
+    const checkboxes = document.querySelectorAll('.enrollment-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+    });
+    updateBulkActionsBar();
+});
+
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('enrollment-checkbox')) {
+        updateBulkActionsBar();
+    }
+});
+
+function updateBulkActionsBar() {
+    const selected = document.querySelectorAll('.enrollment-checkbox:checked');
+    const bulkBar = document.getElementById('bulk-actions-bar');
+    const countSpan = document.getElementById('selected-count');
+
+    if (selected.length > 0) {
+        bulkBar.classList.remove('hidden');
+        countSpan.textContent = `${selected.length} selected`;
+    } else {
+        bulkBar.classList.add('hidden');
+    }
+}
+
+function clearSelection() {
+    const checkboxes = document.querySelectorAll('.enrollment-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('select-all').checked = false;
+    updateBulkActionsBar();
+}
+
+function bulkChangeStatus() {
+    const selected = Array.from(document.querySelectorAll('.enrollment-checkbox:checked')).map(cb => cb.value);
+
+    if (selected.length === 0) {
+        showError('Please select enrollments to update');
+        return;
+    }
+
+    const statusOptions = ['Active', 'Inactive', 'Completed', 'Dropped'];
+    const statusHtml = statusOptions.map(status =>
+        `<option value="${status}">${status}</option>`
+    ).join('');
+
+    const bulkStatusHtml = `
+        <form id="bulk-status-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">New Status</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+                    <option value="">Select Status</option>
+                    ${statusHtml}
+                </select>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded">
+                <p class="text-sm text-yellow-800">This will update ${selected.length} enrollment(s).</p>
+            </div>
+            <div class="flex space-x-3">
+                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg flex-1">Update Status</button>
+                <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg">Cancel</button>
+            </div>
+        </form>
+    `;
+
+    openModal('Bulk Update Status', bulkStatusHtml);
+
+    document.getElementById('bulk-status-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const newStatus = formData.get('status');
+
+        try {
+            const response = await fetch('/admin/enrollment/bulk-update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    enrollment_ids: selected,
+                    status: newStatus
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeModal();
+                clearSelection();
+                loadSectionContent('enrollment');
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Network error. Please try again.');
+        }
+    });
+}
+
+function bulkDelete() {
+    const selected = Array.from(document.querySelectorAll('.enrollment-checkbox:checked')).map(cb => cb.value);
+
+    if (selected.length === 0) {
+        showError('Please select enrollments to delete');
+        return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${selected.length} enrollment(s)? This action cannot be undone.`)) {
+        fetch('/admin/enrollment/bulk-delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                enrollment_ids: selected
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess(data.message);
+                clearSelection();
+                loadSectionContent('enrollment');
+            } else {
+                showError(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Network error');
+        });
+    }
+}
+
+// Quick action functions
+function showBulkEnrollmentModal() {
+    const bulkEnrollmentHtml = `
+        <form id="bulk-enrollment-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Course Allocation</label>
+                <select name="allocation_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+                    <option value="">Select Course</option>
+                    <!-- Will be populated dynamically -->
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Students</label>
+                <div class="border border-gray-300 rounded-lg p-3 max-h-60 overflow-y-auto">
+                    <div class="mb-2">
+                        <input type="checkbox" id="select-all-students" class="rounded border-gray-300">
+                        <label for="select-all-students" class="ml-2 text-sm font-medium">Select All</label>
+                    </div>
+                    <div id="students-list">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg flex-1">Enroll Students</button>
+                <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg">Cancel</button>
+            </div>
+        </form>
+    `;
+
+    openModal('Bulk Enrollment', bulkEnrollmentHtml);
+
+    // Load course allocations and students
+    Promise.all([
+        fetch('/admin/api/course-allocations/').then(r => r.json()),
+        fetch('/admin/api/students/').then(r => r.json())
+    ]).then(([allocations, students]) => {
+        // Populate allocations
+        const allocSelect = document.querySelector('select[name="allocation_id"]');
+        allocations.forEach(alloc => {
+            const option = document.createElement('option');
+            option.value = alloc.allocationid;
+            option.textContent = `${alloc.coursename} - ${alloc.session} (${alloc.teacher})`;
+            allocSelect.appendChild(option);
+        });
+
+        // Populate students
+        const studentsList = document.getElementById('students-list');
+        students.forEach(student => {
+            const div = document.createElement('div');
+            div.className = 'mb-1';
+            div.innerHTML = `
+                <input type="checkbox" name="student_ids" value="${student.studentid__personid}" class="student-checkbox rounded border-gray-300">
+                <label class="ml-2 text-sm">${student.studentid__fname} ${student.studentid__lname} (${student.studentid__personid})</label>
+            `;
+            studentsList.appendChild(div);
+        });
+
+        // Handle select all students
+        document.getElementById('select-all-students').addEventListener('change', function(e) {
+            const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+            studentCheckboxes.forEach(cb => cb.checked = e.target.checked);
+        });
+    });
+
+    // Handle form submission
+    document.getElementById('bulk-enrollment-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = {
+            allocation_id: formData.get('allocation_id'),
+            student_ids: formData.getAll('student_ids')
+        };
+
+        if (data.student_ids.length === 0) {
+            showError('Please select at least one student');
+            return;
+        }
+
+        try {
+            const response = await fetch('/admin/enrollment/bulk/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeModal();
+                loadSectionContent('enrollment');
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Network error. Please try again.');
+        }
+    });
+}
+
+function exportEnrollments() {
+    const status = document.getElementById('status-filter').value;
+    const allocationId = document.getElementById('course-filter').value;
+
+    const url = new URL(window.location.href.split('#')[0] + 'admin/enrollment/export/');
+    if (status) url.searchParams.set('status', status);
+    if (allocationId) url.searchParams.set('allocation', allocationId);
+
+    window.open(url.toString(), '_blank');
+}
+
+function showEnrollmentStats() {
+    fetch('/admin/enrollment/stats/', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(stats => {
+        const statsHtml = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600">${stats.total}</div>
+                        <div class="text-sm text-blue-800">Total Enrollments</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600">${stats.active}</div>
+                        <div class="text-sm text-green-800">Active Enrollments</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-purple-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-purple-600">${stats.completed}</div>
+                        <div class="text-sm text-purple-800">Completed</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600">${stats.dropped}</div>
+                        <div class="text-sm text-red-800">Dropped</div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">Top Courses by Enrollment</h4>
+                    <div class="space-y-2">
+                        ${stats.top_courses.map(course => `
+                            <div class="flex justify-between text-sm">
+                                <span>${course.name}</span>
+                                <span class="font-medium">${course.count}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        openModal('Enrollment Statistics', statsHtml);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to load statistics');
+    });
+}
+
+// Pagination function
+function loadEnrollmentPage(pageNumber) {
+    const url = new URL(window.location.href.split('#')[0] + 'admin/enrollment/');
+    url.searchParams.set('page', pageNumber);
+
+    const statusFilter = document.getElementById('status-filter')?.value;
+    const courseFilter = document.getElementById('course-filter')?.value;
+
+    if (statusFilter) {
+        url.searchParams.set('status', statusFilter);
+    }
+    if (courseFilter) {
+        url.searchParams.set('allocation', courseFilter);
+    }
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('enrollment-section').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to load page');
+    });
+}
+</script>

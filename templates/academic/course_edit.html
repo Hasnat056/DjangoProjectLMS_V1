@@ -1,0 +1,229 @@
+<!-- Course Edit Modal Content -->
+<div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
+    <div>
+        <h3 class="text-xl font-semibold text-gray-900">Edit Course: {{ course.coursecode }}</h3>
+        <p class="text-sm text-gray-500 mt-1">Update course information</p>
+    </div>
+    <div class="flex items-center space-x-2">
+        <button onclick="closeCourseEditModal()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<div class="overflow-y-auto max-h-[calc(90vh-120px)]">
+    <div class="p-6">
+        <form id="courseEditForm" method="POST">
+            {% csrf_token %}
+
+            <div class="space-y-6">
+                <!-- Course Code (Read-only) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Course Code
+                        <span class="text-gray-500 text-xs">(Cannot be changed)</span>
+                    </label>
+                    <div class="form-control bg-gray-50 border-gray-300 text-gray-600">
+                        {{ course.coursecode }}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Course code cannot be changed after creation</p>
+                    <!-- Hidden field to maintain course code -->
+                    {{ form.coursecode.as_hidden }}
+                </div>
+
+                <!-- Course Name (Editable) -->
+                <div>
+                    <label for="{{ form.coursename.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Course Name <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.coursename }}
+                    {% if form.coursename.help_text %}
+                        <p class="text-xs text-gray-500 mt-1">{{ form.coursename.help_text }}</p>
+                    {% endif %}
+                    <div id="coursename-error" class="text-xs text-red-500 mt-1 hidden"></div>
+                </div>
+
+                <!-- Credit Hours (Editable) -->
+                <div>
+                    <label for="{{ form.credithours.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Credit Hours <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.credithours }}
+                    {% if form.credithours.help_text %}
+                        <p class="text-xs text-gray-500 mt-1">{{ form.credithours.help_text }}</p>
+                    {% endif %}
+                    <div id="credithours-error" class="text-xs text-red-500 mt-1 hidden"></div>
+                </div>
+
+                <!-- Prerequisite Course (Editable) -->
+                <div>
+                    <label for="{{ form.prerequisite.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Prerequisite Course
+                    </label>
+                    {{ form.prerequisite }}
+                    {% if form.prerequisite.help_text %}
+                        <p class="text-xs text-gray-500 mt-1">{{ form.prerequisite.help_text }}</p>
+                    {% endif %}
+                    <div id="prerequisite-error" class="text-xs text-red-500 mt-1 hidden"></div>
+                </div>
+
+                <!-- Description (Editable) -->
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Course Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.help_text %}
+                        <p class="text-xs text-gray-500 mt-1">{{ form.description.help_text }}</p>
+                    {% endif %}
+                    <div id="description-error" class="text-xs text-red-500 mt-1 hidden"></div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                <button type="button" onclick="closeCourseEditModal()"
+                        class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="btn-primary text-white px-6 py-2 rounded-lg flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Update Course</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.btn-primary {
+    background: linear-gradient(135deg, #0f766e, #059669);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0d5f5a, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.form-control.bg-gray-50 {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+</style>
+
+<script>
+document.getElementById('courseEditForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+    const submitButton = form.querySelector('button[type="submit"]');
+    const span = submitButton.querySelector('span');
+
+    // Clear previous errors
+    document.querySelectorAll('[id$="-error"]').forEach(errorDiv => {
+        errorDiv.classList.add('hidden');
+        errorDiv.textContent = '';
+    });
+
+    // Show loading state
+    span.textContent = 'Updating...';
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            // Show success message
+            showNotification(result.message, 'success');
+
+            // Close modal and redirect
+            setTimeout(() => {
+                closeCourseEditModal();
+                // Reload the current section
+                if (window.location.href.includes('dashboard')) {
+                    window.location.href = result.redirect_url;
+                } else {
+                    window.location.reload();
+                }
+            }, 1000);
+        } else {
+            // Show field-specific errors
+            if (result.errors) {
+                Object.keys(result.errors).forEach(field => {
+                    const errorDiv = document.getElementById(field + '-error');
+                    if (errorDiv) {
+                        errorDiv.textContent = result.errors[field].join(', ');
+                        errorDiv.classList.remove('hidden');
+                    }
+                });
+            } else if (result.error) {
+                showNotification(result.error, 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Error updating course:', error);
+        showNotification('Error updating course. Please try again.', 'error');
+    } finally {
+        // Reset button state
+        span.textContent = 'Update Course';
+        submitButton.disabled = false;
+    }
+});
+
+// Notification function (simple fallback if not available globally)
+function showNotification(message, type) {
+    if (window.showNotification) {
+        window.showNotification(message, type);
+    } else {
+        alert(message);
+    }
+}
+
+// Add form field validation styles
+document.querySelectorAll('.form-control').forEach(field => {
+    field.addEventListener('focus', function() {
+        this.classList.remove('border-red-500');
+        this.classList.add('border-emerald-500');
+    });
+
+    field.addEventListener('blur', function() {
+        this.classList.remove('border-emerald-500');
+        if (this.value.trim() === '' && this.hasAttribute('required')) {
+            this.classList.add('border-red-500');
+        }
+    });
+});
+</script>

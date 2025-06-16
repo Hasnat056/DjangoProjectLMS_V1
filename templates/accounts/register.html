@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-md bg-white p-6 rounded-lg shadow">
+    <h2 class="text-2xl font-bold mb-4">Register</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-4">
+        <label class="block text-gray-700">Username</label>
+        {{ form.username|add_class:"w-full border px-3 py-2 rounded" }}
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Email</label>
+        {{ form.email|add_class:"w-full border px-3 py-2 rounded" }}
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Password</label>
+        {{ form.password1|add_class:"w-full border px-3 py-2 rounded" }}
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Confirm Password</label>
+        {{ form.password2|add_class:"w-full border px-3 py-2 rounded" }}
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Role</label>
+        {{ form.role|add_class:"w-full border px-3 py-2 rounded" }}
+      </div>
+      <button type="submit"
+              class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+        Register
+      </button>
+    </form>
+    <p class="mt-4 text-sm">Already have an account?
+      <a href="{% url 'login' %}" class="text-blue-500 underline">Login</a>.
+    </p>
+  </div>
+</body>
+</html>

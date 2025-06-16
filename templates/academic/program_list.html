@@ -1,0 +1,350 @@
+<!-- Program List Section -->
+<div class="space-y-6">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Programs</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ stats.total_programs }}</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-emerald-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Programs</p>
+                    <p class="text-3xl font-bold text-emerald-600">{{ stats.active_programs }}</p>
+                </div>
+                <div class="bg-emerald-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Students</p>
+                    <p class="text-3xl font-bold text-purple-600">{{ stats.total_students }}</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Departments</p>
+                    <p class="text-3xl font-bold text-orange-600">{{ stats.total_departments }}</p>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card-gradient p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Program List</h3>
+            <a href="/person/admin/academic/programs/create/"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Add Program</span>
+            </a>
+        </div>
+        <form id="program-filter-form" method="GET">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Search -->
+                <div>
+                    <label for="program-search" class="block text-sm font-medium text-gray-700 mb-2">Search Programs</label>
+                    <input type="text"
+                           id="program-search"
+                           name="search"
+                           value="{{ search }}"
+                           placeholder="Search by program name, ID, or department..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <!-- Department Filter -->
+                <div>
+                    <label for="program-department" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                    <select id="program-department" name="department" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">All Departments</option>
+                        {% for department in departments %}
+                            <option value="{{ department.departmentid }}" {% if department_filter == department.departmentid|stringformat:"s" %}selected{% endif %}>
+                                {{ department.departmentname }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fee Range Filter -->
+                <div>
+                    <label for="program-fee-range" class="block text-sm font-medium text-gray-700 mb-2">Fee Range</label>
+                    <select id="program-fee-range" name="fee_range" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">All Fee Ranges</option>
+                        <option value="low" {% if fee_range_filter == 'low' %}selected{% endif %}>Low (< 50K)</option>
+                        <option value="medium" {% if fee_range_filter == 'medium' %}selected{% endif %}>Medium (50K - 100K)</option>
+                        <option value="high" {% if fee_range_filter == 'high' %}selected{% endif %}>High (> 100K)</option>
+                    </select>
+                </div>
+
+                <!-- Semesters Filter -->
+                <div>
+                    <label for="program-semesters" class="block text-sm font-medium text-gray-700 mb-2">Total Semesters</label>
+                    <select id="program-semesters" name="semesters" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">All Semesters</option>
+                        {% for semesters in unique_semesters %}
+                            <option value="{{ semesters }}" {% if semesters_filter == semesters|stringformat:"s" %}selected{% endif %}>
+                                {{ semesters }} Semester{{ semesters|pluralize }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-end space-x-2">
+                    <button type="submit"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-9 py-2 rounded-md transition-colors flex items-center space-x-2 ml-4 min-w-32">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Search</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Program List Table -->
+    <div class="card-gradient rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Program ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Program Name
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Department
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Total Semesters
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Fee/Semester
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Total Students
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for program_info in programs %}
+                    <tr class="program-row hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="/person/admin/academic/programs/{{ program_info.program_id }}/"
+                               class="text-emerald-600 hover:text-emerald-900 font-medium">
+                                {{ program_info.program_id }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ program_info.program_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ program_info.department_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ program_info.total_semesters }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {% if program_info.fee_per_semester %}
+                                    PKR {{ program_info.fee_per_semester|floatformat:0|add:","|cut:" " }}
+                                {% else %}
+                                    <span class="text-gray-400">Not set</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-900">{{ program_info.total_students }}</span>
+                                <div class="text-xs text-gray-500">
+                                    <span class="text-green-600">{{ program_info.active_students }} active</span>
+                                    {% if program_info.graduated_students > 0 %}
+                                        • <span class="text-blue-600">{{ program_info.graduated_students }} graduated</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                <!-- Edit Button -->
+                                <a href="/person/admin/academic/programs/{{ program_info.program_id }}/edit/"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                    </svg>
+                                    Edit
+                                </a>
+                                <!-- Delete Button -->
+                                <button onclick="confirmDelete('{{ program_info.program_id }}', '{{ program_info.program_name }}')"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            No programs found. <a href="/person/admin/academic/programs/create/" class="text-emerald-600 hover:text-emerald-900">Create the first program</a>.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    <!-- Pagination -->
+        {% if programs.has_other_pages %}
+            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if programs.has_previous %}
+                            <button class="program-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                data-page="{{ programs.previous_page_number }}"
+                                data-search="{{ search }}"
+                                data-department="{{ department_filter }}"
+                                data-fee-range="{{ fee_range_filter }}"
+                                data-semesters="{{ semesters_filter }}">
+                            Previous
+                        </button>
+                        {% endif %}
+                        {% if programs.has_next %}
+                            <button class="program-pagination-btn ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                data-page="{{ programs.next_page_number }}"
+                                data-search="{{ search }}"
+                                data-department="{{ department_filter }}"
+                                data-fee-range="{{ fee_range_filter }}"
+                                data-semesters="{{ semesters_filter }}">
+                                Next
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium">{{ programs.start_index }}</span>
+                                to
+                                <span class="font-medium">{{ programs.end_index }}</span>
+                                of
+                                <span class="font-medium">{{ programs.paginator.count }}</span>
+                                results
+                            </p>
+                        </div>
+                    <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if programs.has_previous %}
+                            <button class="program-pagination-btn relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                data-page="{{ programs.previous_page_number }}"
+                                data-search="{{ search }}"
+                                data-department="{{ department_filter }}"
+                                data-fee-range="{{ fee_range_filter }}"
+                                data-semesters="{{ semesters_filter }}">
+                                <span class="sr-only">Previous</span>
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        {% endif %}
+
+                        {% for num in programs.paginator.page_range %}
+                            {% if programs.number == num %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-emerald-50 text-sm font-medium text-emerald-600">
+                                    {{ num }}
+                                </span>
+                            {% else %}
+                                <button class="program-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                    data-page="{{ num }}"
+                                    data-search="{{ search }}"
+                                    data-department="{{ department_filter }}"
+                                    data-fee-range="{{ fee_range_filter }}"
+                                    data-semesters="{{ semesters_filter }}">
+                                    {{ num }}
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+
+                    {% if programs.has_next %}
+                        <button class="program-pagination-btn relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                data-page="{{ programs.next_page_number }}"
+                                data-search="{{ search }}"
+                                data-department="{{ department_filter }}"
+                                data-fee-range="{{ fee_range_filter }}"
+                                data-semesters="{{ semesters_filter }}">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+    </div>
+</div>
+<script>
+    function confirmDelete(programId, programName) {
+    if (confirm(`Are you sure you want to delete the program "${programName}" (${programId})?\n\nThis action cannot be undone and will affect all associated students and classes.`)) {
+        // Create a form for DELETE request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/person/admin/academic/programs/${programId}/delete/`;
+
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Add to body and submit
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+    </script>

@@ -1,0 +1,401 @@
+<!-- Course List Section -->
+<div class="space-y-6">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Courses</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ stats.total_courses }}</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-emerald-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Courses</p>
+                    <p class="text-3xl font-bold text-emerald-600">{{ stats.active_courses }}</p>
+                </div>
+                <div class="bg-emerald-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Programs</p>
+                    <p class="text-3xl font-bold text-purple-600">{{ stats.total_programs }}</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-gradient p-6 rounded-xl border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Enrollments</p>
+                    <p class="text-3xl font-bold text-orange-600">{{ stats.total_enrollments }}</p>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card-gradient p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Course List</h3>
+            <a href="/person/admin/academic/courses/create/"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Add Course</span>
+            </a>
+        </div>
+        <form id="course-filter-form" method="GET">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Search -->
+                <div>
+                    <label for="course-search" class="block text-sm font-medium text-gray-700 mb-2">Search Courses</label>
+                    <input type="text"
+                           id="course-search"
+                           name="search"
+                           value="{{ search }}"
+                           placeholder="Search by course name, code, or description..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <!-- Department Filter -->
+                <div>
+                    <label for="course-department" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                    <select id="course-department" name="department" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">All Departments</option>
+                        {% for department in departments %}
+                            <option value="{{ department.departmentid }}" {% if department_filter == department.departmentid|stringformat:"s" %}selected{% endif %}>
+                                {{ department.departmentname }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Course Code Prefix Filter -->
+                <div>
+                    <label for="course-code-prefix" class="block text-sm font-medium text-gray-700 mb-2">Course Prefix</label>
+                    <select id="course-code-prefix" name="code_prefix" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">All Prefixes</option>
+                        {% for prefix in code_prefixes %}
+                            <option value="{{ prefix }}" {% if code_prefix_filter == prefix %}selected{% endif %}>
+                                {{ prefix }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Credit Hours Filter -->
+                <div>
+                    <label for="course-credits" class="block text-sm font-medium text-gray-700 mb-2">Credit Hours</label>
+                    <select id="course-credits" name="credits" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">All Credits</option>
+                        {% for credits in unique_credits %}
+                            <option value="{{ credits }}" {% if credits_filter == credits|stringformat:"s" %}selected{% endif %}>
+                                {{ credits }} Credit{{ credits|pluralize }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-end space-x-2">
+                    <button type="submit"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-md transition-colors flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Search</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Course List Table -->
+    <div class="card-gradient rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Course Code
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Course Name
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Credit Hours
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Prerequisite
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for course_info in courses %}
+                    <tr class="course-row hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="/person/admin/academic/courses/{{ course_info.course_code }}/"
+                               class="text-emerald-600 hover:text-emerald-900 font-medium">
+                                {{ course_info.course_code }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">{{ course_info.course_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ course_info.credit_hours }} Credit{{ course_info.credit_hours|pluralize }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if course_info.prerequisite %}
+                                <a href="/person/admin/academic/courses/{{ course_info.prerequisite }}/"
+                                   class="text-sm text-purple-600 hover:text-purple-900">
+                                    {{ course_info.prerequisite }}
+                                </a>
+                                <div class="text-xs text-gray-500">{{ course_info.prerequisite_name }}</div>
+                            {% else %}
+                                <span class="text-sm text-gray-400">None</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            <div class="flex items-center justify-end space-x-3">
+                                <!-- Delete Link -->
+                                <a href="/person/admin/academic/courses/{{ course_info.course_code }}/delete/"
+                                   class="text-red-600 hover:text-red-900">
+                                    Delete
+                                </a>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            No courses found. <a href="/person/admin/academic/courses/create/" class="text-emerald-600 hover:text-emerald-900">Create the first course</a>.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if courses.has_other_pages %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if courses.has_previous %}
+                        <button class="course-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                data-page="{{ courses.previous_page_number }}"
+                                data-search="{{ search }}"
+                                data-department="{{ department_filter }}"
+                                data-credits="{{ credits_filter }}"
+                                data-code-prefix="{{ code_prefix_filter }}">
+                            Previous
+                        </button>
+                    {% endif %}
+                    {% if courses.has_next %}
+                        <button class="course-pagination-btn ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                data-page="{{ courses.next_page_number }}"
+                                data-search="{{ search }}"
+                                data-department="{{ department_filter }}"
+                                data-credits="{{ credits_filter }}"
+                                data-code-prefix="{{ code_prefix_filter }}">
+                            Next
+                        </button>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing
+                            <span class="font-medium">{{ courses.start_index }}</span>
+                            to
+                            <span class="font-medium">{{ courses.end_index }}</span>
+                            of
+                            <span class="font-medium">{{ courses.paginator.count }}</span>
+                            results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            {% if courses.has_previous %}
+                                <button class="course-pagination-btn relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                        data-page="{{ courses.previous_page_number }}"
+                                        data-search="{{ search }}"
+                                        data-department="{{ department_filter }}"
+                                        data-credits="{{ credits_filter }}"
+                                        data-code-prefix="{{ code_prefix_filter }}">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </button>
+                            {% endif %}
+
+                            {% for num in courses.paginator.page_range %}
+                                {% if courses.number == num %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-emerald-50 text-sm font-medium text-emerald-600">
+                                        {{ num }}
+                                    </span>
+                                {% else %}
+                                    <button class="course-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                            data-page="{{ num }}"
+                                            data-search="{{ search }}"
+                                            data-department="{{ department_filter }}"
+                                            data-credits="{{ credits_filter }}"
+                                            data-code-prefix="{{ code_prefix_filter }}">
+                                        {{ num }}
+                                    </button>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if courses.has_next %}
+                                <button class="course-pagination-btn relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                        data-page="{{ courses.next_page_number }}"
+                                        data-search="{{ search }}"
+                                        data-department="{{ department_filter }}"
+                                        data-credits="{{ credits_filter }}"
+                                        data-code-prefix="{{ code_prefix_filter }}">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </button>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Course Edit Modal -->
+<div id="course-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+        <!-- Modal content will be loaded here -->
+    </div>
+</div>
+
+<script>
+// Course edit modal - FIXED VERSION
+async function openCourseEditModal(courseCode) {
+    const modal = document.getElementById('course-edit-modal');
+    if (!modal) {
+        console.error('Course edit modal not found');
+        return;
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    try {
+        showLoading(); // Show loading if available
+        const response = await fetch(`/person/admin/academic/courses/${courseCode}/edit-modal/`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const html = await response.text();
+        modal.querySelector('div').innerHTML = html;
+    } catch (error) {
+        console.error('Error loading edit form:', error);
+        modal.querySelector('div').innerHTML = `
+            <div class="p-6 text-center">
+                <p class="text-red-500 mb-4">Error loading edit form: ${error.message}</p>
+                <button onclick="closeCourseEditModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Close</button>
+            </div>
+        `;
+    } finally {
+        if (window.hideLoading) hideLoading(); // Hide loading if available
+    }
+}
+
+// Close course edit modal
+function closeCourseEditModal() {
+    const modal = document.getElementById('course-edit-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        // Check if we're in dashboard context and reload the section
+        if (window.location.href.includes('dashboard') || window.location.href.includes('section=courses')) {
+            // Reload the courses section in dashboard
+            const targetSection = document.getElementById('courses-section');
+            if (targetSection && window.loadCourseSection) {
+                // Preserve current URL parameters
+                const currentParams = new URLSearchParams(window.location.search);
+                const courseParams = new URLSearchParams();
+
+                // Copy course-related parameters
+                ['search', 'department', 'credits', 'code_prefix', 'page'].forEach(param => {
+                    if (currentParams.has(param)) {
+                        courseParams.append(param, currentParams.get(param));
+                    }
+                });
+
+                const url = '/person/admin/academic/courses/' + (courseParams.toString() ? '?' + courseParams.toString() : '');
+                window.loadCourseSection(targetSection, url);
+            } else {
+                // Fallback: reload the page
+                window.location.reload();
+            }
+        } else {
+            // Regular page reload for standalone pages
+            window.location.reload();
+        }
+    }
+}
+
+// Handle modal background click
+const courseEditModal = document.getElementById('course-edit-modal');
+if (courseEditModal) {
+    courseEditModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCourseEditModal();
+        }
+    });
+}
+
+// Global error handler for course actions
+window.handleCourseActionError = function(error, action) {
+    console.error(`Error during ${action}:`, error);
+    if (window.showNotification) {
+        window.showNotification(`Error during ${action}. Please try again.`, 'error');
+    } else {
+        alert(`Error during ${action}. Please try again.`);
+    }
+};
+</script>

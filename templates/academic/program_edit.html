@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Program - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d5f5a, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .form-control[readonly] {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+            color: #6b7280;
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Programs (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="font-medium">Programs</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Program Management</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">Edit Program</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Edit Program: {{ program.programid }}</h2>
+                        <p class="text-gray-600">Update program information</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/person/admin/academic/programs/{{ program.programid }}/"
+                           class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>View Details</span>
+                        </a>
+                        <a href="/person/admin/dashboard/?section=programs"
+                           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Programs</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Display Messages -->
+                    {% if messages %}
+                        <div class="mb-6">
+                            {% for message in messages %}
+                                <div class="p-4 rounded-lg mb-4 {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Form -->
+                    <div class="card-gradient rounded-xl p-8">
+                        <form method="POST" id="programEditForm">
+                            {% csrf_token %}
+
+                            <div class="space-y-8">
+                                <!-- Program Information Section -->
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                        <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                        </svg>
+                                        Edit Program Information
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Program ID (Read-only) -->
+                                        <div>
+                                            <label for="{{ form.programid.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Program ID
+                                                <span class="text-gray-500 text-xs">(Cannot be changed)</span>
+                                            </label>
+                                            {{ form.programid }}
+                                            <p class="text-xs text-gray-500 mt-1">{{ form.programid.help_text }}</p>
+                                            {% if form.programid.errors %}
+                                                {% for error in form.programid.errors %}
+                                                    <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Department (Read-only display) -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Department
+                                                <span class="text-gray-500 text-xs">(Cannot be changed)</span>
+                                            </label>
+                                            <div class="form-control bg-gray-50 border-gray-300 text-gray-600">
+                                                {{ program.departmentid.departmentname }}
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1">Department cannot be changed after program creation</p>
+                                            <!-- Hidden field to maintain department -->
+                                            {{ form.departmentid.as_hidden }}
+                                        </div>
+
+                                        <!-- Program Name (Editable) -->
+                                        <div class="md:col-span-2">
+                                            <label for="{{ form.programname.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Program Name <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.programname }}
+                                            {% if form.programname.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.programname.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.programname.errors %}
+                                                {% for error in form.programname.errors %}
+                                                    <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Total Semesters (Editable) -->
+                                        <div>
+                                            <label for="{{ form.totalsemesters.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Total Semesters <span class="text-red-500">*</span>
+                                            </label>
+                                            {{ form.totalsemesters }}
+                                            {% if form.totalsemesters.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.totalsemesters.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.totalsemesters.errors %}
+                                                {% for error in form.totalsemesters.errors %}
+                                                    <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Fee (Editable) -->
+                                        <div>
+                                            <label for="{{ form.fee.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Fee per Semester
+                                            </label>
+                                            {{ form.fee }}
+                                            {% if form.fee.help_text %}
+                                                <p class="text-xs text-gray-500 mt-1">{{ form.fee.help_text }}</p>
+                                            {% endif %}
+                                            {% if form.fee.errors %}
+                                                {% for error in form.fee.errors %}
+                                                    <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                                <a href="/person/admin/academic/programs/{{ program.programid }}/"
+                                   class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                                    Cancel
+                                </a>
+                                <button type="submit"
+                                        class="btn-primary text-white px-6 py-2 rounded-lg flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Update Program</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminProfile();
+            setupFormValidation();
+        });
+
+        function setupFormValidation() {
+            const form = document.getElementById('programEditForm');
+
+            form.addEventListener('submit', function(e) {
+                const requiredFields = [
+                    '{{ form.programname.id_for_label }}',
+                    '{{ form.totalsemesters.id_for_label }}'
+                ];
+
+                let hasErrors = false;
+
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field && !field.value.trim()) {
+                        hasErrors = true;
+                        field.classList.add('border-red-500');
+                        field.classList.remove('border-gray-300');
+                    } else if (field) {
+                        field.classList.remove('border-red-500');
+                        field.classList.add('border-gray-300');
+                    }
+                });
+
+                if (hasErrors) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields marked with *');
+                    return false;
+                }
+
+                // Show loading state on submit button
+                const submitButton = document.querySelector('button[type="submit"]');
+                const span = submitButton.querySelector('span');
+                if (span) {
+                    span.textContent = 'Updating...';
+                }
+                submitButton.disabled = true;
+
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+            });
+        }
+
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/person/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        }
+    </script>
+</body>
+</html>

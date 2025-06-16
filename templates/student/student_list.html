@@ -1,0 +1,500 @@
+<!-- Student List Template - Fixed for Dashboard Integration -->
+<div class="p-6">
+    <!-- Header with Statistics -->
+    <div class="mb-6">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Students</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ total_students_count|default:0 }}</p>
+                        <p class="text-xs text-green-600 mt-1">↗ Active members</p>
+                    </div>
+                    <div class="bg-emerald-100 p-3 rounded-full">
+                        <svg class="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Enrolled Students</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ enrolled_students_count|default:0 }}</p>
+                        <p class="text-xs text-blue-600 mt-1">Currently enrolled</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Programs</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ programs.count|default:0 }}</p>
+                        <p class="text-xs text-purple-600 mt-1">Active programs</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Graduated</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ graduated_student_count|default:0 }}</p>
+                        <p class="text-xs text-orange-600 mt-1">Completed studies</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Students List</h3>
+            <button onclick="window.location.href='/person/admin/students/create/'"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Add Student</span>
+            </button>
+        </div>
+
+        <!-- Filters - MODIFIED TO WORK WITH DASHBOARD -->
+        <form id="student-filter-form" method="GET" action="" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <!-- Search -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search Students</label>
+                <div class="relative">
+                    <input type="text" name="search" id="student-search" value="{{ request.GET.search }}"
+                           placeholder="Search by name, email, ID..."
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Program Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Program</label>
+                <select name="program" id="student-program" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="">All Programs</option>
+                    {% for program in programs %}
+                        <option value="{{ program.programid }}" {% if request.GET.program == program.programid %}selected{% endif %}>
+                            {{ program.programname }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Class Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Class</label>
+                <select name="class" id="student-class" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                        <option value="{{ class.classid }}" {% if request.GET.class == class.classid|stringformat:"s" %}selected{% endif %}>
+                            {{ class.programid.programname }} - {{ class.batchyear }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" id="student-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="">All Status</option>
+                    <option value="Enrolled" {% if request.GET.status == "Enrolled" %}selected{% endif %}>Enrolled</option>
+                    <option value="Graduated" {% if request.GET.status == "Graduated" %}selected{% endif %}>Graduated</option>
+                    <option value="Suspended" {% if request.GET.status == "Suspended" %}selected{% endif %}>Suspended</option>
+                </select>
+            </div>
+
+            <!-- Filter Button -->
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    Apply Filters
+                </button>
+            </div>
+        </form>
+
+        <!-- Clear Filters -->
+        {% if request.GET.search or request.GET.program or request.GET.class or request.GET.status %}
+        <div class="mt-3">
+            <button id="clear-student-filters-btn" class="text-sm text-gray-600 hover:text-gray-800">
+                Clear all filters
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Students Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Student ID
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Full Name
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Program
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Class
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for student in students %}
+                    <tr class="student-row hover:bg-gray-50 cursor-pointer transition-colors"
+                        data-student-id="{{ student.studentid.personid }}"
+                        onclick="window.location.href='/person/admin/students/{{ student.studentid.personid }}/'">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                {{ student.studentid.personid }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-sm font-bold">
+                                        {{ student.studentid.fname.0 }}{{ student.studentid.lname.0 }}
+                                    </span>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ student.studentid.fname }} {{ student.studentid.lname }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {% if student.programid %}
+                                    {{ student.programid.programname }}
+                                {% else %}
+                                    <span class="text-gray-400">Not assigned</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {% if student.classid %}
+                                    {{ student.classid.programid.programid }} - {{ student.classid.batchyear }}
+                                {% else %}
+                                    <span class="text-gray-400">Not assigned</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if student.status == 'Enrolled' %}bg-green-100 text-green-800
+                                {% elif student.status == 'Graduated' %}bg-blue-100 text-blue-800
+                                {% elif student.status == 'Suspended' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ student.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ student.studentid.institutionalemail }}</div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center">
+                            <div class="text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <p class="text-lg font-medium mb-2">No students found</p>
+                                <p class="text-sm">Try adjusting your search criteria or add a new student</p>
+                                <button onclick="window.location.href='/person/admin/students/create/'"
+                                        class="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                    Add First Student
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if students.has_other_pages %}
+        <div class="bg-white px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Showing
+                    <span class="font-medium">{{ students.start_index }}</span>
+                    to
+                    <span class="font-medium">{{ students.end_index }}</span>
+                    of
+                    <span class="font-medium">{{ students.paginator.count }}</span>
+                    results
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if students.has_previous %}
+                        <button class="student-pagination-btn relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                data-page="{{ students.previous_page_number }}"
+                                data-search="{{ request.GET.search }}"
+                                data-program="{{ request.GET.program }}"
+                                data-class="{{ request.GET.class }}"
+                                data-status="{{ request.GET.status }}">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    {% endif %}
+
+                    {% for num in students.paginator.page_range %}
+                        {% if students.number == num %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-emerald-600 text-sm font-medium text-white">
+                                {{ num }}
+                            </span>
+                        {% else %}
+                            <button class="student-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                    data-page="{{ num }}"
+                                    data-search="{{ request.GET.search }}"
+                                    data-program="{{ request.GET.program }}"
+                                    data-class="{{ request.GET.class }}"
+                                    data-status="{{ request.GET.status }}">
+                                {{ num }}
+                            </button>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if students.has_next %}
+                        <button class="student-pagination-btn relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                data-page="{{ students.next_page_number }}"
+                                data-search="{{ request.GET.search }}"
+                                data-program="{{ request.GET.program }}"
+                                data-class="{{ request.GET.class }}"
+                                data-status="{{ request.GET.status }}">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Student page functionality that works with dashboard
+function initializeStudentPage() {
+    console.log('Student page initialized for dashboard integration');
+
+    const form = document.getElementById('student-filter-form');
+    const clearBtn = document.getElementById('clear-student-filters-btn');
+
+    if (!form) {
+        console.warn('Student filter form not found');
+        return;
+    }
+
+    // Override form submission to load content into dashboard
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Get form data
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+
+        // Remove empty values
+        for (let [key, value] of params.entries()) {
+            if (!value.trim()) {
+                params.delete(key);
+            }
+        }
+
+        // Build URL with filters
+        const url = '/person/admin/students/?' + params.toString();
+
+        // Load student section with filters applied
+        loadStudentWithFilters(url);
+    });
+
+    // Handle pagination clicks
+    document.querySelectorAll('.student-pagination-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Get pagination data
+            const page = this.getAttribute('data-page');
+            const search = this.getAttribute('data-search') || '';
+            const program = this.getAttribute('data-program') || '';
+            const classFilter = this.getAttribute('data-class') || '';
+            const status = this.getAttribute('data-status') || '';
+
+            // Build URL with pagination and current filters
+            const params = new URLSearchParams();
+            if (page) params.append('page', page);
+            if (search) params.append('search', search);
+            if (program) params.append('program', program);
+            if (classFilter) params.append('class', classFilter);
+            if (status) params.append('status', status);
+
+            const url = '/person/admin/students/?' + params.toString();
+
+            // Load student section with pagination
+            loadStudentWithFilters(url);
+        });
+    });
+
+    // Handle clear filters
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Load student section without any filters
+            loadStudentWithFilters('/person/admin/students/');
+        });
+    }
+
+    // Add real-time search
+    const searchInput = document.getElementById('student-search');
+    if (searchInput) {
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(() => {
+                const event = new Event('submit', { bubbles: true, cancelable: true });
+                form.dispatchEvent(event);
+            }, 1000);
+        });
+    }
+
+    // Add immediate filter change handling for dropdowns
+    const programSelect = document.getElementById('student-program');
+    const classSelect = document.getElementById('student-class');
+    const statusSelect = document.getElementById('student-status');
+
+    if (programSelect) {
+        programSelect.addEventListener('change', function() {
+            const event = new Event('submit', { bubbles: true, cancelable: true });
+            form.dispatchEvent(event);
+        });
+    }
+
+    if (classSelect) {
+        classSelect.addEventListener('change', function() {
+            const event = new Event('submit', { bubbles: true, cancelable: true });
+            form.dispatchEvent(event);
+        });
+    }
+
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            const event = new Event('submit', { bubbles: true, cancelable: true });
+            form.dispatchEvent(event);
+        });
+    }
+
+    // Add hover effects for rows
+    const rows = document.querySelectorAll('.student-row');
+    rows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.classList.add('shadow-sm');
+        });
+
+        row.addEventListener('mouseleave', function() {
+            this.classList.remove('shadow-sm');
+        });
+    });
+
+    console.log('Student page initialization complete');
+}
+
+// Function to load student section with filters (works with existing dashboard)
+function loadStudentWithFilters(url) {
+    const targetSection = document.getElementById('students-section');
+    if (!targetSection) return;
+
+    // Show loading state
+    if (window.showLoading) {
+        window.showLoading();
+    }
+
+    // Make request
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Update the student section content
+            targetSection.innerHTML = html;
+
+            // Reinitialize the student page functionality
+            initializeStudentPage();
+
+            // Show success notification
+            if (window.showNotification) {
+                window.showNotification('Student filters applied successfully', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading students with filters:', error);
+
+            // Show error notification
+            if (window.showNotification) {
+                window.showNotification('Error applying filters: ' + error.message, 'error');
+            }
+        })
+        .finally(() => {
+            // Hide loading state
+            if (window.hideLoading) {
+                window.hideLoading();
+            }
+        });
+}
+
+// Initialize when content loads
+document.addEventListener('DOMContentLoaded', initializeStudentPage);
+
+// Also initialize if loaded dynamically (for dashboard)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStudentPage);
+} else {
+    initializeStudentPage();
+}
+</script>
