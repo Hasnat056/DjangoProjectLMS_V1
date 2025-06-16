@@ -84,25 +84,29 @@ WSGI_APPLICATION = 'DjangoProjectLMS_V1.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# MySQL Database configuration
+
+import os
+
 # MySQL Database configuration
 if 'DATABASE_URL' in os.environ:
-    # Production (Railway) - MySQL
-    import dj_database_url
+    # Production (Railway) - Parse DATABASE_URL manually
+    import urllib.parse as urlparse
+
+    url = urlparse.urlparse(os.environ['DATABASE_URL'])
+
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ['DATABASE_URL'],
-            conn_max_age=600,
-            conn_health_checks=True,
-            options={
-                'OPTIONS': {
-                    'sql_mode': 'traditional',
-                }
-            }
-        )
+        'default': {
+            'ENGINE': 'mysql.connector.django',
+            'NAME': url.path[1:],  # Remove leading slash
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 3306,
+            'OPTIONS': {
+                'autocommit': True,
+            },
+        }
     }
-    # Use mysql.connector backend
-    DATABASES['default']['ENGINE'] = 'mysql.connector.django'
 else:
     # Local development
     DATABASES = {
@@ -115,8 +119,6 @@ else:
             'PORT': '3306',
         }
     }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
