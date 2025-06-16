@@ -475,7 +475,6 @@ class EnrollmentForm(forms.ModelForm):
             ('Active', 'Active'),
             ('Completed', 'Completed'),
             ('Dropped', 'Dropped'),
-            ('Withdrawn', 'Withdrawn')
         ]
 
         # Load student choices with names

@@ -85,6 +85,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'DjangoProjectLMS_V1.urls'
+# In your settings.py
+LOGIN_REDIRECT_URL = '/person/admin/dashboard/'
 
 TEMPLATES = [
     {
