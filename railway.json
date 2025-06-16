@@ -3,6 +3,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn DjangoProjectLMS_V1.wsgi"
+    "startCommand": "python manage.py migrate && python create_superuser.py && python manage.py collectstatic --noinput && gunicorn DjangoProjectLMS_V1.wsgi"
   }
 }
