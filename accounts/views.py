@@ -149,7 +149,7 @@ def login_view(request):
                 user_groups = user.groups.values_list('name', flat=True)
                 redirect_url = "/"
 
-                for role in ["Admin", "Faculty", "Student"]:
+                for role in ["admin", "faculty", "student"]:
                     if role in user_groups:
                         redirect_url = ROLE_REDIRECT_MAP.get(role, "/")
                         break
