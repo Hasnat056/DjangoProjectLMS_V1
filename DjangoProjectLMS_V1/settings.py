@@ -53,6 +53,8 @@ if not DEBUG and os.environ.get('RAILWAY_ENVIRONMENT'):
     # Session timeout settings
     SESSION_COOKIE_AGE = 86400  # 24 hours
     SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+    # Force session to be saved on every request
+    SESSION_SAVE_EVERY_REQUEST = True
 
 # Application definition
 INSTALLED_APPS = [
