@@ -23,9 +23,9 @@ ROLE_MODEL_MAP = {
 
 # Role-based redirect URLs
 ROLE_REDIRECT_MAP = {
-    "Admin": "/person/admin/dashboard/",
-    "Faculty": "/faculty/dashboard/",
-    "Student": "/person/student/dashboard/",
+    "admin": "person/admin/dashboard/",
+    "faculty": "faculty/dashboard/",
+    "student": "person/student/dashboard/",
 }
 
 
@@ -152,6 +152,7 @@ def login_view(request):
                 for role in ["admin", "faculty", "student"]:
                     if role in user_groups:
                         redirect_url = ROLE_REDIRECT_MAP.get(role, "/")
+                        print(redirect_url)
                         break
 
                 return JsonResponse({
