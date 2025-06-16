@@ -81,47 +81,25 @@ WSGI_APPLICATION = 'DjangoProjectLMS_V1.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# MySQL Database configuration
-if 'DATABASE_URL' in os.environ:
-    # Production (Railway) - Parse DATABASE_URL manually
-    import urllib.parse as urlparse
-
-    url = urlparse.urlparse(os.environ['DATABASE_URL'])
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'mysql.connector.django',
-            'NAME': url.path[1:],  # Remove leading slash
-            'USER': url.username,
-            'PASSWORD': url.password,
-            'HOST': url.hostname,
-            'PORT': url.port or 3306,
-            'OPTIONS': {
-                'autocommit': True,
-            },
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'mysql.connector.django',
+        'NAME': 'railway',
+        'USER': 'root',
+        'PASSWORD': 'OfIdpzYBYZLTWhASnwvGOPqpKrsNGWVU',
+        'HOST': 'crossover.proxy.rlwy.net',
+        'PORT': 58556,
+        'OPTIONS': {
+            'autocommit': True,
+        },
     }
-else:
-    # Local development
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'LMS',
-            'USER': 'root',
-            'PASSWORD': '@databaselab123',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
-# Add this right after the database configuration block
-print("=== DEBUG DATABASE CONFIG ===")
-print(f"DATABASE_URL exists: {'DATABASE_URL' in os.environ}")
-if 'DATABASE_URL' in os.environ:
-    print(f"DATABASE_URL value: {os.environ.get('DATABASE_URL', 'NOT_FOUND')}")
-print(f"Database ENGINE: {DATABASES['default']['ENGINE']}")
-print(f"Database NAME: {DATABASES['default']['NAME']}")
-print(f"Database HOST: {DATABASES['default']['HOST']}")
-print("=== END DEBUG ===")
+}
+
+# Debug output
+print(f"HARDCODED DATABASE ENGINE: {DATABASES['default']['ENGINE']}")
+print(f"HARDCODED DATABASE HOST: {DATABASES['default']['HOST']}")
+print(f"HARDCODED DATABASE PORT: {DATABASES['default']['PORT']}")
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
