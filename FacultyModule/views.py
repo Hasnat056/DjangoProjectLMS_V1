@@ -22,7 +22,7 @@ from .forms import FacultyForm, CourseAllocationForm, LectureForm, AssessmentFor
 
 def is_admin(user):
     """Check if user is admin - shared utility"""
-    return user.groups.filter(name='Admin').exists()
+    return user.groups.filter(name='admin').exists()
 
 
 def is_faculty(user):

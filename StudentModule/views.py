@@ -24,7 +24,7 @@ from .forms import StudentForm, EnrollmentForm, ReviewForm, TranscriptForm
 
 def is_admin(user):
     """Check if user is admin - shared utility"""
-    return user.groups.filter(name='Admin').exists()
+    return user.groups.filter(name='admin').exists()
 
 
 def is_student(user):

@@ -26,7 +26,7 @@ from .forms import AdminProfileForm, SalaryForm, AlumniForm
 
 def is_admin(user):
     """Check if user is admin"""
-    return user.groups.filter(name='Admin').exists()
+    return user.groups.filter(name='admin').exists()
 
 
 # ===========================================
