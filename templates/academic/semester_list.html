@@ -172,7 +172,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if semester_info.class_obj %}
-                                <a href="/person/admin/academic/classes/{{ semester_info.class_obj.classid }}/"
+                                <a href="/admin/classes/{{ semester_info.class_obj.classid }}/"
                                    class="text-emerald-600 hover:text-emerald-900 font-medium hover:underline transition-colors">
                                     {{ semester_info.class_display }}
                                 </a>
@@ -195,7 +195,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if semester_info.has_details %}
-                                <a href="/person/admin/academic/classes/{{ semester_info.class_obj.classid }}/scheme-of-studies/view/"
+                                <a href="/admin/classes/{{ semester_info.class_obj.classid }}/scheme-of-studies/view/"
                                    class="text-blue-600 hover:text-blue-900 font-medium hover:underline transition-colors">
                                     Semester {{ semester_info.semester.semesterno }}
                                 </a>

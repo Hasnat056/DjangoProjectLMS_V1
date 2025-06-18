@@ -26,7 +26,7 @@ from .forms import AdminProfileForm, SalaryForm, AlumniForm
 
 def is_admin(user):
     """Check if user is admin"""
-    return user.groups.filter(name='admin').exists()
+    return user.groups.filter(name='Admin').exists()
 
 
 # ===========================================
@@ -1458,7 +1458,7 @@ def recent_activities_api(request):
                 'title': 'New Enrollment',
                 'description': f"{enrollment.studentid.studentid.fname} {enrollment.studentid.studentid.lname} enrolled in {enrollment.allocationid.coursecode.coursename}",
                 'timestamp': enrollment.enrollmentdate.isoformat(),
-                'link': f'/person/admin/student/{enrollment.studentid.studentid.personid}/enrollments/'
+                'link': f'/admin/students/{enrollment.studentid.studentid.personid}/'
             })
 
         # Recent faculty additions
@@ -1470,7 +1470,7 @@ def recent_activities_api(request):
                 'title': 'New Faculty',
                 'description': f"{faculty.employeeid.fname} {faculty.employeeid.lname} joined as {faculty.designation}",
                 'timestamp': faculty.joiningdate.isoformat(),
-                'link': f'/person/admin/faculty/{faculty.employeeid.personid}/'
+                'link': f'/admin/faculty/{faculty.employeeid.personid}/'
             })
 
         # Recent course allocations
@@ -1484,7 +1484,7 @@ def recent_activities_api(request):
                 'title': 'Course Allocation',
                 'description': f"{allocation.coursecode.coursename} assigned to {allocation.teacherid.employeeid.fname} {allocation.teacherid.employeeid.lname}",
                 'timestamp': datetime.now().isoformat(),  # Allocations don't have timestamp, use current
-                'link': f'/person/admin/allocations/{allocation.allocationid}/'
+                'link': f'/admin/allocations/{allocation.allocationid}/'
             })
 
         # Sort activities by timestamp

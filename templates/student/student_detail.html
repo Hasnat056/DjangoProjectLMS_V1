@@ -108,7 +108,7 @@
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
@@ -153,7 +153,7 @@
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
-                            <a href="/person/admin/dashboard/" class="hover:text-emerald-600">Student Management</a>
+                            <a href="/admin/dashboard/section=students" class="hover:text-emerald-600">Student Management</a>
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -164,7 +164,7 @@
                         </h2>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="/person/admin/students/{{ student.studentid.personid }}/edit/" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                        <a href="/admin/students/{{ student.studentid.personid }}/edit/" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                             </svg>
@@ -177,11 +177,11 @@
                             </svg>
                             <span>Delete</span>
                         </button>
-                        <a href="/person/admin/dashboard/" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                        <a href="/admin/dashboard/?section=students" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
-                            <span>Back to Faculty List</span>
+                            <span>Back to Students List</span>
                         </a>
                     </div>
                 </div>
@@ -315,14 +315,14 @@
                                                 <div class="space-y-2">
                                                     <div class="flex items-center">
                                                         <span class="text-sm font-medium text-gray-500 w-28">Enrollment ID:</span>
-                                                        <a href="/person/admin/enrollments/{{ enrollment.id }}/"
+                                                        <a href="/admin/enrollments/{{ enrollment.id }}/"
                                                            class="text-sm text-emerald-600 hover:text-emerald-700 hover:underline font-medium">
                                                             {{ enrollment.id }}
                                                         </a>
                                                     </div>
                                                     <div class="flex items-center">
                                                         <span class="text-sm font-medium text-gray-500 w-28">Allocation ID:</span>
-                                                        <a href="/person/admin/allocations/{{ enrollment.allocationid }}/"
+                                                        <a href="/admin/allocations/{{ enrollment.allocationid }}/"
                                                             class="text-sm text-emerald-600 hover:text-emerald-700 hover:underline">
                                                             {{ enrollment.allocationid }}
                                                             </a>
@@ -337,14 +337,14 @@
                                                 <div class="space-y-2">
                                                     <div class="flex items-center">
                                                     <span class="text-sm font-medium text-gray-500 w-24">Faculty:</span>
-                                                    <a href="/person/admin/faculty/{{ enrollment.faculty_id }}/"
+                                                    <a href="/admin/faculty/{{ enrollment.faculty_id }}/"
                                                         class="flex items-center text-sm text-emerald-600 hover:text-slate-700 hover:underline">
                                                         {{ enrollment.faculty_name }}
                                                     </a>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <span class="text-sm font-medium text-gray-500 w-24">Course Code:</span>
-                                                    <a href="/person/admin/academic/courses/{{ enrollment.course_code }}/"
+                                                    <a href="/admin/courses/{{ enrollment.course_code }}/"
                                                        class="text-sm text-emerald-600 hover:text-emerald-600 hover:underline">
                                                         {{ enrollment.course_code }}
                                                     </a>
@@ -409,14 +409,14 @@
                             <div class="space-y-2">
                                 <div class="flex items-center">
                                     <span class="text-sm font-medium text-gray-500 w-28">Enrollment ID:</span>
-                                    <a href="/person/admin/enrollments/{{ enrollment.id }}/"
+                                    <a href="/admin/enrollments/{{ enrollment.id }}/"
                                        class="text-sm text-emerald-600 hover:text-emerald-700 hover:underline font-medium">
                                         {{ enrollment.id }}
                                     </a>
                                 </div>
                                 <div class="flex items-center">
                                     <span class="text-sm font-medium text-gray-500 w-28">Allocation ID:</span>
-                                    <a href="/person/admin/allocations/{{ enrollment.allocationid }}/"
+                                    <a href="/admin/allocations/{{ enrollment.allocationid }}/"
                                        class="text-sm text-emerald-600 hover:text-emerald-700 hover:underline">
                                         {{ enrollment.allocationid }}
                                     </a>
@@ -433,7 +433,7 @@
                             <div class="space-y-2">
                                 <div class="flex items-center">
                                     <span class="text-sm font-medium text-gray-500 w-24">Faculty:</span>
-                                    <a href="/person/admin/faculty/{{ enrollment.faculty_id }}/"
+                                    <a href="/admin/faculty/{{ enrollment.faculty_id }}/"
                                         class="flex items-center text-sm text-slate-600 hover:text-slate-700 hover:underline">
                                         <span class="w-6 h-6 bg-slate-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-2">
                                             {{ enrollment.faculty_fname.0 }}{{ enrollment.faculty_lname.0 }}
@@ -443,7 +443,7 @@
                                 </div>
                                 <div class="flex items-center">
                                     <span class="text-sm font-medium text-gray-500 w-24">Course Code:</span>
-                                    <a href="/person/admin/academic/courses/{{ enrollment.course_code }}/"
+                                    <a href="/admin/courses/{{ enrollment.course_code }}/"
                                        class="text-sm text-emerald-600 hover:text-emerald-700 hover:underline">
                                         {{ enrollment.course_code }}
                                     </a>
@@ -587,27 +587,6 @@
         </div>
     </div>
 
-    <!-- Update Modal -->
-    <div id="update-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto modal-fade-in">
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Edit Student Details</h3>
-                <button onclick="closeUpdateModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="p-6" id="update-modal-content">
-                <!-- Update form will be loaded here -->
-                <div class="text-center py-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-                    <p class="text-gray-500 mt-2">Loading form...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Delete Confirmation Modal -->
     <div id="delete-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 modal-fade-in">
@@ -640,41 +619,6 @@
     <script>
         const studentId = '{{ student.studentid.personid }}';
 
-        // Open update modal
-        async function openUpdateModal() {
-            try {
-                const modal = document.getElementById('update-modal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-
-                const response = await fetch(`/person/admin/students/${studentId}/edit/`);
-                const html = await response.text();
-
-                document.getElementById('update-modal-content').innerHTML = html;
-            } catch (error) {
-                console.error('Error loading update form:', error);
-                document.getElementById('update-modal-content').innerHTML = `
-                    <div class="text-center py-8">
-                        <p class="text-red-500">Error loading update form</p>
-                        <button onclick="closeUpdateModal()" class="mt-4 btn-primary text-white px-4 py-2 rounded-lg">Close</button>
-                    </div>
-                `;
-            }
-        }
-
-        // Close update modal
-        function closeUpdateModal() {
-            document.getElementById('update-modal').classList.add('hidden');
-            document.getElementById('update-modal').classList.remove('flex');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('update-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeUpdateModal();
-            }
-        });
-
         // Confirm delete
         function confirmDelete() {
             const modal = document.getElementById('delete-modal');
@@ -692,7 +636,7 @@
         function proceedDelete() {
             // For now, just redirect to delete URL
             // Later you can implement the approval workflow
-            window.location.href = `/person/admin/faculty/${studentId}/delete/`;
+            window.location.href = `/admin/students/${studentId}/delete/`;
         }
 
         // Close delete modal when clicking outside
@@ -705,36 +649,10 @@
         // Handle escape key for modals
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeUpdateModal();
                 closeDeleteModal();
             }
         });
 
-        // Handle form submission for update modal (if needed)
-        function handleUpdateFormSubmit(form) {
-            // Add form submission logic here
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Refresh the page or update the content
-                    window.location.reload();
-                } else {
-                    throw new Error('Update failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error updating student:', error);
-                alert('Error updating student details');
-            });
-        }
 
         // Show success message
         function showSuccessMessage(message) {
@@ -776,7 +694,7 @@
         // Load admin profile via API
         async function loadAdminProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('admin-initials').textContent = data.initials || 'A';

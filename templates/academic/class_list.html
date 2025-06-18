@@ -63,7 +63,7 @@
     <div class="card-gradient p-6 rounded-xl">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Class List</h3>
-            <a href="/person/admin/academic/classes/create/"
+            <a href="/admin/classes/create/"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
@@ -173,7 +173,7 @@
                     {% for class_info in classes %}
                     <tr class="class-row hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="/person/admin/academic/classes/{{ class_info.class_id }}/"
+                            <a href="/admin/classes/{{ class_info.class_id }}/"
                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                 {{ class_info.display_id }}
                             </a>
@@ -224,7 +224,7 @@
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="/person/admin/academic/classes/{{ class_info.class_id }}/scheme-of-studies/view/"
+                            <a href="/admin/classes/{{ class_info.class_id }}/scheme-of-studies/view/"
                                 class="text-emerald-600 hover:text-emerald-900 hover:underline font-medium transition-colors">
                                 Scheme of Studies
                             </a>
@@ -233,7 +233,7 @@
                     {% empty %}
                     <tr>
                         <td colspan="9" class="px-6 py-4 text-center text-gray-500">
-                            No classes found. <a href="/academic/classes/create/" class="text-emerald-600 hover:text-emerald-900">Create the first class</a>.
+                            No classes found. <a href="/admin/classes/create/" class="text-emerald-600 hover:text-emerald-900">Create the first class</a>.
                         </td>
                     </tr>
                     {% endfor %}

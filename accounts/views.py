@@ -16,16 +16,16 @@ from .forms import RegistrationForm
 
 # Map role strings to model classes
 ROLE_MODEL_MAP = {
-    "admin": Admin,
-    "faculty": Faculty,
-    "student": Student,
+    "Admin": Admin,
+    "Faculty": Faculty,
+    "Student": Student,
 }
 
 # Role-based redirect URLs
 ROLE_REDIRECT_MAP = {
-    "admin": "person/admin/dashboard/",
-    "faculty": "faculty/dashboard/",
-    "student": "person/student/dashboard/",
+    "Admin": "admin/dashboard/",
+    "Faculty": "faculty/dashboard/",
+    "Student": "student/dashboard/",
 }
 
 
@@ -73,7 +73,7 @@ def register_view(request):
         # Check if person is authorized for this role
         RoleModel = ROLE_MODEL_MAP[chosen_role]
         try:
-            if chosen_role in ["admin", "faculty"]:
+            if chosen_role in ["Admin", "Faculty"]:
                 # Admin and Faculty models use employeeid field
                 role_instance = RoleModel.objects.get(employeeid__personid=person.personid)
             else:
@@ -104,7 +104,7 @@ def register_view(request):
         user.groups.add(group_obj)
 
         # Set admin privileges if needed
-        if chosen_role == "admin":
+        if chosen_role == "Admin":
             user.is_staff = True
             user.save()
 
@@ -145,14 +145,16 @@ def login_view(request):
             if user.is_active:
                 login(request, user)
 
+
                 # Determine redirect URL based on user's role
                 user_groups = user.groups.values_list('name', flat=True)
+
+
                 redirect_url = "/"
 
-                for role in ["admin", "faculty", "student"]:
+                for role in ["Admin", "Faculty", "Student"]:
                     if role in user_groups:
                         redirect_url = ROLE_REDIRECT_MAP.get(role, "/")
-                        print(redirect_url)
                         break
 
                 return JsonResponse({

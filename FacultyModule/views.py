@@ -22,7 +22,7 @@ from .forms import FacultyForm, CourseAllocationForm, LectureForm, AssessmentFor
 
 def is_admin(user):
     """Check if user is admin - shared utility"""
-    return user.groups.filter(name='admin').exists()
+    return user.groups.filter(name='Admin').exists()
 
 
 def is_faculty(user):
@@ -49,7 +49,7 @@ def faculty_dashboard(request):
     """Faculty dashboard with personal overview"""
     if not is_faculty(request.user):
         if is_admin(request.user):
-            return redirect('person:admin_dashboard')
+            return redirect('management:admin_dashboard')
         else:
             return redirect('/accounts/login/')
 
@@ -179,7 +179,7 @@ def faculty_create(request):
                 if action == 'done':
                     messages.success(request,
                                      f'Faculty {faculty.employeeid.fname} {faculty.employeeid.lname} created successfully!')
-                    return redirect('/person/admin/dashboard/')
+                    return redirect('management:faculty_detail', faculty_id=faculty.employeeid)
                 else:  # action == 'add_another'
                     messages.success(request,
                                      f'Faculty {faculty.employeeid.fname} {faculty.employeeid.lname} created successfully! You can add another faculty member below.')
@@ -341,7 +341,7 @@ def faculty_update(request, faculty_id):
                 # Add success message and redirect (no JSON)
                 messages.success(request,
                                  f'Faculty {updated_faculty.employeeid.fname} {updated_faculty.employeeid.lname} updated successfully!')
-                return redirect(f"/person/admin/faculty/{faculty_id}/")
+                return redirect('management:faculty_detail',faculty_id=faculty.employeeid.personid)
             else:
                 # Form errors will be displayed in template
                 messages.error(request, 'Please correct the errors below.')
@@ -391,7 +391,7 @@ def faculty_delete(request, faculty_id):
                 person.delete()
 
             messages.success(request, 'Faculty member deleted successfully')
-            return redirect('faculty:faculty_list')
+            return redirect('management:faculty_list')
 
         except Exception as e:
             messages.error(request, f'Error deleting faculty: {str(e)}')
@@ -500,9 +500,9 @@ def course_allocation_create(request):
 
             action = request.POST.get('action', 'done')
             if action == 'add_another':
-                return redirect('/person/admin/allocations/create/')
+                return redirect('management:allocation_create')
             else:
-                return redirect('/person/admin/dashboard/?section=allocations')
+                return redirect('/admin/dashboard/?section=allocations')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -595,7 +595,7 @@ def course_allocation_update(request, allocation_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Course allocation updated successfully!')
-            return redirect('course_allocation_detail', allocation_id=allocation.pk)
+            return redirect('management:course_allocation_detail', allocation_id=allocation.pk)
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -618,7 +618,7 @@ def course_allocation_delete(request, allocation_id):
         course_name = allocation.coursecode.coursename
         allocation.delete()
         messages.success(request, f'Course allocation for {course_name} has been deleted successfully!')
-        return redirect('/person/admin/dashboard/?section=allocations')  # ← This redirects back to the list
+        return redirect('/admin/dashboard/?section=allocations')  # ← This redirects back to the list
 
     # GET request - show confirmation page
     return render(request, 'faculty/allocation_confirm_delete.html', {

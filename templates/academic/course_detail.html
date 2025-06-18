@@ -71,7 +71,7 @@
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
@@ -133,7 +133,7 @@
                             </svg>
                             <span>Edit Course</span>
                         </button>
-                        <a href="/person/admin/dashboard/?section=courses"
+                        <a href="/admin/dashboard/?section=courses"
                            class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -188,7 +188,7 @@
                                 {% if course.prerequisite %}
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Prerequisite Course</label>
-                                    <a href="/person/admin/academic/courses/{{ course.prerequisite.coursecode }}/"
+                                    <a href="/admin/courses/{{ course.prerequisite.coursecode }}/"
                                        class="text-purple-600 hover:text-purple-900 font-medium">
                                         {{ course.prerequisite.coursecode }} - {{ course.prerequisite.coursename }}
                                     </a>
@@ -274,7 +274,7 @@
                                     {% for allocation in active_allocations %}
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="/person/admin/academic/allocations/{{ allocation.allocationid }}/"
+                                            <a href="/admin/allocations/{{ allocation.allocationid }}/"
                                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                                 #{{ allocation.allocationid }}
                                             </a>
@@ -330,7 +330,7 @@
                                     {% for allocation in allocation_history %}
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="/person/admin/academic/allocations/{{ allocation.allocationid }}/"
+                                            <a href="/admin/allocations/{{ allocation.allocationid }}/"
                                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                                 #{{ allocation.allocationid }}
                                             </a>
@@ -419,7 +419,7 @@
             modal.classList.add('flex');
 
             try {
-                const response = await fetch(`/person/admin/academic/courses/${courseCode}/edit/`);
+                const response = await fetch(`/admin/courses/${courseCode}/edit/`);
                 const html = await response.text();
                 modal.querySelector('div').innerHTML = html;
             } catch (error) {
@@ -447,7 +447,7 @@
 
         async function loadAdminProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('admin-initials').textContent = data.initials || 'A';

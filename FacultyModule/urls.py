@@ -6,15 +6,17 @@ app_name = 'faculty'
 
 urlpatterns = [
 
+    path('dashboard/',views.faculty_dashboard,name='faculty_dashboard' ),
+
     # ===========================================
     # FACULTY CRUD URLS (Admin only)
     # ===========================================
 
-    path('faculty/', views.faculty_list, name='faculty_list'),
-    path('faculty/create/', views.faculty_create, name='faculty_create'),
-    path('faculty/<str:faculty_id>/', views.faculty_detail, name='faculty_detail'),
-    path('faculty/<str:faculty_id>/edit/', views.faculty_update, name='faculty_update'),
-    path('faculty/<str:faculty_id>/delete/', views.faculty_delete, name='faculty_delete'),
+
+
+    path('<str:faculty_id>/', views.faculty_detail, name='faculty_detail'),
+    path('<str:faculty_id>/edit/', views.faculty_update, name='faculty_update'),
+
 
     # ===========================================
     # COURSE ALLOCATION CRUD URLS (Admin only)
@@ -126,6 +128,6 @@ urlpatterns = [
     path('ajax/attendance-form/<str:lecture_id>/', views.attendance_management, name='ajax_attendance_form'),
     path('ajax/grading-form/<int:assessment_id>/', views.assessment_grading, name='ajax_grading_form'),
 
-    path('faculty/api/profile/', views.faculty_profile_api, name='faculty_profile_api'),
-    path('faculty/api/dashboard-stats/', views.faculty_dashboard_stats_api, name='faculty_dashboard_stats_api'),
+    path('api/profile/', views.faculty_profile_api, name='faculty_profile_api'),
+    path('api/dashboard-stats/', views.faculty_dashboard_stats_api, name='faculty_dashboard_stats_api'),
 ]

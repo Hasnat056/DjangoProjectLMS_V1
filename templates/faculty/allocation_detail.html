@@ -83,7 +83,7 @@
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
@@ -128,7 +128,7 @@
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
-                            <a href="/person/admin/dashboard/?section=allocations" class="hover:text-emerald-600">Course Allocations</a>
+                            <a href="/admin/dashboard/?section=allocations" class="hover:text-emerald-600">Course Allocations</a>
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -140,13 +140,13 @@
                         <p class="text-gray-600">{{ allocation.coursecode.coursecode }} • {{ allocation.session }}</p>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="/person/admin/allocations/{{ allocation.allocationid }}/edit/" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                        <a href="/admin/allocations/{{ allocation.allocationid }}/edit/" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                             </svg>
                             <span>Edit Allocation</span>
                         </a>
-                        <a href="/person/admin/dashboard/?section=allocations" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                        <a href="/admin/dashboard/?section=allocations" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -178,7 +178,7 @@
                                         </span>
                                     </div>
                                     <div>
-                                        <a href="/person/admin/faculty/{{ allocation.teacherid.employeeid.pk }}/"
+                                        <a href="/admin/faculty/{{ allocation.teacherid.employeeid.pk }}/"
                                            class="text-lg font-semibold text-emerald-600 hover:text-emerald-900">
                                             {{ teacher_name }}
                                         </a>
@@ -211,7 +211,7 @@
                             </h3>
                             <div class="space-y-4">
                                 <div>
-                                    <a href="/person/admin/academic/courses/{{ allocation.coursecode.coursecode }}/"
+                                    <a href="/admin/courses/{{ allocation.coursecode.coursecode }}/"
                                        class="text-lg font-semibold text-blue-600 hover:text-blue-900">
                                         {{ allocation.coursecode.coursecode }}
                                     </a>
@@ -272,7 +272,7 @@
                             {% for class_key, class_info in class_data.items %}
                             <div class="bg-gray-50 rounded-lg p-4 {% if class_info.class_obj == max_class %}border-2 border-emerald-500{% endif %}">
                                 <div class="flex items-center justify-between mb-2">
-                                    <a href="/person/admin/academic/classes/{{ class_info.class_obj.classid }}/"
+                                    <a href="/admin/classes/{{ class_info.class_obj.classid }}/"
                                        class="font-semibold text-emerald-600 hover:text-emerald-900">
                                         {{ class_info.display_id }}
                                     </a>
@@ -350,7 +350,7 @@
                                             <span class="text-sm font-medium text-gray-900">#{{ enrollment.enrollmentid }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="/person/admin/students/{{ enrollment.studentid.studentid.pk }}/"
+                                            <a href="/admin/students/{{ enrollment.studentid.studentid.pk }}/"
                                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                                 {{ enrollment.studentid.studentid.pk }}
                                             </a>
@@ -372,7 +372,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             {% if enrollment.studentid.classid %}
-                                                <a href="/person/admin/academic/classes/{{ enrollment.studentid.classid.classid }}/"
+                                                <a href="/admin/classes/{{ enrollment.studentid.classid.classid }}/"
                                                    class="text-blue-600 hover:text-blue-900 font-medium">
                                                     {{ enrollment.studentid.classid.programid.programid }}-{{ enrollment.studentid.classid.batchyear }}
                                                 </a>
@@ -503,7 +503,7 @@
         // Load admin profile via API
         async function loadAdminProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('admin-initials').textContent = data.initials || 'A';

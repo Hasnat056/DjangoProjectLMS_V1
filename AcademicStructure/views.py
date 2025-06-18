@@ -17,7 +17,7 @@ from .forms import ProgramForm, CourseForm, SemesterForm, SemesterdetailsForm, C
 
 def is_admin(user):
     """Check if user is admin"""
-    return user.groups.filter(name='admin').exists()
+    return user.groups.filter(name='Admin').exists()
 
 
 # ===========================================
@@ -236,11 +236,11 @@ def program_create(request):
 
                     if action == 'add_another':
                         messages.success(request, f'Program {program_id} created successfully! Add another program.')
-                        return redirect('/person/admin/academic/programs/create/')  # Stay on create page
+                        return redirect('/admin/programs/create/')  # Stay on create page
                     else:
                         messages.success(request, f'Program {program_id} created successfully!')
                         # Redirect to program detail
-                        return redirect(f'/person/admin/academic/programs/{program_id}/')
+                        return redirect(f'/admin/programs/{program_id}/')
 
             except Exception as e:
                 messages.error(request, f'Error creating program: {str(e)}')
@@ -265,7 +265,7 @@ def program_detail(request, program_id):
         program = Program.objects.select_related('departmentid').get(programid=program_id)
     except Program.DoesNotExist:
         messages.error(request, 'Program not found.')
-        return redirect('/person/admin/dashboard/?section=programs')
+        return redirect('/admin/dashboard/?section=programs')
 
     # Get all students in this program
     students = Student.objects.filter(programid=program).select_related('studentid', 'classid')
@@ -342,7 +342,7 @@ def program_update(request, program_id):
         program = get_object_or_404(Program, programid=program_id)
     except Program.DoesNotExist:
         messages.error(request, f'Program with ID {program_id} not found')
-        return redirect('/person/admin/dashboard/?section=programs')
+        return redirect('/admin/dashboard/?section=programs')
 
     if request.method == 'POST':
         # Use existing ProgramForm with instance - it handles readonly programid automatically
@@ -352,7 +352,7 @@ def program_update(request, program_id):
                 updated_program = form.save()
                 messages.success(request, f'Program {program_id} updated successfully!')
                 # Redirect to program detail page
-                return redirect(f'/person/admin/academic/programs/{program_id}/')
+                return redirect(f'/admin/programs/{program_id}/')
             except Exception as e:
                 messages.error(request, f'Error updating program: {str(e)}')
     else:
@@ -386,7 +386,7 @@ def program_delete(request, program_id):
             else:
                 program.delete()
                 messages.success(request, 'Program deleted successfully')
-                return redirect('academic:program_list')
+                return redirect('/admin/dashboard/?section=programs')
 
         except Exception as e:
             messages.error(request, f'Error deleting program: {str(e)}')
@@ -558,11 +558,11 @@ def course_create(request):
 
                     if action == 'add_another':
                         messages.success(request, f'Course {course_code} created successfully! Add another course.')
-                        return redirect('/person/admin/academic/courses/create/')  # Stay on create page
+                        return redirect('/admin/courses/create/')  # Stay on create page
                     else:
                         messages.success(request, f'Course {course_code} created successfully!')
                         # Redirect to course detail
-                        return redirect(f'/person/admin/academic/courses/{course_code}/')
+                        return redirect(f'/admin/courses/{course_code}/')
 
             except Exception as e:
                 messages.error(request, f'Error creating course: {str(e)}')
@@ -588,7 +588,7 @@ def course_detail(request, course_code):
         course = get_object_or_404(Course, coursecode=course_code)
     except Course.DoesNotExist:
         messages.error(request, f'Course with code {course_code} not found')
-        return redirect('/person/admin/dashboard/?section=courses')
+        return redirect('/admin/dashboard/?section=courses')
 
     # Get active allocations
     active_allocations = Courseallocation.objects.filter(
@@ -668,7 +668,7 @@ def course_update(request, course_code):
                 return JsonResponse({
                     'success': True,
                     'message': f'Course {course_code} updated successfully!',
-                    'redirect_url': f'/person/admin/dashboard/?section=courses'
+                    'redirect_url': f'/admin/dashboard/?section=courses'
                 })
             except Exception as e:
                 return JsonResponse({'error': f'Error updating course: {str(e)}'}, status=400)
@@ -726,7 +726,7 @@ def course_delete(request, course_code):
                 # Only delete if both checks pass
                 course.delete()
                 messages.success(request, 'Course deleted successfully')
-                return redirect('/person/admin/dashboard/?section=allocations')
+                return redirect('/admin/dashboard/?section=allocations')
 
         except Exception as e:
             # Clear any existing messages
@@ -1135,7 +1135,7 @@ def class_create(request):
                 else:
                     messages.success(request, f'Class {class_display_id} created successfully!')
                     # Redirect to dashboard with classes section
-                    return redirect(f'/person/admin/academic/classes/{class_id}/scheme-of-studies/')
+                    return redirect(f'/admin/classes/{class_id}/scheme-of-studies/')
 
             except Exception as e:
                 messages.error(request, f'Error creating class: {str(e)}')
@@ -1239,7 +1239,7 @@ def class_update(request, class_id):
         class_obj = Class.objects.get(classid=class_id)
     except Class.DoesNotExist:
         messages.error(request, 'Class not found.')
-        return redirect('/person/admin/academic/classes/')
+        return redirect('/admin/classes/<int:class_id>/')
 
     # Get all available courses
     courses = Course.objects.all().order_by('coursecode')
@@ -1333,7 +1333,7 @@ def class_update(request, class_id):
                 messages.warning(request, 'No valid course entries were saved.')
 
             # Redirect back to class list
-            return redirect('/person/admin/dashboard/?section=classes')
+            return redirect('/admin/dashboard/?section=classes')
 
         except Exception as e:
             messages.error(request, f'Error updating class scheme: {str(e)}')
@@ -1379,13 +1379,13 @@ def class_delete(request, class_id):
 
 @login_required
 @user_passes_test(is_admin)
-def scheme_of_studies_setup(request, class_id):
+def scheme_of_studies_create(request, class_id):
     """Setup scheme of studies for a class"""
     try:
         class_obj = Class.objects.get(classid=class_id)
     except Class.DoesNotExist:
         messages.error(request, 'Class not found.')
-        return redirect('/person/admin/academic/classes/')
+        return redirect('/admin/dashboard/?section=classes/')
 
     # Get all available courses
     courses = Course.objects.all().order_by('coursecode')
@@ -1479,7 +1479,7 @@ def scheme_of_studies_setup(request, class_id):
                 messages.warning(request, 'No valid course entries were saved.')
 
             # Redirect to avoid re-submission on refresh
-            return redirect(f'/person/admin/academic/classes/{class_id}/scheme-of-studies/')
+            return redirect(f'/admin/classes/{class_id}/scheme-of-studies/')
 
         except Exception as e:
             messages.error(request, f'Error saving scheme: {str(e)}')
@@ -1504,7 +1504,7 @@ def scheme_of_studies_view(request, class_id):
         class_obj = Class.objects.get(classid=class_id)
     except Class.DoesNotExist:
         messages.error(request, 'Class not found.')
-        return redirect('/person/admin/academic/classes/')
+        return redirect('/admin/dashboard/?section=classes/')
 
     # Get semester details grouped by semester
     semester_details = Semesterdetails.objects.filter(

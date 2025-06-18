@@ -1091,7 +1091,7 @@
             }
         }
 
-        async function loadFacultySection(targetSection, url = '/person/admin/faculty/') {
+        async function loadFacultySection(targetSection, url = '/admin/faculty/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1141,7 +1141,7 @@
                     }
                 }
                 // Build URL with filters
-                const url = '/person/admin/faculty/?' + params.toString();
+                const url = '/admin/faculty/?' + params.toString();
                 // Reload faculty section with filters - this keeps us in the dashboard
                 const targetSection = document.getElementById('faculty-section');
                 loadFacultySection(targetSection, url);
@@ -1175,7 +1175,7 @@
                     e.preventDefault();
                     // Reload faculty section without any filters
                     const targetSection = document.getElementById('faculty-section');
-                    loadFacultySection(targetSection, '/person/admin/faculty/');
+                    loadFacultySection(targetSection, '/admin/faculty/');
                 });
             }
             // Add real-time search functionality
@@ -1219,7 +1219,7 @@
             console.log('Faculty page initialization complete');
         }
 
-        async function loadStudentSection(targetSection, url = '/person/admin/students/') {
+        async function loadStudentSection(targetSection, url = '/admin/students/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1264,7 +1264,7 @@
                     }
                 }
                 // Build URL with filters
-                const url = '/person/admin/students/?' + params.toString();
+                const url = '/admin/students/?' + params.toString();
                 // Reload student section with filters - this keeps us in the dashboard
                 const targetSection = document.getElementById('students-section');
                 loadStudentSection(targetSection, url);
@@ -1298,7 +1298,7 @@
                     e.preventDefault();
                     // Reload student section without any filters
                     const targetSection = document.getElementById('students-section');
-                    loadStudentSection(targetSection, '/person/admin/students/');
+                    loadStudentSection(targetSection, '/admin/students/');
                 });
             }
             // Add real-time search functionality
@@ -1349,7 +1349,7 @@
             console.log('Student page initialization complete');
         }
 
-        async function loadClassSection(targetSection, url = '/person/admin/academic/classes/') {
+        async function loadClassSection(targetSection, url = '/admin/classes/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1428,7 +1428,7 @@
                 clearBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const targetSection = document.getElementById('classes-section');
-                    loadClassSection(targetSection, '/academic/classes/');
+                    loadClassSection(targetSection, '/admin/classes/');
                 });
             }
             // Real-time search
@@ -1467,7 +1467,7 @@
 
 
         // Loading Program Section
-        async function loadProgramSection(targetSection, url = '/person/admin/academic/programs/') {
+        async function loadProgramSection(targetSection, url = '/admin/programs/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1524,9 +1524,9 @@
                     }
                 }
                 // Update URL without page reload
-                const newUrl = '/person/admin/dashboard/?' + dashboardParams.toString();
+                const newUrl = '/admin/dashboard/?' + dashboardParams.toString();
                 window.history.pushState({}, '', newUrl);
-                const url = '/person/admin/academic/programs/?' + params.toString();
+                const url = '/admin/programs/?' + params.toString();
                 const targetSection = document.getElementById('programs-section');
                 loadProgramSection(targetSection, url);
             });
@@ -1558,9 +1558,9 @@
                         }
                     }
                     // Update URL without page reload
-                    const newUrl = '/person/admin/dashboard/?' + dashboardParams.toString();
+                    const newUrl = '/admin/dashboard/?' + dashboardParams.toString();
                     window.history.pushState({}, '', newUrl);
-                    const url = '/person/admin/academic/programs/?' + params.toString();
+                    const url = '/admin/programs/?' + params.toString();
                     const targetSection = document.getElementById('programs-section');
                     loadProgramSection(targetSection, url);
                 });
@@ -1570,10 +1570,10 @@
                 clearBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     // Update URL to just show programs section without filters
-                    const newUrl = '/person/admin/dashboard/?section=programs';
+                    const newUrl = '/admin/dashboard/?section=programs';
                     window.history.pushState({}, '', newUrl);
                     const targetSection = document.getElementById('programs-section');
-                    loadProgramSection(targetSection, '/person/admin/academic/programs/');
+                    loadProgramSection(targetSection, '/admin/programs/');
                 });
             }
             // Real-time search
@@ -1611,7 +1611,7 @@
         }
 
         // Course Section
-        async function loadCourseSection(targetSection, url = '/person/admin/academic/courses/') {
+        async function loadCourseSection(targetSection, url = '/admin/courses/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1666,9 +1666,9 @@
                     }
                 }
                 // Update URL without page reload
-                const newUrl = '/person/admin/dashboard/?' + dashboardParams.toString();
+                const newUrl = '/admin/dashboard/?' + dashboardParams.toString();
                 window.history.pushState({}, '', newUrl);
-                const url = '/person/admin/academic/courses/?' + params.toString();
+                const url = '/admin/courses/?' + params.toString();
                 const targetSection = document.getElementById('courses-section');
                 loadCourseSection(targetSection, url);
             });
@@ -1697,9 +1697,9 @@
                         }
                     }
                     // Update URL without page reload
-                    const newUrl = '/person/admin/dashboard/?' + dashboardParams.toString();
+                    const newUrl = '/admin/dashboard/?' + dashboardParams.toString();
                     window.history.pushState({}, '', newUrl);
-                    const url = '/person/admin/academic/courses/?' + params.toString();
+                    const url = '/admin/courses/?' + params.toString();
                     const targetSection = document.getElementById('courses-section');
                     loadCourseSection(targetSection, url);
                 });
@@ -1709,10 +1709,10 @@
                 clearBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     // Update URL to just show courses section without filters
-                    const newUrl = '/person/admin/dashboard/?section=courses';
+                    const newUrl = '/admin/dashboard/?section=courses';
                     window.history.pushState({}, '', newUrl);
                     const targetSection = document.getElementById('courses-section');
-                    loadCourseSection(targetSection, '/person/admin/academic/courses/');
+                    loadCourseSection(targetSection, '/admin/courses/');
                 });
             }
             // Real-time search
@@ -1771,7 +1771,7 @@
         }
 
         // Add this to your dashboard JavaScript
-        async function loadAllocationSection(targetSection, url = '/person/admin/allocations/') {
+        async function loadAllocationSection(targetSection, url = '/admin/allocations/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1809,7 +1809,7 @@
                         params.delete(key);
                     }
                 }
-                const url = '/person/admin/allocations/?' + params.toString();
+                const url = '/admin/allocations/?' + params.toString();
                 const targetSection = document.getElementById('allocations-section');
                 loadAllocationSection(targetSection, url);
             });
@@ -1838,7 +1838,7 @@
                 clearBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const targetSection = document.getElementById('allocations-section');
-                    loadAllocationSection(targetSection, '/person/admin/academic/allocations/');
+                    loadAllocationSection(targetSection, '/admin/allocations/');
                 });
             }
             // Real-time search
@@ -1866,7 +1866,7 @@
         }
 
         // Add this function to your dashboard template JavaScript section
-        async function loadEnrollmentSection(targetSection, url = '/person/admin/enrollments/') {
+        async function loadEnrollmentSection(targetSection, url = '/admin/enrollments/') {
             try {
                 showLoading();
                 const response = await fetch(url);
@@ -1920,9 +1920,9 @@
                     }
                 }
                 // Update URL without page reload
-                const newUrl = '/person/admin/dashboard/?' + dashboardParams.toString();
+                const newUrl = '/admin/dashboard/?' + dashboardParams.toString();
                 window.history.pushState({}, '', newUrl);
-                const url = '/person/admin/enrollments/?' + params.toString();
+                const url = '/admin/enrollments/?' + params.toString();
                 const targetSection = document.getElementById('enrollments-section');
                 loadEnrollmentSection(targetSection, url);
             });
@@ -1954,9 +1954,9 @@
                         }
                     }
                     // Update URL without page reload
-                    const newUrl = '/person/admin/dashboard/?' + dashboardParams.toString();
+                    const newUrl = '/admin/dashboard/?' + dashboardParams.toString();
                     window.history.pushState({}, '', newUrl);
-                    const url = '/person/admin/enrollments/?' + params.toString();
+                    const url = '/admin/enrollments/?' + params.toString();
                     const targetSection = document.getElementById('enrollments-section');
                     loadEnrollmentSection(targetSection, url);
                 });
@@ -1966,10 +1966,10 @@
                 clearBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     // Update URL to just show enrollments section without filters
-                    const newUrl = '/person/admin/dashboard/?section=enrollments';
+                    const newUrl = '/admin/dashboard/?section=enrollments';
                     window.history.pushState({}, '', newUrl);
                     const targetSection = document.getElementById('enrollments-section');
-                    loadEnrollmentSection(targetSection, '/person/admin/enrollments/');
+                    loadEnrollmentSection(targetSection, '/admin/enrollments/');
                 });
             }
             // Real-time search
@@ -2028,13 +2028,13 @@ function applyUrlFiltersToEnrollments(urlParams) {
         if (status) filterParams.append('status', status);
         if (page) filterParams.append('page', page);
 
-        const url = '/person/admin/enrollments/?' + filterParams.toString();
+        const url = '/admin/enrollments/?' + filterParams.toString();
         const targetSection = document.getElementById('enrollments-section');
         console.log('Applying URL filters to enrollments:', url);
         loadEnrollmentSection(targetSection, url);
     }
 }
-async function loadSemesterSection(targetSection, url = '/person/admin/academic/semesters/') {
+async function loadSemesterSection(targetSection, url = '/admin/semesters/') {
     try {
         showLoading();
         const response = await fetch(url);
@@ -2085,7 +2085,7 @@ function initializeSemesterPageForDashboard() {
             }
         }
 
-        const url = '/person/admin/academic/semesters/?' + params.toString();
+        const url = '/admin/semesters/?' + params.toString();
         const targetSection = document.getElementById('semesters-section');
         loadSemesterSection(targetSection, url);
     });
@@ -2107,7 +2107,7 @@ function initializeSemesterPageForDashboard() {
             if (semesterNo) params.append('semester_no', semesterNo);
             if (classFilter) params.append('class', classFilter);
 
-            const url = '/person/admin/academic/semesters/?' + params.toString();
+            const url = '/admin/semesters/?' + params.toString();
             const targetSection = document.getElementById('semesters-section');
             loadSemesterSection(targetSection, url);
         });
@@ -2118,7 +2118,7 @@ function initializeSemesterPageForDashboard() {
         clearBtn.addEventListener('click', function(e) {
             e.preventDefault();
             const targetSection = document.getElementById('semesters-section');
-            loadSemesterSection(targetSection, '/person/admin/academic/semesters/');
+            loadSemesterSection(targetSection, '/admin/semesters/');
         });
     }
 
@@ -2351,28 +2351,28 @@ function initializeSemesterPageForDashboard() {
         async function quickAdd(type) {
             if (type === 'faculty') {
             // Faculty create goes to separate page
-            window.location.href = '/person/admin/faculty/create/';
+            window.location.href = '/admin/faculty/create/';
             return;
             }
             if (type === 'student') {
             // Student create goes to separate page
-            window.location.href = '/person/admin/students/create/';
+            window.location.href = '/admin/students/create/';
             return;
             }
 
             if (type === 'program')
             {
-                window.location.href = '/person/admin/academic/programs/create/';
+                window.location.href = '/admin/programs/create/';
                 return;
             }
             if (type === 'course'){
-                window.location.href = '/person/admin/academic/courses/create/';
+                window.location.href = '/admin/courses/create/';
             }
             if (type === 'enrollment'){
-                window.location.href = '/person/admin/enrollments/create/';
+                window.location.href = '/admin/enrollments/create/';
             }
             if (type === 'allocation'){
-                window.location.href = '/person/admin/allocations/create/';
+                window.location.href = '/admin/allocations/create/';
             }
 
             closeModal();
@@ -2410,7 +2410,7 @@ function initializeSemesterPageForDashboard() {
         async function performGlobalSearch(query) {
             try {
                 console.log('Searching for:', query);
-                const response = await fetch(`/person/admin/search/?q=${encodeURIComponent(query)}&model=all`, {
+                const response = await fetch(`/admin/search/?q=${encodeURIComponent(query)}&model=all`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRFToken': getCSRFToken()
@@ -2520,7 +2520,7 @@ function initializeSemesterPageForDashboard() {
         // Chart initialization
         async function initializeDashboardCharts() {
         try {
-        const response = await fetch('/person/admin/api/dashboard-stats/'); // FIXED URL
+        const response = await fetch('/admin/api/dashboard-stats/'); // FIXED URL
         const data = await response.json();
 
         const ctx = document.getElementById('enrollmentChart');
@@ -2774,7 +2774,7 @@ function initializeSemesterPageForDashboard() {
 
         async function loadDashboardStats() {
             try {
-                    const response = await fetch('/person/admin/api/dashboard-stats/');
+                    const response = await fetch('/admin/api/dashboard-stats/');
                     const data = await response.json();
 
                     // Update statistics
@@ -2802,7 +2802,7 @@ function initializeSemesterPageForDashboard() {
 
        async function loadDepartmentStats() {
         try {
-        const response = await fetch('/person/admin/api/dashboard-stats/');
+        const response = await fetch('/admin/api/dashboard-stats/');
         const data = await response.json();
 
         const container = document.getElementById('department-stats');
@@ -2836,7 +2836,7 @@ function initializeSemesterPageForDashboard() {
 
         async function loadRecentActivities() {
             try {
-                const response = await fetch('/person/admin/api/recent-activities/');
+                const response = await fetch('/admin/api/recent-activities/');
                 const data = await response.json();
 
                 const container = document.getElementById('recent-activities');
@@ -2850,7 +2850,7 @@ function initializeSemesterPageForDashboard() {
                     const iconColors = {
                         enrollment: 'blue',
                         faculty: 'green',
-                    allocation: 'purple'
+                        allocation: 'purple'
                     };
                     const color = iconColors[activity.type] || 'gray';
 
@@ -2876,7 +2876,7 @@ function initializeSemesterPageForDashboard() {
 
         async function loadQuickStats() {
             try {
-                const response = await fetch('/person/admin/api/quick-stats/');
+                const response = await fetch('/admin/api/quick-stats/');
                 const data = await response.json();
 
                 // Update quick stats
@@ -2891,7 +2891,7 @@ function initializeSemesterPageForDashboard() {
 
         async function loadAdminUserProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 const data = await response.json();
                 console.log('Profile data loaded:', data); // Debug log
                 // Update sidebar profile (bottom left) - more specific selectors

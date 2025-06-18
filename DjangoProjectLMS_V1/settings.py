@@ -23,38 +23,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eksy&y%u2hzay@cq=(x(em(603u^2%b7z3w@sd1387@*cq&x=f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# For local development, DEBUG is True by default
+DEBUG = True
 
-# Allowed hosts - supports both local and Railway
+# Allowed hosts - Local development only
 ALLOWED_HOSTS = [
-    'djangoprojectlmsv1-production.up.railway.app',  # Railway production
     'localhost',                                      # Local development
     '127.0.0.1',                                     # Local development alternative
+    # 'djangoprojectlmsv1-production.up.railway.app',  # Railway production (commented out)
 ]
 
-# CSRF settings for Railway deployment
+# CSRF settings for local development
 CSRF_TRUSTED_ORIGINS = [
-    'https://djangoprojectlmsv1-production.up.railway.app',  # Railway production
     'http://localhost:8000',                                  # Local development
     'http://127.0.0.1:8000',                                 # Local development alternative
+    # 'https://djangoprojectlmsv1-production.up.railway.app',  # Railway production (commented out)
 ]
 
-# Security settings for production
-# Session and Cookie settings for Railway
-if not DEBUG and os.environ.get('RAILWAY_ENVIRONMENT'):
-    # Railway production settings
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
-    CSRF_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    CSRF_COOKIE_SAMESITE = 'Lax'
-
-    # Session timeout settings
-    SESSION_COOKIE_AGE = 86400  # 24 hours
-    SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-    # Force session to be saved on every request
-    SESSION_SAVE_EVERY_REQUEST = True
+# Railway production security settings (all commented out for local development)
+# if not DEBUG and os.environ.get('RAILWAY_ENVIRONMENT'):
+#     # Railway production settings
+#     SESSION_COOKIE_SECURE = True
+#     CSRF_COOKIE_SECURE = True
+#     SESSION_COOKIE_HTTPONLY = True
+#     CSRF_COOKIE_HTTPONLY = True
+#     SESSION_COOKIE_SAMESITE = 'Lax'
+#     CSRF_COOKIE_SAMESITE = 'Lax'
+#     SESSION_COOKIE_AGE = 86400  # 24 hours
+#     SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+#     SESSION_SAVE_EVERY_REQUEST = True
 
 # Application definition
 INSTALLED_APPS = [
@@ -75,7 +72,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -83,12 +79,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'Person.middleware.AuditMiddleware',
-
 ]
 
 ROOT_URLCONF = 'DjangoProjectLMS_V1.urls'
-# In your settings.py
-LOGIN_REDIRECT_URL = '/person/admin/dashboard/'
 
 TEMPLATES = [
     {
@@ -107,36 +100,36 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DjangoProjectLMS_V1.wsgi.application'
 
-# Database configuration - Railway vs Local
-if os.environ.get('RAILWAY_ENVIRONMENT'):
-    # Production (Railway) - Hardcoded MySQL connection
-    DATABASES = {
-        'default': {
-            'ENGINE': 'mysql.connector.django',
-            'NAME': 'railway',
-            'USER': 'root',
-            'PASSWORD': 'OfIdpzYBYZLTWhASnwvGOPqpKrsNGWVU',
-            'HOST': 'crossover.proxy.rlwy.net',
-            'PORT': 58556,
-            'OPTIONS': {
-                'autocommit': True,
-            },
-        }
+# Database configuration - Local development only
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'LMS',
+        'USER': 'root',
+        'PASSWORD': '@databaselab123',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
-    print("Using Railway MySQL database")
-else:
-    # Local development - Your PC MySQL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'LMS',
-            'USER': 'root',
-            'PASSWORD': '@databaselab123',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
-    print("Using local MySQL database")
+}
+print("Using local MySQL database")
+
+# Railway database configuration (commented out)
+# if os.environ.get('RAILWAY_ENVIRONMENT'):
+#     # Production (Railway) - Hardcoded MySQL connection
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'mysql.connector.django',
+#             'NAME': 'railway',
+#             'USER': 'root',
+#             'PASSWORD': 'OfIdpzYBYZLTWhASnwvGOPqpKrsNGWVU',
+#             'HOST': 'crossover.proxy.rlwy.net',
+#             'PORT': 58556,
+#             'OPTIONS': {
+#                 'autocommit': True,
+#             },
+#         }
+#     }
+#     print("Using Railway MySQL database")
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -160,17 +153,27 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images) - Local development configuration
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Static files configuration for WhiteNoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Railway production static files configuration (commented out)
+# if IS_RAILWAY:
+#     # Production static files configuration
+#     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# else:
+#     # Local development - simpler configuration
+#     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#     # Don't use WhiteNoise for local development
 
 # Additional static files settings
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ] if (BASE_DIR / 'static').exists() else []
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Railway WhiteNoise configuration (commented out for local development)
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

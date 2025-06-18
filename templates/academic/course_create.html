@@ -101,7 +101,7 @@
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
@@ -156,7 +156,7 @@
                         <p class="text-gray-600">Add a new course to the academic catalog</p>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="/person/admin/dashboard/?section=courses"
+                        <a href="/admin/dashboard/?section=courses"
                            class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -277,7 +277,7 @@
 
                             <!-- Submit Buttons -->
                             <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
-                                <a href="/person/admin/dashboard/?section=courses"
+                                <a href="/admin/dashboard/?section=courses"
                                    class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
                                     Cancel
                                 </a>
@@ -371,7 +371,7 @@
 
         async function loadAdminProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('admin-initials').textContent = data.initials || 'A';

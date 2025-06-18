@@ -108,7 +108,7 @@
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
@@ -153,7 +153,7 @@
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
-                            <a href="/person/admin/dashboard/" class="hover:text-emerald-600">Faculty Management</a>
+                            <a href="/admin/dashboard/" class="hover:text-emerald-600">Faculty Management</a>
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -164,7 +164,7 @@
                         </h2>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="/person/admin/faculty/{{ faculty.employeeid.personid }}/edit/" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                        <a href="/admin/faculty/{{ faculty.employeeid.personid }}/edit/" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                             </svg>
@@ -177,7 +177,7 @@
                             </svg>
                             <span>Delete</span>
                         </button>
-                        <a href="/person/admin/dashboard/" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                        <a href="/admin/dashboard/" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -310,7 +310,7 @@
                             {% if current_allocations %}
                                 {% for allocation in current_allocations %}
                                     <div class="allocation-card bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md cursor-pointer"
-                                         onclick="window.location.href='/person/admin/allocations/{{ allocation.id }}/'">
+                                         onclick="window.location.href='/admin/allocations/{{ allocation.id }}/'">
                                         <div class="flex items-center justify-between">
                                             <div class="flex-1">
                                                 <h4 class="font-medium text-gray-900">{{ allocation.course_name }}</h4>
@@ -361,7 +361,7 @@
                             {% if allocation_history %}
                                 {% for allocation in allocation_history %}
                                     <div class="allocation-card bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md cursor-pointer"
-                                         onclick="window.location.href='/person/admin/allocations/{{ allocation.id }}/'">
+                                         onclick="window.location.href='/admin/allocations/{{ allocation.id }}/'">
                                         <div class="flex items-center justify-between">
                                             <div class="flex-1">
                                                 <h4 class="font-medium text-gray-900">{{ allocation.course_name }}</h4>
@@ -598,7 +598,7 @@
         function proceedDelete() {
             // For now, just redirect to delete URL
             // Later you can implement the approval workflow
-            window.location.href = `/person/admin/faculty/${facultyId}/delete/`;
+            window.location.href = `/admin/faculty/${facultyId}/delete/`;
         }
 
         function showSuccessMessage(message) {
@@ -659,7 +659,7 @@
         // Load admin profile via API
         async function loadAdminProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('admin-initials').textContent = data.initials || 'A';

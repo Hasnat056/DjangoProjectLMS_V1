@@ -24,9 +24,12 @@ urlpatterns = [
         path('accounts/', include('accounts.urls')),
         path('',include('pages.urls')),
 
-        path('admin/', admin.site.urls),
-        path('person/',include('Person.urls')),
+        path('django/admin/', admin.site.urls),
+        path('admin/',include('Person.urls')),
 
-        path('faculty/',include('FacultyModule.faculty_urls')),
+        path('faculty/',include('FacultyModule.urls')),
+        path('',include('AcademicStructure.urls')),
+
+        path('student/',include('StudentModule.urls')),
 
 ]

@@ -12,21 +12,12 @@ urlpatterns = [
     # STUDENT CRUD URLS (Admin only)
     # ===========================================
 
-    path('students/', views.student_list, name='student_list'),
-    path('students/create/', views.student_create, name='student_create'),
-    path('students/<str:student_id>/', views.student_detail, name='student_detail'),
-    path('students/<str:student_id>/edit/', views.student_update, name='student_update'),
-    path('students/<str:student_id>/delete/', views.student_delete, name='student_delete'),
+
 
     # ===========================================
     # ENROLLMENT CRUD URLS (Admin/Student access)
     # ===========================================
 
-    path('enrollments/', views.enrollment_list, name='enrollment_list'),
-    path('enrollments/create/', views.enrollment_create, name='enrollment_create'),
-    path('enrollments/<int:enrollment_id>/', views.enrollment_detail, name='enrollment_detail'),
-    path('enrollments/<int:enrollment_id>/edit/', views.enrollment_update, name='enrollment_update'),
-    path('enrollments/<int:enrollment_id>/delete/', views.enrollment_delete, name='enrollment_delete'),
 
     # ===========================================
     # RESULT MANAGEMENT URLS (Admin/Faculty can CRUD, Students VIEW)

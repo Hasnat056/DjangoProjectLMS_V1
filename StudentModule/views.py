@@ -24,7 +24,7 @@ from .forms import StudentForm, EnrollmentForm, ReviewForm, TranscriptForm
 
 def is_admin(user):
     """Check if user is admin - shared utility"""
-    return user.groups.filter(name='admin').exists()
+    return user.groups.filter(name='Admin').exists()
 
 
 def is_student(user):
@@ -118,7 +118,7 @@ def student_create(request):
                 if action == 'done':
                     messages.success(request,
                                      f'Student {student.studentid.fname} {student.studentid.lname} created successfully!')
-                    return redirect('/person/admin/dashboard/?section=students')
+                    return redirect('/admin/dashboard/?section=students')
                 else:  # action == 'add_another'
                     messages.success(request,
                                      f'Student {student.studentid.fname} {student.studentid.lname} created successfully! You can add another student below.')
@@ -213,7 +213,7 @@ def student_update(request, student_id):
                 # Add success message and redirect (no JSON - same as faculty)
                 messages.success(request,
                                  f'Student {updated_student.studentid.fname} {updated_student.studentid.lname} updated successfully!')
-                return redirect(f"/person/admin/students/{student_id}/")
+                return redirect(f"/admin/students/{student_id}/")
             else:
                 # Form errors will be displayed in template
                 messages.error(request, 'Please correct the errors below.')
@@ -285,8 +285,6 @@ def student_detail(request, student_id):
         'course_name': enrollment.allocationid.coursecode.coursename,
         'gpa': gpa
     } for enrollment in current_enrollments]
-
-    print(current_enrollments_data[0]['enrollmentDate'])
     # Get enrollment history
     history_enrollments = Enrollment.objects.filter(
         studentid=student,
@@ -500,7 +498,7 @@ def enrollment_create(request):
 
             if not allocation_id:
                 messages.error(request, "Please select a course allocation.")
-                return redirect(f'/person/admin/enrollments/create/?mode={current_mode}')
+                return redirect(f'/admin/enrollments/create/?mode={current_mode}')
 
             # Get allocation
             allocation = get_object_or_404(Courseallocation, allocationid=allocation_id)
@@ -508,7 +506,7 @@ def enrollment_create(request):
             # Validate allocation is active
             if allocation.status != 'Ongoing':
                 messages.error(request, "Cannot enroll students in inactive course allocation.")
-                return redirect(f'/person/admin/enrollments/create/?mode={current_mode}')
+                return redirect(f'/admin/enrollments/create/?mode={current_mode}')
 
             if current_mode == 'single':
                 return handle_single_enrollment(request, allocation, current_mode)
@@ -517,7 +515,7 @@ def enrollment_create(request):
 
         except Exception as e:
             messages.error(request, f"Error processing enrollment: {str(e)}")
-            return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+            return redirect(f'/admin/enrollments/create/?mode={mode}')
 
     # GET request - show form
     allocations = Courseallocation.objects.select_related(
@@ -551,7 +549,7 @@ def handle_single_enrollment(request, allocation, mode):
 
     if not student_id:
         messages.error(request, "Please select a student.")
-        return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+        return redirect(f'/admin/enrollments/create/?mode={mode}')
 
     try:
         with transaction.atomic():
@@ -565,7 +563,7 @@ def handle_single_enrollment(request, allocation, mode):
 
             if existing:
                 messages.error(request, "Student is already enrolled in this course.")
-                return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+                return redirect(f'/admin/enrollments/create/?mode={mode}')
 
             # Create enrollment
             enrollment = Enrollment.objects.create(
@@ -579,11 +577,11 @@ def handle_single_enrollment(request, allocation, mode):
             course_name = allocation.coursecode.coursename
 
             messages.success(request, f"Successfully enrolled {student_name} in {course_name}")
-            return redirect('/person/admin/dashboard/?section=enrollments')
+            return redirect('/admin/dashboard/?section=enrollments')
 
     except Exception as e:
         messages.error(request, f"Error creating enrollment: {str(e)}")
-        return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+        return redirect(f'/admin/enrollments/create/?mode={mode}')
 
 
 def handle_bulk_enrollment(request, allocation, mode):
@@ -592,18 +590,18 @@ def handle_bulk_enrollment(request, allocation, mode):
 
     if not selected_students_json:
         messages.error(request, "Please select at least one student.")
-        return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+        return redirect(f'/admin/enrollments/create/?mode={mode}')
 
     # Parse selected students
     try:
         selected_student_ids = json.loads(selected_students_json)
     except json.JSONDecodeError:
         messages.error(request, "Invalid student selection data.")
-        return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+        return redirect(f'/admin/enrollments/create/?mode={mode}')
 
     if not selected_student_ids:
         messages.error(request, "Please select at least one student.")
-        return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+        return redirect(f'/admin/enrollments/create/?mode={mode}')
 
     # Process bulk enrollment
     with transaction.atomic():
@@ -664,9 +662,9 @@ def handle_bulk_enrollment(request, allocation, mode):
 
         # Redirect to enrollment list if any successful
         if successful_enrollments:
-            return redirect('/person/admin/dashboard/?section=enrollments')
+            return redirect('/admin/dashboard/?section=enrollments')
         else:
-            return redirect(f'/person/admin/enrollments/create/?mode={mode}')
+            return redirect(f'/admin/enrollments/create/?mode={mode}')
 
 @login_required
 def enrollment_detail(request, enrollment_id):
@@ -732,7 +730,7 @@ def enrollment_update(request, enrollment_id):
             try:
                 form.save()
                 messages.success(request, 'Enrollment updated successfully')
-                return redirect('student:enrollment_list')
+                return redirect('management:enrollment_list')
 
             except Exception as e:
                 messages.error(request, f'Error updating enrollment: {str(e)}')
@@ -761,7 +759,7 @@ def enrollment_delete(request, enrollment_id):
                     enrollment.delete()
 
                 messages.success(request, 'Enrollment deleted successfully')
-                return redirect('/person/admin/dashboard/?section=enrollments')
+                return redirect('/admin/dashboard/?section=enrollments')
 
         except Exception as e:
             messages.error(request, f'Error deleting enrollment: {str(e)}')
@@ -1568,7 +1566,6 @@ def get_enrollment_filter_options():
         ('Active', 'Active'),
         ('Completed', 'Completed'),
         ('Dropped', 'Dropped'),
-        ('Withdrawn', 'Withdrawn'),
     ]
 
     return {

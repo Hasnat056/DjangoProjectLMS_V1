@@ -63,7 +63,7 @@
     <div class="card-gradient p-6 rounded-xl">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Course List</h3>
-            <a href="/person/admin/academic/courses/create/"
+            <a href="/admin/courses/create/"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
@@ -164,7 +164,7 @@
                     {% for course_info in courses %}
                     <tr class="course-row hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="/person/admin/academic/courses/{{ course_info.course_code }}/"
+                            <a href="/admin/courses/{{ course_info.course_code }}/"
                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                 {{ course_info.course_code }}
                             </a>
@@ -179,7 +179,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if course_info.prerequisite %}
-                                <a href="/person/admin/academic/courses/{{ course_info.prerequisite }}/"
+                                <a href="/admin/courses/{{ course_info.prerequisite }}/"
                                    class="text-sm text-purple-600 hover:text-purple-900">
                                     {{ course_info.prerequisite }}
                                 </a>
@@ -191,7 +191,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                             <div class="flex items-center justify-end space-x-3">
                                 <!-- Delete Link -->
-                                <a href="/person/admin/academic/courses/{{ course_info.course_code }}/delete/"
+                                <a href="/admin/courses/{{ course_info.course_code }}/delete/"
                                    class="text-red-600 hover:text-red-900">
                                     Delete
                                 </a>
@@ -202,7 +202,7 @@
                     {% empty %}
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                            No courses found. <a href="/person/admin/academic/courses/create/" class="text-emerald-600 hover:text-emerald-900">Create the first course</a>.
+                            No courses found. <a href="/admin/courses/create/" class="text-emerald-600 hover:text-emerald-900">Create the first course</a>.
                         </td>
                     </tr>
                     {% endfor %}
@@ -324,7 +324,7 @@ async function openCourseEditModal(courseCode) {
 
     try {
         showLoading(); // Show loading if available
-        const response = await fetch(`/person/admin/academic/courses/${courseCode}/edit-modal/`);
+        const response = await fetch(`/admin/courses/${courseCode}/edit-modal/`);
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -366,7 +366,7 @@ function closeCourseEditModal() {
                     }
                 });
 
-                const url = '/person/admin/academic/courses/' + (courseParams.toString() ? '?' + courseParams.toString() : '');
+                const url = '/admin/courses/' + (courseParams.toString() ? '?' + courseParams.toString() : '');
                 window.loadCourseSection(targetSection, url);
             } else {
                 // Fallback: reload the page

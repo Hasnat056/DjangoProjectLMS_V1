@@ -70,7 +70,7 @@
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Students List</h3>
-            <button onclick="window.location.href='/person/admin/students/create/'"
+            <button onclick="window.location.href='/admin/students/create/'"
                     class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
@@ -179,7 +179,7 @@
                     {% for student in students %}
                     <tr class="student-row hover:bg-gray-50 cursor-pointer transition-colors"
                         data-student-id="{{ student.studentid.personid }}"
-                        onclick="window.location.href='/person/admin/students/{{ student.studentid.personid }}/'">
+                        onclick="window.location.href='/admin/students/{{ student.studentid.personid }}/'">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-blue-600 hover:text-blue-800">
                                 {{ student.studentid.personid }}
@@ -239,7 +239,7 @@
                                 </svg>
                                 <p class="text-lg font-medium mb-2">No students found</p>
                                 <p class="text-sm">Try adjusting your search criteria or add a new student</p>
-                                <button onclick="window.location.href='/person/admin/students/create/'"
+                                <button onclick="window.location.href='/admin/students/create/'"
                                         class="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors">
                                     Add First Student
                                 </button>
@@ -343,7 +343,7 @@ function initializeStudentPage() {
         }
 
         // Build URL with filters
-        const url = '/person/admin/students/?' + params.toString();
+        const url = '/admin/students/?' + params.toString();
 
         // Load student section with filters applied
         loadStudentWithFilters(url);
@@ -369,22 +369,13 @@ function initializeStudentPage() {
             if (classFilter) params.append('class', classFilter);
             if (status) params.append('status', status);
 
-            const url = '/person/admin/students/?' + params.toString();
+            const url = '/admin/students/?' + params.toString();
 
             // Load student section with pagination
             loadStudentWithFilters(url);
         });
     });
 
-    // Handle clear filters
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            // Load student section without any filters
-            loadStudentWithFilters('/person/admin/students/');
-        });
-    }
 
     // Add real-time search
     const searchInput = document.getElementById('student-search');

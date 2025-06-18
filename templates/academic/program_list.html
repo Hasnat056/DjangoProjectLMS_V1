@@ -63,7 +63,7 @@
     <div class="card-gradient p-6 rounded-xl">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Program List</h3>
-            <a href="/person/admin/academic/programs/create/"
+            <a href="/admin/programs/create/"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
@@ -168,7 +168,7 @@
                     {% for program_info in programs %}
                     <tr class="program-row hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="/person/admin/academic/programs/{{ program_info.program_id }}/"
+                            <a href="/admin/programs/{{ program_info.program_id }}/"
                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                 {{ program_info.program_id }}
                             </a>
@@ -205,7 +205,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end space-x-2">
                                 <!-- Edit Button -->
-                                <a href="/person/admin/academic/programs/{{ program_info.program_id }}/edit/"
+                                <a href="/admin/programs/{{ program_info.program_id }}/edit/"
                                     class="inline-flex items-center px-3 py-2 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
@@ -226,7 +226,7 @@
                     {% empty %}
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                            No programs found. <a href="/person/admin/academic/programs/create/" class="text-emerald-600 hover:text-emerald-900">Create the first program</a>.
+                            No programs found. <a href="/admin/programs/create/" class="text-emerald-600 hover:text-emerald-900">Create the first program</a>.
                         </td>
                     </tr>
                     {% endfor %}
@@ -332,7 +332,7 @@
         // Create a form for DELETE request
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/person/admin/academic/programs/${programId}/delete/`;
+        form.action = `/admin/programs/${programId}/delete/`;
 
         // Add CSRF token
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
