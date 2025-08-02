@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester {{ semester.semesterno }} Details - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .semester-hero {
+            background: linear-gradient(135deg, #0f766e 0%, #059669 100%);
+            position: relative;
+        }
+
+        .content-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+            transition: height 0.4s ease;
+        }
+
+        .content-card:hover::before {
+            height: 100%;
+        }
+
+        .content-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .content-card:nth-child(odd)::before {
+            background: linear-gradient(to bottom, #10b981, #059669);
+        }
+
+        .content-card:nth-child(even)::before {
+            background: linear-gradient(to bottom, #f59e0b, #d97706);
+        }
+
+        .info-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+        }
+
+        .info-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .status-completed {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #6366f1;
+        }
+
+        .status-inactive {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #9ca3af;
+        }
+
+        .course-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            transition: width 0.3s ease;
+        }
+
+        .course-item:hover::after {
+            width: 100%;
+        }
+
+        .course-item:hover {
+            background: linear-gradient(135deg, #eff6ff 0%, #f3e8ff 100%);
+            border-color: #8b5cf6;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+        }
+
+        .allocation-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            transition: all 0.3s ease;
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .allocation-card:hover {
+            border-left-color: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        }
+
+        .allocation-card:hover .btn-secondary {
+            border-color: #10b981;
+            color: #059669;
+        }
+
+        .transcript-item {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transcript-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .transcript-item:hover::before {
+            left: 100%;
+        }
+
+        .transcript-item:hover {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            border: none;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #065f46, #047857);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #1f2937;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .animated-card {
+            animation: slideUpFade 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .animated-card:nth-child(1) { animation-delay: 0.1s; }
+        .animated-card:nth-child(2) { animation-delay: 0.2s; }
+        .animated-card:nth-child(3) { animation-delay: 0.3s; }
+        .animated-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated-counter {
+            transition: all 0.3s ease;
+        }
+
+        .animated-card {
+            animation: slideUpFade 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .animated-card:nth-child(1) { animation-delay: 0.1s; }
+        .animated-card:nth-child(2) { animation-delay: 0.2s; }
+        .animated-card:nth-child(3) { animation-delay: 0.3s; }
+        .animated-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated-counter {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Semesters (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                        </svg>
+                        <span class="font-medium">Semesters</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header (Program-style) -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/dashboard/?section=semesters" class="hover:text-emerald-600">Semester Management</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">Semester {{ semester.semesterno }} - {{ semester.session|default:"Academic Session" }}</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Semester {{ semester.semesterno }} Details</h2>
+                        <p class="text-gray-600">
+                            {% if linked_class %}
+                                {{ linked_class.programid.departmentid.departmentname }} • {{ summary_stats.linked_class_display }}
+                            {% else %}
+                                {{ semester.session|default:"No Session" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/admin/dashboard/?section=semesters"
+                           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Semesters</span>
+                        </a>
+                        {% if semester.semesterid %}
+                        <a href="/admin/semesters/{{ semester.semesterid }}/report/"
+                           class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors inline-flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm1 1v10h10V5H4zm2 2h6v2H6V7zm0 4h6v2H6v-2z"></path>
+                            </svg>
+                            <span>View Analytics</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-7xl mx-auto space-y-6">
+
+                    <!-- Statistics Cards with Animation -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="animated-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-l-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-blue-600">Total Courses</p>
+                                    <p class="text-3xl font-bold text-blue-700 animated-counter" data-target="{{ summary_stats.total_courses }}">0</p>
+                                </div>
+                                <div class="bg-blue-200 p-3 rounded-full">
+                                    <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="animated-card bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-xl border-l-4 border-emerald-500 transform hover:scale-105 transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-emerald-600">Course Allocations</p>
+                                    <p class="text-3xl font-bold text-emerald-700 animated-counter" data-target="{{ summary_stats.total_allocations }}">0</p>
+                                </div>
+                                <div class="bg-emerald-200 p-3 rounded-full">
+                                    <svg class="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="animated-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-l-4 border-purple-500 transform hover:scale-105 transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-purple-600">Class Enrollments</p>
+                                    <p class="text-3xl font-bold text-purple-700 animated-counter" data-target="{{ summary_stats.class_enrollments }}">0</p>
+                                </div>
+                                <div class="bg-purple-200 p-3 rounded-full">
+                                    <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="animated-card bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border-l-4 border-orange-500 transform hover:scale-105 transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-orange-600">Status</p>
+                                    <div class="flex items-center space-x-2 mt-2">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-{{ semester.status|lower }}">
+                                            {{ semester.status }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="bg-orange-200 p-3 rounded-full">
+                                    <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="content-card p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 section-header">Basic Information</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="info-item rounded-lg">
+                                <div class="text-sm text-gray-600">Semester Number</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ semester.semesterno }}</div>
+                            </div>
+                            <div class="info-item rounded-lg">
+                                <div class="text-sm text-gray-600">Session</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ semester.session|default:"Not Set" }}</div>
+                            </div>
+                            <div class="info-item rounded-lg">
+                                <div class="text-sm text-gray-600">Status</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ semester.status }}</div>
+                            </div>
+                            <div class="info-item rounded-lg">
+                                <div class="text-sm text-gray-600">Linked Class</div>
+                                <div class="text-lg font-semibold text-gray-900">
+                                    {% if linked_class %}
+                                        <a href="/admin/classes/{{ linked_class.classid }}/" class="text-emerald-600 hover:text-emerald-700">
+                                            {{ summary_stats.linked_class_display }}
+                                        </a>
+                                    {% else %}
+                                        No Class Linked
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Courses and Allocations -->
+                    <div class="content-card p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 section-header">Courses & Allocations</h2>
+                        {% if courses_data %}
+                            <div class="space-y-4">
+                                {% for course_info in courses_data %}
+                                <div class="course-item">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900">{{ course_info.course.coursecode }}</h3>
+                                            <p class="text-gray-600">{{ course_info.course.coursename }}</p>
+                                            <p class="text-sm text-gray-500">Credit Hours: {{ course_info.course.credithours }}</p>
+                                        </div>
+                                        <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-sm font-medium">
+                                            {{ course_info.allocations|length }} Allocation{{ course_info.allocations|length|pluralize }}
+                                        </span>
+                                    </div>
+
+                                    {% if course_info.allocations %}
+                                    <div class="space-y-2">
+                                        {% for allocation in course_info.allocations %}
+                                        <div class="allocation-card">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">{{ allocation.teacher_name }}</p>
+                                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                                        <span>Total: {{ allocation.total_enrollments }} students</span>
+                                                        {% if linked_class %}
+                                                        <span>From Class: {{ allocation.class_enrollments }} students</span>
+                                                        {% endif %}
+                                                        <span>Status: {{ allocation.status }}</span>
+                                                        {% if allocation.session %}
+                                                        <span>Session: {{ allocation.session }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <a href="/admin/allocations/{{ allocation.allocation.allocationid }}/"
+                                                       class="btn-secondary text-sm">
+                                                        View Details
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8">
+                                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No Courses Found</h3>
+                                <p class="text-gray-600">This semester doesn't have any courses assigned yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Transcripts Section (for Completed Semesters) -->
+                    {% if transcript_data and semester.status == 'Completed' %}
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Transcript Statistics -->
+                        <div class="content-card p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 section-header">Transcript Statistics</h2>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="info-item rounded-lg">
+                                        <div class="text-sm text-gray-600">Total Transcripts</div>
+                                        <div class="text-2xl font-bold text-gray-900">{{ transcript_data.total_transcripts }}</div>
+                                    </div>
+                                    <div class="info-item rounded-lg">
+                                        <div class="text-sm text-gray-600">Average GPA</div>
+                                        <div class="text-2xl font-bold text-emerald-600">{{ transcript_data.average_gpa }}</div>
+                                    </div>
+                                    <div class="info-item rounded-lg">
+                                        <div class="text-sm text-gray-600">Highest GPA</div>
+                                        <div class="text-2xl font-bold text-blue-600">{{ transcript_data.highest_gpa }}</div>
+                                    </div>
+                                    <div class="info-item rounded-lg">
+                                        <div class="text-sm text-gray-600">Lowest GPA</div>
+                                        <div class="text-2xl font-bold text-gray-600">{{ transcript_data.lowest_gpa }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Performance Distribution -->
+                                <div class="mt-6">
+                                    <h4 class="font-medium text-gray-900 mb-3">Performance Distribution</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Excellent (3.5+)</span>
+                                            <span class="font-medium text-emerald-600">{{ transcript_data.excellent_count }} students</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Good (3.0-3.5)</span>
+                                            <span class="font-medium text-blue-600">{{ transcript_data.good_count }} students</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Average (2.5-3.0)</span>
+                                            <span class="font-medium text-yellow-600">{{ transcript_data.average_count }} students</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Below Average (<2.5)</span>
+                                            <span class="font-medium text-red-600">{{ transcript_data.below_average_count }} students</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transcript Chart -->
+                        {% if transcript_chart_data %}
+                        <div class="chart-container">
+                            <h2 class="text-xl font-semibold text-gray-900 section-header">GPA Distribution</h2>
+                            <canvas id="transcriptChart" width="400" height="300"></canvas>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Individual Transcripts -->
+                    <div class="content-card p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 section-header">Individual Transcripts</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for transcript in transcript_data.transcripts %}
+                            <div class="transcript-item">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">
+                                            <a href="/admin/students/{{ transcript.studentid.studentid.personid }}/"
+                                               class="text-blue-600 hover:text-blue-700">
+                                                {{ transcript.studentid.studentid.fname }} {{ transcript.studentid.studentid.lname }}
+                                            </a>
+                                        </p>
+                                        <p class="text-sm text-gray-600">Total Credits: {{ transcript.totalcredits }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-lg font-bold text-emerald-600">{{ transcript.semestergpa }}</p>
+                                        <p class="text-xs text-gray-500">Semester GPA</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Summary Statistics -->
+                    <div class="content-card p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 section-header">Summary</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="info-item rounded-lg text-center">
+                                <div class="text-2xl font-bold text-emerald-600">{{ summary_stats.total_courses }}</div>
+                                <div class="text-sm text-gray-600">Total Courses</div>
+                            </div>
+                            <div class="info-item rounded-lg text-center">
+                                <div class="text-2xl font-bold text-blue-600">{{ summary_stats.total_allocations }}</div>
+                                <div class="text-sm text-gray-600">Course Allocations</div>
+                            </div>
+                            <div class="info-item rounded-lg text-center">
+                                <div class="text-2xl font-bold text-purple-600">{{ summary_stats.class_enrollments }}</div>
+                                <div class="text-sm text-gray-600">Class Enrollments</div>
+                            </div>
+                            <div class="info-item rounded-lg text-center">
+                                <div class="text-2xl font-bold text-gray-600">{{ class_students_count|default:0 }}</div>
+                                <div class="text-sm text-gray-600">Students in Class</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        }
+
+        // Initialize transcript chart if data exists
+        {% if transcript_chart_data %}
+        function initializeTranscriptChart() {
+            const ctx = document.getElementById('transcriptChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ transcript_chart_data.labels|safe }},
+                    datasets: [{
+                        label: 'Number of Students',
+                        data: {{ transcript_chart_data.data|safe }},
+                        backgroundColor: [
+                            '#fee2e2', '#fed7aa', '#fef3c7',
+                            '#d1fae5', '#dbeafe', '#e0e7ff'
+                        ],
+                        borderColor: [
+                            '#dc2626', '#ea580c', '#d97706',
+                            '#059669', '#2563eb', '#4f46e5'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        {% endif %}
+
+        // Add simple hover effects
+        function initializeInteractions() {
+            // Add loading states for links
+            document.querySelectorAll('a[href^="/admin/"]').forEach(link => {
+                link.addEventListener('click', function() {
+                    this.style.opacity = '0.7';
+                    setTimeout(() => {
+                        this.style.opacity = '1';
+                    }, 2000);
+                });
+            });
+
+            // Animate counters
+            animateCounters();
+        }
+
+        function animateCounters() {
+            const counters = document.querySelectorAll('.animated-counter');
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target')) || 0;
+                const duration = 1500;
+                const increment = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 16);
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminProfile();
+            initializeInteractions();
+
+            {% if transcript_chart_data %}
+            initializeTranscriptChart();
+            {% endif %}
+
+            console.log('Semester Detail View initialized successfully!');
+        });
+    </script>
+</body>
+</html>

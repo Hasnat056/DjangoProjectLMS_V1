@@ -14,11 +14,17 @@ class Faculty(models.Model):
 
 
 class Courseallocation(models.Model):
+
+    STATUS_CHOICES = [
+        ('Ongoing','Ongoing'),
+        ('Completed','Completed'),
+        ('Cancelled','Cancelled'),
+    ]
     allocationid = models.AutoField(db_column='allocationID', primary_key=True)  # Field name made lowercase.
     teacherid = models.ForeignKey('FacultyModule.Faculty', on_delete=models.RESTRICT, db_column='teacherID')  # Field name made lowercase.
     coursecode = models.ForeignKey('AcademicStructure.Course', on_delete=models.RESTRICT, db_column='courseCode')  # Field name made lowercase.
     session = models.CharField(max_length=20, blank=True, null=True)
-    status = models.CharField(max_length=9, blank=True, null=True)
+    status = models.CharField(max_length=9, choices=STATUS_CHOICES, default='Ongoing', db_column='status')
 
     class Meta:
         db_table = 'courseallocation'

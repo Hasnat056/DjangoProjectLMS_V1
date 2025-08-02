@@ -1,0 +1,578 @@
+<!-- Reports Section Content -->
+<div class="p-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Hero Statistics Section -->
+    <div class="mb-8">
+
+        <!-- Primary Stats - Hero Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all duration-300">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-8 -ml-8 w-24 h-24 bg-white/5 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-blue-200 text-sm font-medium">Total</span>
+                    </div>
+                    <div class="text-3xl font-bold mb-2">{{ total_students }}</div>
+                    <div class="text-blue-200 text-sm">Students Registered</div>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all duration-300">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-8 -ml-8 w-24 h-24 bg-white/5 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-emerald-200 text-sm font-medium">Active</span>
+                    </div>
+                    <div class="text-3xl font-bold mb-2">{{ total_faculty }}</div>
+                    <div class="text-emerald-200 text-sm">Faculty Members</div>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all duration-300">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-8 -ml-8 w-24 h-24 bg-white/5 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-purple-200 text-sm font-medium">Live</span>
+                    </div>
+                    <div class="text-3xl font-bold mb-2">{{ total_programs }}</div>
+                    <div class="text-purple-200 text-sm">Active Programs</div>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all duration-300">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-8 -ml-8 w-24 h-24 bg-white/5 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-orange-200 text-sm font-medium">Total</span>
+                    </div>
+                    <div class="text-3xl font-bold mb-2">{{ total_courses }}</div>
+                    <div class="text-orange-200 text-sm">Available Courses</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Status Analytics -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Student Status Distribution -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg mr-3 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    Student Status Distribution
+                </h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-l-4 border-green-500">
+                        <div class="text-2xl font-bold text-green-700">{{ enrolled_students }}</div>
+                        <div class="text-sm text-green-600 font-medium">Enrolled</div>
+                        <div class="text-xs text-green-500 mt-1">Currently Active</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-l-4 border-blue-500">
+                        <div class="text-2xl font-bold text-blue-700">{{ graduated_students }}</div>
+                        <div class="text-sm text-blue-600 font-medium">Graduated</div>
+                        <div class="text-xs text-blue-500 mt-1">Completed</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-l-4 border-red-500">
+                        <div class="text-2xl font-bold text-red-700">{{ dropped_students }}</div>
+                        <div class="text-sm text-red-600 font-medium">Dropped</div>
+                        <div class="text-xs text-red-500 mt-1">Discontinued</div>
+                    </div>
+                </div>
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2V6a1 1 0 112 0v1h2a1 1 0 110 2H9a1 1 0 110-2z" clip-rule="evenodd"></path>
+                        </svg>
+                        Performance Rates
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border-l-4 border-green-500">
+                            <div class="text-2xl font-bold text-green-700">{{ graduation_rate }}%</div>
+                            <div class="text-sm text-green-600 font-medium">Graduation Rate</div>
+                            <div class="text-xs text-green-500 mt-1">Success Metric</div>
+                        </div>
+                        <div class="text-center p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-l-4 border-red-500">
+                            <div class="text-2xl font-bold text-red-700">{{ dropped_rate }}%</div>
+                            <div class="text-sm text-red-600 font-medium">Dropout Rate</div>
+                            <div class="text-xs text-red-500 mt-1">Attrition Metric</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Rates -->
+        <div class="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
+            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg mr-3 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.5 4a.5.5 0 01.5.5v4a.5.5 0 01-.5.5h-9a.5.5 0 01-.5-.5v-4a.5.5 0 01.5-.5h9z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                Activity Metrics
+            </h3>
+            <div class="space-y-4">
+                <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Course Activity</span>
+                        <span class="text-lg font-bold text-blue-600">{{ active_courses }}/{{ total_courses }}</span>
+                    </div>
+                    <div class="w-full bg-blue-200 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full transition-all duration-1000" style="width: {{ course_activity_rate }}%"></div>
+                    </div>
+                </div>
+                <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Enrollments</span>
+                        <span class="text-lg font-bold text-green-600">{{ active_enrollments }}/{{ total_enrollments }}</span>
+                    </div>
+                    <div class="w-full bg-green-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full transition-all duration-1000" style="width: {{ enrollment_activity_rate }}%"></div>
+                    </div>
+                </div>
+                <div class="p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Allocations</span>
+                        <span class="text-lg font-bold text-purple-600">{{ ongoing_allocations }}/{{ total_allocations }}</span>
+                    </div>
+                    <div class="w-full bg-purple-200 rounded-full h-2">
+                        <div class="bg-purple-500 h-2 rounded-full transition-all duration-1000" style="width: {{ allocation_activity_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Analytics Table -->
+    <div class="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg mr-3 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                </svg>
+            </div>
+            Department Distribution Overview
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="border-b-2 border-gray-200">
+                        <th class="text-left py-4 px-6 text-sm font-bold text-gray-700 uppercase tracking-wider">Department</th>
+                        <th class="text-center py-4 px-4 text-sm font-bold text-emerald-700 uppercase tracking-wider">Faculty</th>
+                        <th class="text-center py-4 px-4 text-sm font-bold text-purple-700 uppercase tracking-wider">Programs</th>
+                        <th class="text-center py-4 px-4 text-sm font-bold text-blue-700 uppercase tracking-wider">Classes</th>
+                        <th class="text-center py-4 px-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for faculty_dept in department_based_faculty %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-medium text-gray-900">{{ faculty_dept.departmentname }}</td>
+                        <td class="py-4 px-4 text-center">
+                            <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ faculty_dept.total }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-center">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {% for program_dept in department_based_programs %}
+                                    {% if program_dept.departmentname == faculty_dept.departmentname %}
+                                        {{ program_dept.total }}
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-center">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {% for class_dept in department_based_classes %}
+                                    {% if class_dept.departmentname == faculty_dept.departmentname %}
+                                        {{ class_dept.total }}
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-center">
+                            <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-bold">
+                                {% with faculty_count=faculty_dept.total %}
+                                {% for program_dept in department_based_programs %}
+                                    {% if program_dept.departmentname == faculty_dept.departmentname %}
+                                        {% with program_count=program_dept.total %}
+                                        {% for class_dept in department_based_classes %}
+                                            {% if class_dept.departmentname == faculty_dept.departmentname %}
+                                                {{ faculty_count|add:program_count|add:class_dept.total }}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% endwith %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-gray-500">No department data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Academic Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zM4 9h12v7H4V9z"></path>
+                    </svg>
+                </div>
+                <span class="text-indigo-200 text-sm font-medium">Academic</span>
+            </div>
+            <div class="text-3xl font-bold mb-2">{{ total_semesters_held }}</div>
+            <div class="text-indigo-200 text-sm">Total Semesters Conducted</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                    </svg>
+                </div>
+                <span class="text-teal-200 text-sm font-medium">Structure</span>
+            </div>
+            <div class="text-3xl font-bold mb-2">{{ total_classes }}</div>
+            <div class="text-teal-200 text-sm">Total Classes Available</div>
+        </div>
+    </div>
+
+    <!-- Report Navigation Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4 col-span-full">Detailed Reports</h3>
+
+        <!-- Faculty Performance Card -->
+        <div class="group bg-white rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2" onclick="window.location.href='/admin/reports/faculty/'">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-medium">Faculty</span>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">Faculty Performance</h4>
+                <p class="text-gray-600 mb-4">Teaching effectiveness and comprehensive faculty metrics analysis</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500 group-hover:text-emerald-600 transition-colors">View detailed reports →</span>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-gray-500">Live Data</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Analytics Card -->
+        <div class="group bg-white rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2" onclick="window.location.href='/admin/reports/student/'">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-medium">Students</span>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Student Progress Reports</h4>
+                <p class="text-gray-600 mb-4">Academic performance trends and progress reports</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500 group-hover:text-purple-600 transition-colors">Analyze student data →</span>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-gray-500">Updated</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semester Performance Card -->
+        <div class="group bg-white rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2" onclick="window.location.href='/admin/reports/semester/'">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zM4 9h12v7H4V9z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full font-medium">Academic</span>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">Semester Performance</h4>
+                <p class="text-gray-600 mb-4">Term-wise academic performance and attendance metrics</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500 group-hover:text-orange-600 transition-colors">View semester data →</span>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-gray-500">Current</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Reports Card - Extended -->
+        <div class="lg:col-span-2 group bg-white rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-4 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-teal-100 text-teal-800 text-xs px-3 py-1 rounded-full font-medium">Departments</span>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">Department Reports</h4>
+                <p class="text-gray-600 mb-6">Comprehensive department-wise analytics and insights</p>
+
+                <!-- Department Links Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    {% for dept in department_based_faculty %}
+                    <div class="p-3 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg border border-teal-200 hover:border-teal-400 hover:bg-teal-100 transition-all duration-200 cursor-pointer"
+                         onclick="window.location.href='/admin/reports/department/{{ forloop.counter }}/'">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm">{{ dept.departmentname }}</div>
+                                <div class="text-xs text-gray-500">
+                                    {{ dept.total }} faculty,
+                                    {% for prog_dept in department_based_programs %}
+                                        {% if prog_dept.departmentname == dept.departmentname %}
+                                            {{ prog_dept.total }} programs
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <svg class="w-4 h-4 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+                    <span class="text-sm text-gray-500 group-hover:text-teal-600 transition-colors">Select department above →</span>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-teal-400 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-gray-500">{{ department_based_faculty|length }} Departments</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alumni Report Card -->
+        <div class="group bg-white rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2" onclick="window.location.href='/admin/reports/alumni/'">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-4 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2V6a1 1 0 112 0v1h2a1 1 0 110 2H9a1 1 0 110-2z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-medium">Alumni</span>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">Alumni Reports</h4>
+                <p class="text-gray-600 mb-4">Graduate tracking and employment statistics analysis</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500 group-hover:text-indigo-600 transition-colors">View alumni data →</span>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-gray-500">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Enhanced Functionality -->
+<script>
+// Add ripple effect to clickable cards
+document.querySelectorAll('.cursor-pointer').forEach(card => {
+    card.addEventListener('click', function(e) {
+        const ripple = document.createElement('div');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        ripple.style.cssText = `
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        `;
+
+        this.appendChild(ripple);
+
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    });
+});
+
+// Animate progress bars on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.bg-blue-500, .bg-green-500, .bg-purple-500');
+    progressBars.forEach(bar => {
+        const originalWidth = bar.style.width;
+        bar.style.width = '0%';
+
+        setTimeout(() => {
+            bar.style.width = originalWidth;
+        }, 500);
+    });
+});
+
+// Auto refresh timestamp
+function updateTimestamp() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+
+    // You can add timestamp elements if needed
+    console.log(`Dashboard updated at: ${timeString}`);
+}
+
+// Refresh every 5 minutes
+setInterval(updateTimestamp, 300000);
+</script>
+
+<!-- Custom CSS for Animations -->
+<style>
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Enhanced hover effects */
+.group:hover .group-hover\:scale-110 {
+    transform: scale(1.1);
+}
+
+.group:hover .group-hover\:text-emerald-600 {
+    color: #059669;
+}
+
+.group:hover .group-hover\:text-purple-600 {
+    color: #9333ea;
+}
+
+.group:hover .group-hover\:text-orange-600 {
+    color: #ea580c;
+}
+
+.group:hover .group-hover\:text-teal-600 {
+    color: #0d9488;
+}
+
+.group:hover .group-hover\:text-indigo-600 {
+    color: #4f46e5;
+}
+
+.group:hover .group-hover\:text-blue-600 {
+    color: #2563eb;
+}
+
+/* Custom scrollbar for table */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Enhanced shadows */
+.shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.hover\:shadow-2xl:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-300 {
+    transition-duration: 300ms;
+}
+
+.duration-1000 {
+    transition-duration: 1000ms;
+}
+
+/* Animation delays for staggered effects */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+</style>

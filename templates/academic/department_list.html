@@ -1,0 +1,1142 @@
+<!-- Department List Template -->
+<div class="dept-list-container-unique p-6 bg-gray-50 min-h-screen">
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+        <form id="department-filter-form" class="flex flex-wrap items-center gap-4">
+            <div class="flex-1 min-w-64">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search Departments</label>
+                <div class="relative">
+                    <input type="text"
+                           id="department-search"
+                           name="search"
+                           value="{{ request.GET.search|default:'' }}"
+                           placeholder="Search by department name or HOD..."
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    Search
+                </button>
+                <button type="button" onclick="window.location.href = window.location.pathname;" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                    Clear
+                </button>
+            </div>
+        </form>
+    </div>
+<!-- Messages Display -->
+{% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+            <div class="alert rounded-lg p-4 mb-4 flex items-center space-x-3
+                {% if message.tags == 'success' %}
+                    bg-green-100 border border-green-400 text-green-700
+                {% elif message.tags == 'error' %}
+                    bg-red-100 border border-red-400 text-red-700
+                {% elif message.tags == 'warning' %}
+                    bg-yellow-100 border border-yellow-400 text-yellow-700
+                {% else %}
+                    bg-blue-100 border border-blue-400 text-blue-700
+                {% endif %}">
+
+                {% if message.tags == 'success' %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                {% elif message.tags == 'error' %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                {% else %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                {% endif %}
+
+                <span class="font-medium">{{ message }}</span>
+
+                <button onclick="this.parentElement.remove()" class="ml-auto">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+    <!-- Department Cards Container -->
+    <div class="space-y-4" id="departments-container">
+        {% for dept_item in dept_data %}
+        {% with dept=dept_item.department %}
+        <div class="department-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-emerald-200 hover:scale-[1.02] transform-gpu">
+            <!-- Department Header (Always Visible) -->
+            <div class="department-header p-8 cursor-pointer bg-gradient-to-r from-white via-gray-50 to-white hover:from-emerald-50 hover:via-white hover:to-blue-50 transition-all duration-300"
+                 onclick="
+                    var content = document.getElementById('content-{{ dept.departmentid }}');
+                    var icon = document.getElementById('icon-{{ dept.departmentid }}');
+
+                    if (content.style.maxHeight === '0px' || content.style.maxHeight === '') {
+                        // Expand
+                        content.style.maxHeight = '2000px';
+                        content.style.opacity = '1';
+                        content.style.paddingTop = '0px';
+                        content.style.paddingBottom = '0px';
+                        if (icon) icon.style.transform = 'rotate(180deg)';
+                        console.log('Expanding dept: {{ dept.departmentid }}');
+                    } else {
+                        // Collapse
+                        content.style.maxHeight = '0px';
+                        content.style.opacity = '0';
+                        content.style.paddingTop = '0px';
+                        content.style.paddingBottom = '0px';
+                        if (icon) icon.style.transform = 'rotate(0deg)';
+                        console.log('Collapsing dept: {{ dept.departmentid }}');
+                    }
+                 ">
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-6">
+                        <!-- Department Icon with Gradient -->
+                        <div class="relative">
+                            <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <svg class="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                                </svg>
+                            </div>
+                            <!-- Status Indicator -->
+                            <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white shadow-lg"></div>
+                        </div>
+
+                        <!-- Department Info -->
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h3 class="text-2xl font-bold text-gray-900 tracking-tight">Department of {{ dept.departmentname }}</h3>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Active
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <span class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 3a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>ID: {{ dept.departmentid }}</span>
+                                </span>
+                                {% if dept.hod %}
+                                    <span class="flex items-center space-x-1 text-emerald-600">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                        </svg>
+                                        <span>HOD: {{ dept.hod.employeeid.fname }} {{ dept.hod.employeeid.lname }}</span>
+                                    </span>
+                                {% elif dept_item.pending_hod_change %}
+                                    <!-- Pending/Confirmed/Other Status -->
+                                    {% if dept_item.pending_hod_change.status == 'pending' %}
+                                        <span class="flex items-center space-x-1 text-purple-600">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>HOD: {{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</span>
+                                        </span>
+                                    {% elif dept_item.pending_hod_change.status == 'confirmed' %}
+                                        <span class="flex items-center space-x-1 text-blue-600">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                            </svg>
+                                            <span>HOD: {{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</span>
+                                        </span>
+                                    {% elif dept_item.pending_hod_change.status == 'declined' %}
+                                        <span class="flex items-center space-x-1 text-red-600">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>HOD Request Declined</span>
+                                        </span>
+                                    {% elif dept_item.pending_hod_change.status == 'expired' %}
+                                        <span class="flex items-center space-x-1 text-gray-500">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>HOD Request Expired</span>
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- No HOD and no pending changes -->
+                                    <span class="flex items-center space-x-1 text-amber-600">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>No HOD Assigned</span>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-8">
+                        <div class="hidden lg:flex items-center space-x-8">
+                            <div class="text-center group">
+                                <div class="bg-blue-50 rounded-xl p-3 group-hover:bg-blue-100 transition-colors">
+                                    <div class="text-2xl font-bold text-blue-600">{{ dept_item.faculty_count }}</div>
+                                    <div class="text-xs font-medium text-blue-700 uppercase tracking-wide">Faculty</div>
+                                </div>
+                            </div>
+                            <div class="text-center group">
+                                <div class="bg-purple-50 rounded-xl p-3 group-hover:bg-purple-100 transition-colors">
+                                    <div class="text-2xl font-bold text-purple-600">{{ dept_item.program_count }}</div>
+                                    <div class="text-xs font-medium text-purple-700 uppercase tracking-wide">Programs</div>
+                                </div>
+                            </div>
+                            <div class="text-center group">
+                                <div class="bg-green-50 rounded-xl p-3 group-hover:bg-green-100 transition-colors">
+                                    <div class="text-2xl font-bold text-green-600">{{ dept_item.student_count }}</div>
+                                    <div class="text-xs font-medium text-green-700 uppercase tracking-wide">Students</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-gray-100 hover:bg-emerald-100 rounded-full p-3 transition-all duration-300 group">
+                                <svg id="icon-{{ dept.departmentid }}" class="w-6 h-6 text-gray-600 group-hover:text-emerald-600 transform transition-all duration-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Stats (visible on smaller screens) -->
+                <div class="lg:hidden mt-6 grid grid-cols-3 gap-4">
+                    <div class="text-center bg-blue-50 rounded-xl p-3">
+                        <div class="text-xl font-bold text-blue-600">{{ dept_item.faculty_count }}</div>
+                        <div class="text-xs font-medium text-blue-700">Faculty</div>
+                    </div>
+                    <div class="text-center bg-purple-50 rounded-xl p-3">
+                        <div class="text-xl font-bold text-purple-600">{{ dept_item.program_count }}</div>
+                        <div class="text-xs font-medium text-purple-700">Programs</div>
+                    </div>
+                    <div class="text-center bg-green-50 rounded-xl p-3">
+                        <div class="text-xl font-bold text-green-600">{{ dept_item.student_count }}</div>
+                        <div class="text-xs font-medium text-green-700">Students</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expandable Content -->
+            <div id="content-{{ dept.departmentid }}" class="department-content-animated" style="max-height: 0px; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0;">
+                <div class="border-t border-gray-200">
+                    <!-- Department Details -->
+                    <div class="p-6 bg-gray-50">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Current HOD Section -->
+                            <div class="lg:col-span-1">
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                        <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                        </svg>
+                                        Head of Department
+                                    </h4>
+                                    <div class="space-y-3">
+                                        {% if dept.hod %}
+                                            <!-- Current Active HOD -->
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                                                    <span class="text-emerald-600 font-semibold text-xs">
+                                                        {{ dept.hod.employeeid.fname|first }}{{ dept.hod.employeeid.lname|first }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium text-gray-900">{{ dept.hod.employeeid.fname }} {{ dept.hod.employeeid.lname }}</p>
+                                                    <p class="text-sm text-gray-500">{{ dept.hod.employeeid.institutionalemail }}</p>
+                                                    <p class="text-xs text-emerald-600 font-medium">Status: Active</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Check for pending changes to current HOD -->
+                                            {% if dept_item.pending_hod_change %}
+                                                <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                    <p class="text-sm font-medium text-yellow-800">HOD Change
+                                                        Request</p>
+                                                    <div class="flex items-center space-x-2 mt-2">
+                                                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                                            <span class="text-yellow-600 font-semibold text-xs">
+                                                                {{ dept_item.pending_hod_change.new_hod.employeeid.fname|first }}{{ dept_item.pending_hod_change.new_hod.employeeid.lname|first }}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm text-yellow-800">{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</p>
+                                                            <p class="text-xs text-yellow-600">
+                                                                Status: {{ dept_item.pending_hod_change.get_status_display }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                        {% elif dept_item.pending_hod_change %}
+                                            <!-- No current HOD but has pending change -->
+                                            <div class="flex items-center space-x-3">
+                                                {% if dept_item.pending_hod_change.status == 'pending' %}
+                                                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-yellow-600 font-semibold text-xs">
+                                                            {{ dept_item.pending_hod_change.new_hod.employeeid.fname|first }}{{ dept_item.pending_hod_change.new_hod.employeeid.lname|first }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-medium text-gray-900">{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</p>
+                                                        <p class="text-sm text-gray-500">{{ dept_item.pending_hod_change.new_hod.employeeid.institutionalemail }}</p>
+                                                        <p class="text-xs text-yellow-600 font-medium">Status: Awaiting
+                                                            Email Confirmation</p>
+                                                    </div>
+                                                {% elif dept_item.pending_hod_change.status == 'confirmed' %}
+                                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-blue-600 font-semibold text-xs">
+                                                            {{ dept_item.pending_hod_change.new_hod.employeeid.fname|first }}{{ dept_item.pending_hod_change.new_hod.employeeid.lname|first }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-medium text-gray-900">{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</p>
+                                                        <p class="text-sm text-gray-500">{{ dept_item.pending_hod_change.new_hod.employeeid.institutionalemail }}</p>
+                                                        <p class="text-xs text-blue-600 font-medium">Status: Confirmed -
+                                                            Ready to Apply</p>
+                                                    </div>
+                                                {% elif dept_item.pending_hod_change.status == 'declined' %}
+                                                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-red-600 font-semibold text-xs">
+                                                            {{ dept_item.pending_hod_change.new_hod.employeeid.fname|first }}{{ dept_item.pending_hod_change.new_hod.employeeid.lname|first }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-medium text-gray-900">{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</p>
+                                                        <p class="text-sm text-gray-500">{{ dept_item.pending_hod_change.new_hod.employeeid.institutionalemail }}</p>
+                                                        <p class="text-xs text-red-600 font-medium">Status: Declined
+                                                            Assignment</p>
+                                                    </div>
+                                                {% elif dept_item.pending_hod_change.status == 'expired' %}
+                                                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-gray-600 font-semibold text-xs">
+                                                            {{ dept_item.pending_hod_change.new_hod.employeeid.fname|first }}{{ dept_item.pending_hod_change.new_hod.employeeid.lname|first }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-medium text-gray-900">{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }}</p>
+                                                        <p class="text-sm text-gray-500">{{ dept_item.pending_hod_change.new_hod.employeeid.institutionalemail }}</p>
+                                                        <p class="text-xs text-gray-600 font-medium">Status: Request
+                                                            Expired</p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <!-- No HOD and no pending changes -->
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                                    <span class="text-gray-400 font-semibold text-xs">N/A</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium text-gray-500">No HOD Assigned</p>
+                                                    <p class="text-sm text-gray-400">Please assign a head of
+                                                        department</p>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <!-- Enhanced HOD Management Button with All Status Handling -->
+                                        <button class="hod-change-btn w-full px-3 py-2 rounded-lg text-sm transition-colors
+                                              {% if dept_item.pending_hod_change %}
+                                                    {% if dept_item.pending_hod_change.status == 'pending' %}
+                                                        bg-orange-600 hover:bg-orange-700 text-white
+                                                    {% elif dept_item.pending_hod_change.status == 'confirmed' %}
+                                                        bg-blue-600 hover:bg-blue-700 text-white
+                                                    {% elif dept_item.pending_hod_change.status == 'declined' %}
+                                                        bg-red-600 hover:bg-red-700 text-white
+                                                    {% elif dept_item.pending_hod_change.status == 'expired' %}
+                                                        bg-gray-600 hover:bg-gray-700 text-white
+                                                    {% endif %}
+                                              {% else %}
+                                                    bg-emerald-600 hover:bg-emerald-700 text-white
+                                              {% endif %}"
+                                                onclick="
+                                                        {% if dept_item.pending_hod_change and dept_item.pending_hod_change.status == 'confirmed' %}
+                                                            // Apply confirmed change (simple form submission)
+                                                            if (confirm('Apply the confirmed HOD change?\\n\\n{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }} will become the new HOD.')) {
+                                                                var form = document.createElement('form');
+                                                                form.method = 'POST';
+                                                                form.action = '/admin/hod-management/';
+
+                                                                var csrfInput = document.createElement('input');
+                                                                csrfInput.type = 'hidden';
+                                                                csrfInput.name = 'csrfmiddlewaretoken';
+                                                                csrfInput.value = '{{ csrf_token }}';
+                                                                form.appendChild(csrfInput);
+
+                                                                var actionInput = document.createElement('input');
+                                                                actionInput.type = 'hidden';
+                                                                actionInput.name = 'action';
+                                                                actionInput.value = 'apply_change';
+                                                                form.appendChild(actionInput);
+
+                                                                var deptInput = document.createElement('input');
+                                                                deptInput.type = 'hidden';
+                                                                deptInput.name = 'department_id';
+                                                                deptInput.value = '{{ dept.departmentid }}';
+                                                                form.appendChild(deptInput);
+
+                                                                document.body.appendChild(form);
+                                                                this.disabled = true;
+                                                                this.textContent = 'Applying change...';
+                                                                form.submit();
+                                                            }
+                                                        {% elif dept_item.pending_hod_change and dept_item.pending_hod_change.status == 'pending' %}
+                                                            // Show pending info with time remaining
+                                                            var requestedTime = new Date('{{ dept_item.pending_hod_change.requested_at|date:'c' }}');
+                                                            var expiryTime = new Date(requestedTime.getTime() + (48 * 60 * 60 * 1000)); // Add 48 hours
+                                                            var now = new Date();
+                                                            var timeLeft = expiryTime - now;
+                                                            if (timeLeft > 0) {
+                                                                var hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                                                                var minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                                                                alert('Waiting for {{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }} to confirm.\\n\\nTime remaining: ' + hoursLeft + ' hours and ' + minutesLeft + ' minutes\\n\\nConfirmation email was sent to: {{ dept_item.pending_hod_change.new_hod.employeeid.institutionalemail }}');
+                                                            } else {
+                                                                alert('The confirmation period has expired. You can create a new HOD assignment.');
+                                                            }
+                                                        {% elif dept_item.pending_hod_change and dept_item.pending_hod_change.status == 'declined' %}
+                                                            // Show declined info but allow new assignment
+                                                            if (confirm('{{ dept_item.pending_hod_change.new_hod.employeeid.fname }} {{ dept_item.pending_hod_change.new_hod.employeeid.lname }} declined the HOD appointment.\\n\\nWould you like to assign a new HOD?')) {
+                                                                // Open modal for new assignment
+                                                                openHODModal();
+                                                            }
+                                                        {% elif dept_item.pending_hod_change and dept_item.pending_hod_change.status == 'expired' %}
+                                                            if (confirm('The previous HOD assignment request has expired.\\n\\nWould you like to create a new HOD assignment?')) {
+                                                                openHODModal();
+                                                            }
+                                                        {% else %}
+                                                            // Regular HOD assignment modal (your existing code)
+                                                            openHODModal();
+                                                        {% endif %}
+
+                                                        function openHODModal() {
+                                                            var deptId = '{{ dept.departmentid }}';
+                                                            var deptName = '{{ dept.departmentname }}';
+                                                            var currentHodName = '{% if dept.hod %}{{ dept.hod.employeeid.fname }} {{ dept.hod.employeeid.lname }}{% endif %}';
+                                                            var currentHodEmail = '{% if dept.hod %}{{ dept.hod.employeeid.institutionalemail }}{% endif %}';
+
+            // Set department info in modal
+            document.getElementById('dept-id').value = deptId;
+            document.getElementById('modal-dept-name').textContent = 'Department of ' + deptName;
+
+            // Set current HOD info
+            if (currentHodName && currentHodEmail) {
+                var nameParts = currentHodName.split(' ');
+                var currentInitials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
+                document.getElementById('current-hod-name').textContent = currentHodName;
+                document.getElementById('current-hod-email').textContent = currentHodEmail;
+                document.getElementById('current-hod-initials').textContent = currentInitials.toUpperCase();
+                document.getElementById('current-hod-section').style.display = 'block';
+            } else {
+                document.getElementById('current-hod-name').textContent = 'No HOD assigned';
+                document.getElementById('current-hod-email').textContent = '';
+                document.getElementById('current-hod-initials').textContent = 'N/A';
+            }
+
+            // Load faculty list from the embedded JSON data
+            var facultySelect = document.getElementById('new-hod');
+            facultySelect.innerHTML = '<option value=\'\'>-- Select Faculty Member --</option>';
+            try {
+                var facultyDataElement = document.getElementById('faculty-data-' + deptId);
+                if (facultyDataElement) {
+                    var facultyList = JSON.parse(facultyDataElement.textContent);
+                    facultyList.forEach(function(faculty) {
+                        var option = document.createElement('option');
+                        option.value = faculty.id;
+                        option.textContent = faculty.name;
+                        option.setAttribute('data-name', faculty.name);
+                        option.setAttribute('data-fname', faculty.fname);
+                        option.setAttribute('data-lname', faculty.lname);
+                        option.setAttribute('data-email', faculty.email);
+                        facultySelect.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('Error loading faculty data:', e);
+                facultySelect.innerHTML = '<option value=\'\'>-- Error loading faculty --</option>';
+            }
+
+            // Reset preview
+            document.getElementById('selected-hod-preview').classList.add('hidden');
+
+            // Show modal
+            document.getElementById('hod-change-modal').classList.remove('hidden');
+            document.getElementById('hod-change-modal').classList.add('flex');
+        }
+    ">
+
+    <!-- Dynamic Button Text with Status Indicators -->
+    {% if dept_item.pending_hod_change %}
+        {% if dept_item.pending_hod_change.status == 'pending' %}
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Pending Confirmation</span>
+            </div>
+        {% elif dept_item.pending_hod_change.status == 'confirmed' %}
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Apply Confirmed Change</span>
+            </div>
+        {% elif dept_item.pending_hod_change.status == 'declined' %}
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Request Declined - Assign New</span>
+            </div>
+        {% elif dept_item.pending_hod_change.status == 'expired' %}
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Request Expired - Assign New</span>
+            </div>
+        {% endif %}
+    {% elif dept.hod %}
+        <div class="flex items-center justify-center space-x-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+            </svg>
+            <span>Change HOD</span>
+        </div>
+    {% else %}
+        <div class="flex items-center justify-center space-x-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path>
+            </svg>
+            <span>Assign HOD</span>
+        </div>
+    {% endif %}
+</button>
+
+
+                                        <!-- Hidden faculty data for this department -->
+                                        <script type="application/json" id="faculty-data-{{ dept.departmentid }}">
+                                        [{% for faculty in dept_item.faculty_list%}
+                                            {
+                                                "id": "{{ faculty.employeeid.personid }}",
+                                                "name": "{{ faculty.employeeid.fname }} {{ faculty.employeeid.lname }}",
+                                                "fname": "{{ faculty.employeeid.fname }}",
+                                                "lname": "{{ faculty.employeeid.lname }}",
+                                                "email": "{{ faculty.employeeid.personalemail }}"
+                                            }{% if not forloop.last %},{% endif %}
+                                        {% endfor %}]
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Statistics -->
+                            <div class="lg:col-span-2">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="bg-white rounded-lg p-4 border border-gray-200 text-center">
+                                        <div class="text-2xl font-bold text-blue-600">{{ dept_item.faculty_count }}</div>
+                                        <div class="text-sm text-gray-600">Total Faculty</div>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 border border-gray-200 text-center">
+                                        <div class="text-2xl font-bold text-purple-600">{{ dept_item.program_count }}</div>
+                                        <div class="text-sm text-gray-600">Programs</div>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 border border-gray-200 text-center">
+                                        <div class="text-2xl font-bold text-green-600">{{ dept_item.student_count }}</div>
+                                        <div class="text-sm text-gray-600">Students</div>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 border border-gray-200 text-center">
+                                        <div class="text-2xl font-bold text-orange-600">
+                                            {% with course_count=dept_item.department.course_count|default:0 %}
+                                                {{ course_count }}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="text-sm text-gray-600">Courses</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hierarchical Navigation -->
+                    <div class="p-6 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-4">Department Hierarchy & Management</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <a href="{% url 'management:departments-details' dept.departmentid %}"
+                               class="group p-4 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg transition-all duration-200 text-left border border-blue-200 block">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-6 h-6 text-blue-600 group-hover:scale-110 transition-transform"
+                                         fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-blue-800">Programs</p>
+                                        <p class="text-xs text-blue-600">{{ dept_item.program_count }} programs</p>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <button onclick="alert('Faculty view not implemented yet')" class="group p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 rounded-lg transition-all duration-200 text-left border border-emerald-200">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-6 h-6 text-emerald-600 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-emerald-800">Faculty</p>
+                                        <p class="text-xs text-emerald-600">{{ dept_item.faculty_count }} members</p>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button onclick="alert('Students view not implemented yet')" class="group p-4 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg transition-all duration-200 text-left border border-purple-200">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-6 h-6 text-purple-600 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-purple-800">Students</p>
+                                        <p class="text-xs text-purple-600">{{ dept_item.student_count }} enrolled</p>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button onclick="alert('Scheme of studies view not implemented yet')" class="group p-4 bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 rounded-lg transition-all duration-200 text-left border border-orange-200">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-6 h-6 text-orange-600 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-orange-800">Scheme</p>
+                                        <p class="text-xs text-orange-600">Curriculum overview</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% empty %}
+        <!-- No departments found -->
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Departments Found</h3>
+            <p class="text-gray-500">{% if request.GET.search %}No departments match your search criteria.{% else %}No departments have been created yet.{% endif %}</p>
+            {% if request.GET.search %}
+            <button onclick="window.location.href = window.location.pathname;" class="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors">
+                Clear Search
+            </button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if dept_data.has_other_pages %}
+    <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">{{ dept_data.start_index }}</span> to <span class="font-medium">{{ dept_data.end_index }}</span> of <span class="font-medium">{{ dept_data.paginator.count }}</span> results
+        </div>
+        <div class="flex items-center space-x-2">
+            {% if dept_data.has_previous %}
+            <button onclick="
+                var params = new URLSearchParams(window.location.search);
+                params.set('page', '{{ dept_data.previous_page_number }}');
+                window.location.href = window.location.pathname + '?' + params.toString();
+            " class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+                Previous
+            </button>
+            {% else %}
+            <button class="bg-white border border-gray-300 text-gray-400 px-3 py-2 rounded-lg text-sm cursor-not-allowed" disabled>
+                Previous
+            </button>
+            {% endif %}
+
+            {% for num in dept_data.paginator.page_range %}
+                {% if dept_data.number == num %}
+                <button class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm">{{ num }}</button>
+                {% elif num > dept_data.number|add:'-3' and num < dept_data.number|add:'3' %}
+                <button onclick="
+                    var params = new URLSearchParams(window.location.search);
+                    params.set('page', '{{ num }}');
+                    window.location.href = window.location.pathname + '?' + params.toString();
+                " class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+                    {{ num }}
+                </button>
+                {% endif %}
+            {% endfor %}
+
+            {% if dept_data.has_next %}
+            <button onclick="
+                var params = new URLSearchParams(window.location.search);
+                params.set('page', '{{ dept_data.next_page_number }}');
+                window.location.href = window.location.pathname + '?' + params.toString();
+            " class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+                Next
+            </button>
+            {% else %}
+            <button class="bg-white border border-gray-300 text-gray-400 px-3 py-2 rounded-lg text-sm cursor-not-allowed" disabled>
+                Next
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- HOD Change Modal -->
+<div id="hod-change-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-blue-50">
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900">Change Head of Department</h3>
+                <p class="text-sm text-gray-600 mt-1">Select a new HOD for <span id="modal-dept-name" class="font-medium text-emerald-600">Department</span></p>
+            </div>
+            <button onclick="
+                document.getElementById('hod-change-modal').classList.add('hidden');
+                document.getElementById('hod-change-modal').classList.remove('flex');
+                document.getElementById('hod-change-form').reset();
+                document.getElementById('selected-hod-preview').classList.add('hidden');
+            " class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6">
+            <form id="hod-change-form" method="post" action="/admin/hod-management/" onsubmit="
+                // Validate before submission
+                var selectedHod = document.getElementById('new-hod').value;
+                if (!selectedHod) {
+                    alert('Please select a faculty member');
+                    return false;
+                }
+
+    // Get faculty details for confirmation
+    var selectedOption = document.getElementById('new-hod').options[document.getElementById('new-hod').selectedIndex];
+    var facultyEmail = selectedOption.getAttribute('data-email');
+    var facultyName = selectedOption.getAttribute('data-name');
+
+    // Show confirmation dialog
+    var confirmed = confirm('Send confirmation email to ' + facultyName + ' at ' + facultyEmail + '?\\n\\nThey will need to click the confirmation link to accept the HOD role.');
+
+    if (confirmed) {
+        // Show loading message
+        var submitBtn = this.querySelector('button[type=submit]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending email to ' + facultyEmail + '...';
+        return true;
+    } else {
+        return false;
+    }
+">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <input type="hidden" name="action" value="submit_change">
+                <input type="hidden" id="dept-id" name="department_id" value="">
+
+                <!-- Current HOD Info -->
+                <div id="current-hod-section" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-medium text-blue-900 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                        </svg>
+                        Current HOD
+                    </h4>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-semibold text-sm" id="current-hod-initials">N/A</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-blue-900" id="current-hod-name">No HOD assigned</p>
+                            <p class="text-sm text-blue-700" id="current-hod-email"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New HOD Selection -->
+                <div class="mb-6">
+                    <label for="new-hod" class="block text-sm font-medium text-gray-700 mb-2">
+                        Select New Head of Department
+                    </label>
+                    <select id="new-hod" name="new_hod"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                            required
+                            onchange="
+                                var selectedOption = this.options[this.selectedIndex];
+                                var preview = document.getElementById('selected-hod-preview');
+
+                                if (selectedOption.value) {
+                                    var facultyName = selectedOption.getAttribute('data-name');
+                                    var facultyEmail = selectedOption.getAttribute('data-email');
+                                    var facultyFname = selectedOption.getAttribute('data-fname');
+                                    var facultyLname = selectedOption.getAttribute('data-lname');
+
+                                    if (facultyName && facultyEmail && facultyFname && facultyLname) {
+                                        // Calculate initials correctly: M + N = MN
+                                        var initials = facultyFname[0] + facultyLname[0];
+
+                                        document.getElementById('new-hod-initials').textContent = initials.toUpperCase();
+                                        document.getElementById('new-hod-name-preview').textContent = facultyName;
+                                        document.getElementById('new-hod-email-preview').textContent = facultyEmail;
+                                        document.getElementById('confirmation-email-display').textContent = facultyEmail;
+
+                                        preview.classList.remove('hidden');
+                                    }
+                                } else {
+                                    preview.classList.add('hidden');
+                                }
+                            ">
+                        <option value="">-- Select Faculty Member --</option>
+                    </select>
+                </div>
+
+                <!-- Enhanced Selected HOD Preview Section -->
+                <div id="selected-hod-preview" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-medium text-green-900 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clip-rule="evenodd"></path>
+                        </svg>
+                        New HOD (Pending Confirmation)
+                    </h4>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 font-semibold text-sm" id="new-hod-initials">--</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-green-900" id="new-hod-name-preview">--</p>
+                            <p class="text-sm text-green-700" id="new-hod-email-preview">--</p>
+                        </div>
+                    </div>
+                    <!-- Email Confirmation Notice -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium text-blue-900">Confirmation Email Will Be Sent To:</p>
+                                <p class="text-blue-800 font-mono text-sm bg-blue-100 px-2 py-1 rounded mt-1"
+                                   id="confirmation-email-display">--</p>
+                                <p class="text-xs text-blue-700 mt-1">The faculty member must click the confirmation
+                                    link in this email to accept the HOD role.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Important Notice -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-medium text-yellow-900">Email Confirmation Process</h4>
+                            <ul class="text-sm text-yellow-800 mt-1 space-y-1">
+                                <li>• Confirmation email will be sent to the selected faculty member</li>
+                                <li>• They must click the confirmation link to accept the HOD role</li>
+                                <li>• You can monitor the confirmation status in the department card</li>
+                                <li>• The HOD change only takes effect after email confirmation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+            <button type="button" onclick="
+                document.getElementById('hod-change-modal').classList.add('hidden');
+                document.getElementById('hod-change-modal').classList.remove('flex');
+                document.getElementById('hod-change-form').reset();
+                document.getElementById('selected-hod-preview').classList.add('hidden');
+            " class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                Cancel
+            </button>
+
+            <!-- Simple Submit Button - Standard Form Submission -->
+            <button type="submit" form="hod-change-form"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                </svg>
+                Send Confirmation Email
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Helper Function -->
+<script>
+function showNotification(message, type = 'info') {
+    var notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 z-50 p-4 rounded-lg text-white transition-all duration-300 transform translate-x-full max-w-sm';
+
+    var colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+    };
+
+    notification.classList.add(colors[type] || colors.info);
+    notification.innerHTML =
+        '<div class="flex items-center space-x-2">' +
+            '<span class="font-medium">' + message + '</span>' +
+            '<button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">' +
+                '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">' +
+                    '<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>' +
+                '</svg>' +
+            '</button>' +
+        '</div>';
+
+    document.body.appendChild(notification);
+
+    setTimeout(function() { notification.classList.remove('translate-x-full'); }, 100);
+    setTimeout(function() {
+        notification.classList.add('translate-x-full');
+        setTimeout(function() { notification.remove(); }, 300);
+    }, 4000);
+}
+</script>
+
+<style>
+/* =================================================================
+   SCOPED CSS FOR DEPARTMENT LIST - Replace your current <style> tag with this
+   All styles are scoped to .dept-list-container-unique to prevent leaking
+   ================================================================= */
+
+/* Enhanced department card styling - SCOPED */
+.dept-list-container-unique .department-card {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dept-list-container-unique .department-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.dept-list-container-unique .department-card:hover::before {
+    left: 100%;
+}
+
+.dept-list-container-unique .department-content-animated {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover effects - SCOPED */
+.dept-list-container-unique .department-card:hover {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02);
+}
+
+.dept-list-container-unique .department-header:hover {
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5, #d1fae5);
+}
+
+/* Button enhancements - SCOPED */
+.dept-list-container-unique button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dept-list-container-unique button:hover {
+    transform: translateY(-1px);
+}
+
+.dept-list-container-unique button:focus {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+}
+
+/* Responsive adjustments - SCOPED */
+@media (max-width: 768px) {
+    .dept-list-container-unique .department-card {
+        margin: 0 -0.5rem;
+        border-radius: 1rem;
+    }
+
+    .dept-list-container-unique .department-header {
+        padding: 1.5rem;
+    }
+}
+
+/* Loading animation - SCOPED with unique name */
+@keyframes dept-shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+.dept-list-container-unique .loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: dept-shimmer 1.5s infinite;
+}
+
+/* Card shadow variations - SCOPED */
+.dept-list-container-unique .department-card:nth-child(odd) {
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);
+}
+
+.dept-list-container-unique .department-card:nth-child(even) {
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+}
+
+/* Enhanced status badges - SCOPED with unique name */
+@keyframes dept-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.dept-list-container-unique .status-badge {
+    animation: dept-pulse 2s infinite;
+}
+
+/* Smooth transitions for all interactive elements - SCOPED */
+.dept-list-container-unique .group:hover svg {
+    transform: scale(1.1);
+}
+
+/* Enhanced gradient backgrounds - SCOPED */
+.dept-list-container-unique .bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, #10b981, #0891b2, #3b82f6);
+}
+
+/* Specific gradient overrides for different elements - SCOPED */
+.dept-list-container-unique .from-emerald-500.via-teal-600.to-blue-600 {
+    background-image: linear-gradient(to bottom right, #10b981, #0891b2, #2563eb);
+}
+
+.dept-list-container-unique .from-white.via-gray-50.to-white {
+    background-image: linear-gradient(to right, #ffffff, #f9fafb, #ffffff);
+}
+
+.dept-list-container-unique .hover\:from-emerald-50:hover {
+    background-image: linear-gradient(to right, #ecfdf5, #f0fdfa, #dbeafe);
+}
+
+.dept-list-container-unique .from-blue-50.to-blue-100 {
+    background-image: linear-gradient(to bottom right, #eff6ff, #dbeafe);
+}
+
+.dept-list-container-unique .from-emerald-50.to-emerald-100 {
+    background-image: linear-gradient(to bottom right, #ecfdf5, #d1fae5);
+}
+
+.dept-list-container-unique .from-purple-50.to-purple-100 {
+    background-image: linear-gradient(to bottom right, #faf5ff, #e9d5ff);
+}
+
+.dept-list-container-unique .from-orange-50.to-orange-100 {
+    background-image: linear-gradient(to bottom right, #fff7ed, #fed7aa);
+}
+
+/* Improved mobile responsiveness - SCOPED */
+@media (max-width: 640px) {
+    .dept-list-container-unique .department-header {
+        padding: 1rem;
+    }
+
+    .dept-list-container-unique .text-2xl {
+        font-size: 1.5rem;
+    }
+
+    .dept-list-container-unique .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+        margin-left: 1rem;
+    }
+}
+
+/* Enhanced loading states - SCOPED */
+.dept-list-container-unique .department-card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Subtle animations for stats - SCOPED */
+.dept-list-container-unique .group:hover .bg-blue-50,
+.dept-list-container-unique .group:hover .bg-purple-50,
+.dept-list-container-unique .group:hover .bg-green-50,
+.dept-list-container-unique .group:hover .bg-emerald-50,
+.dept-list-container-unique .group:hover .bg-orange-50 {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+/* Enhanced border radius for modern look - SCOPED */
+.dept-list-container-unique .rounded-2xl {
+    border-radius: 1rem;
+}
+
+/* Component-specific text and shadow styles - SCOPED */
+.dept-list-container-unique .dept-text-gray-900 {
+    color: #111827;
+}
+
+.dept-list-container-unique .dept-text-gray-600 {
+    color: #4b5563;
+}
+
+.dept-list-container-unique .dept-shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dept-list-container-unique .dept-shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Component-specific transition classes - SCOPED */
+.dept-list-container-unique .dept-transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Enhanced hover states for specific button types - SCOPED */
+.dept-list-container-unique .bg-emerald-600:hover {
+    background-color: #059669;
+}
+
+.dept-list-container-unique .bg-gray-100:hover {
+    background-color: #f3f4f6;
+}
+
+/* Modal-specific styles - SCOPED (for HOD change modal) */
+.dept-list-container-unique + #hod-change-modal button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dept-list-container-unique + #hod-change-modal button:hover {
+    transform: translateY(-1px);
+}
+
+.dept-list-container-unique + #hod-change-modal button:focus {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+}
+</style>

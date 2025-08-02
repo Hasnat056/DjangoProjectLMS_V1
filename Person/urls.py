@@ -1,8 +1,9 @@
 # Person/urls.py - URL Configuration for Person Module (Admin Coordination Center)
-from django.urls import path, include
+from django.urls import path
 from . import views
 from AcademicStructure.views import scheme_of_studies_view,scheme_of_studies_create
-
+from StudentModule.views import get_program_classes, api_get_all_students, api_get_class_students, api_get_classes
+from FacultyModule.views import course_allocation_bulk_create
 app_name = 'management'
 urlpatterns = [
 
@@ -12,6 +13,14 @@ urlpatterns = [
 
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('search/', views.global_search, name='global_search'),
+
+    # ===========================================
+    # DEPARTMENT VIEW
+    # ===========================================
+    path('departments/',views.department_list, name='departments-list'),
+    path('departments/<int:department_id>/details/',views.department_detail, name='departments-details'),
+    path('hod-management/', views.HODManagementView.as_view(), name='hod_management'),
+    path('confirm-hod/<uuid:token>/', views.HODConfirmationView.as_view(), name='confirm_hod_change'),
 
     # ===========================================
     # Faculty CURD views via reference views in Person
@@ -64,13 +73,21 @@ urlpatterns = [
     path('classes/<int:class_id>/edit/',scheme_of_studies_create, name='scheme_of_studies_create'),
     path('classes/<int:class_id>/scheme-of-studies/view/', scheme_of_studies_view, name='scheme_of_studies_view'),
 
+    # ================================================
 
+    # ==============================================
+    # Semester views via reference views in Person
+    # ==============================================
+    path ('semesters/', views.semester_list, name='semester_list'),
+    path('semesters/<int:semester_id>/', views.semester_detail, name='semester_detail'),
+    path('semesters/<int:semester_id>/report/', views.semester_report, name='semester_report'),
     # ================================================
     # Student CURD views via reference views in Person
     # ================================================
 
     path('students/', views.student_list, name='student_list'),
     path('students/create/', views.student_create, name='student_create'),
+    path('api/program-classes/<str:program_id>/', get_program_classes, name='program_classes_api'),
     path('students/<str:student_id>/', views.student_detail, name='student_detail'),
     path('students/<str:student_id>/edit/', views.student_update, name='student_update'),
     path('students/<str:student_id>/delete/', views.student_delete, name='student_delete'),
@@ -81,9 +98,12 @@ urlpatterns = [
 
     path('enrollments/', views.enrollment_list, name='enrollment_list'),
     path('enrollments/create/', views.enrollment_create, name='enrollment_create'),
-    path('enrollment/<int:enrollment_id>/', views.enrollment_detail, name='enrollment_detail'),
+    path('enrollments/<int:enrollment_id>/', views.enrollment_detail, name='enrollment_detail'),
     path ('enrollments/<int:enrollment_id>/edit/',views.enrollment_update, name='enrollment_update'),
     path('enrollments/<int:enrollment_id>/delete/', views.enrollment_delete, name='enrollment_delete'),
+    path('api/all-students/', api_get_all_students),
+    path('api/class-students/<int:class_id>/', api_get_class_students),
+    path('api/classes/', api_get_classes),
 
 
     # ===========================================
@@ -107,20 +127,11 @@ urlpatterns = [
     path('alumni/<str:alumni_id>/', views.alumni_detail, name='alumni_detail'),
     path('alumni/<str:alumni_id>/edit/', views.alumni_update, name='alumni_update'),
     path('alumni/<str:alumni_id>/delete/', views.alumni_delete, name='alumni_delete'),
-    path('alumni/report/', views.alumni_report, name='alumni_report'),
+
 
     # ===========================================
     # ADMIN COORDINATION & VIEW-ONLY FUNCTIONS
     # ===========================================
-
-    # Hierarchical Views
-    path('department/<int:department_id>/programs-courses/',
-         views.view_department_programs_courses,
-         name='view_department_programs_courses'),
-
-    path('department/<int:department_id>/scheme-of-studies/',
-         views.view_department_scheme_of_studies,
-         name='view_department_scheme_of_studies'),
 
     path('department/<int:department_id>/students/',
          views.view_department_students,
@@ -147,21 +158,22 @@ urlpatterns = [
     # REPORTING & ANALYTICS
     # ===========================================
 
-    path('reports/department/<int:department_id>/',
-         views.generate_department_report,
-         name='generate_department_report'),
-
     path('analytics/', views.analytics_dashboard, name='analytics_dashboard'),
-    path('reports/faculty-performance/', views.faculty_performance_report, name='faculty_performance_report'),
-    path('reports/student-analytics/', views.student_analytics_report, name='student_analytics_report'),
-    path('reports/semester-performance/', views.semester_performance_report, name='semester_performance_report'),
+
+    path('reports/', views.reports, name='reports'),
+
+    path('reports/department/<int:department_id>/', views.generate_department_report,name='generate_department_report'),
+    path('reports/faculty/', views.faculty_performance_report, name='faculty_performance_report'),
+    path('reports/student/', views.student_analytics_report, name='student_analytics_report'),
+    path('reports/semester/', views.semester_performance_report, name='semester_performance_report'),
+    path('reports/alumni/', views.alumni_report, name='alumni_report'),
 
     # ===========================================
     # AUDIT TRAIL MANAGEMENT
     # ===========================================
 
-    path('audit/', views.audit_trail_list, name='audit_trail_list'),
-    path('audit/<int:audit_id>/', views.audit_trail_detail, name='audit_trail_detail'),
+    path('audit-trail/', views.audit_trail_list, name='audit_trail_list'),
+    path('audit-trail/<int:audit_id>/details/', views.audit_trail_detail, name='audit_trail_detail'),
 
     # ===========================================
     # BULK OPERATIONS & SYSTEM UTILITIES
@@ -169,15 +181,24 @@ urlpatterns = [
 
     path('bulk-operations/', views.bulk_operations, name='bulk_operations'),
     path('bulk-operations/students/', views.bulk_student_operations, name='bulk_student_operations'),
+    path('bulk-operations/allocations/',course_allocation_bulk_create, name='course_allocation_bulk_create' ),
+    path('bulk-operations/import/', views.data_import_page, name='data_import'),
+    path('import-data/', views.process_csv_import, name='process_csv_import'),
+    path('download-template/<str:template_type>/', views.download_csv_template, name='download_template'),
+
 
     path('system/health-check/', views.system_health_check, name='system_health_check'),
     path('system/data-integrity/', views.data_integrity_check, name='data_integrity_check'),
     path('system/fix-issue/<str:issue_type>/', views.fix_data_issue, name='fix_data_issue'),
     path('system/export-data/', views.export_data, name='export_data'),
 
+
+
     # ===========================================
     # API ENDPOINTS FOR DASHBOARD
     # ===========================================
+
+
 
     path('api/dashboard-stats/', views.dashboard_stats_api, name='dashboard_stats_api'),
     path('api/recent-activities/', views.recent_activities_api, name='recent_activities_api'),

@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Q
+from django.db.models.constraints import CheckConstraint
 
 import Person.models
 from Person.models import *
@@ -7,11 +9,16 @@ from AcademicStructure.models import *
 
 
 class Enrollment(models.Model):
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Completed', 'Completed'),
+        ('Dropped', 'Dropped'),
+    ]
     enrollmentid = models.AutoField(db_column='enrollmentID', primary_key=True)  # Field name made lowercase.
     studentid = models.ForeignKey('Student', on_delete=models.CASCADE, db_column='studentID')  # Field name made lowercase.
     allocationid = models.ForeignKey('FacultyModule.Courseallocation', on_delete=models.CASCADE, db_column='allocationID')  # Field name made lowercase.
     enrollmentdate = models.DateTimeField(db_column='enrollmentDate')  # Field name made lowercase.
-    status = models.CharField(max_length=9, blank=True, null=True)
+    status = models.CharField(max_length=9, default='Active', choices=STATUS_CHOICES, db_column='status')
 
     class Meta:
         db_table = 'enrollment'
@@ -22,7 +29,7 @@ class Reviews(models.Model):
     reviewid = models.AutoField(db_column='reviewID', primary_key=True)  # Field name made lowercase.
     enrollmentid = models.ForeignKey(Enrollment, on_delete=models.CASCADE, db_column='enrollmentID')  # Field name made lowercase.
     reviewtext = models.TextField(db_column='reviewText')  # Field name made lowercase.
-    createdat = models.DateTimeField(db_column='createdAt')  # Field name made lowercase.
+    createdate = models.DateTimeField(db_column='createdAt')  # Field name made lowercase.
 
     class Meta:
         db_table = 'reviews'
@@ -32,9 +39,16 @@ class Result(models.Model):
     resultid = models.AutoField(db_column='resultID', primary_key=True)  # Field name made lowercase.
     enrollmentid = models.OneToOneField(Enrollment, on_delete=models.CASCADE, db_column='enrollmentID')  # Field name made lowercase.
     coursegpa = models.DecimalField(db_column='courseGPA', max_digits=4, decimal_places=2)  # Field name made lowercase.
+    obtainedmarks = models.DecimalField(db_column='obtainedMarks', max_digits=4, decimal_places=2, null=True, blank=True)
 
     class Meta:
         db_table = 'result'
+        constraints = [
+            CheckConstraint(
+                check=Q(obtainedmarks__gte=0) & Q(obtainedmarks__lte=100),
+                name='valid_obtained_marks_range'
+            )
+        ]
 
 
 class Student(models.Model):

@@ -190,7 +190,7 @@
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/person/admin/dashboard/'">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
@@ -245,7 +245,7 @@
                         <p class="text-gray-600">Create student enrollments for course allocations</p>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="/person/admin/dashboard/?section=enrollments"
+                        <a href="/admin/dashboard/?section=enrollments"
                            class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -316,86 +316,83 @@
                             </div>
 
                             <!-- Single Student Mode -->
-<div id="single-mode-fields" class="{% if mode != 'single' %}hidden{% endif %}">
-    <!-- Class Selection for Single Mode -->
-    <div class="form-field">
-        <label for="single-class-select" class="form-label">
-            Class (Optional) <span class="text-gray-400">- Filter students by class</span>
-        </label>
-        <div class="relative">
-            <select name="single_class" id="single-class-select" class="form-input">
-                <option value="">All Students</option>
-            </select>
-            <div id="single-class-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Student Selection for Single Mode -->
-    <div class="form-field">
-        <label for="single-student" class="form-label">
-            Student <span class="text-red-500">*</span>
-        </label>
-        <div class="relative">
-            <select name="single_student" id="single-student" class="form-input" {% if mode == 'single' %}required{% endif %}>
-                <option value="">Loading students...</option>
-            </select>
-            <div id="single-student-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-        <div id="single-student-error" class="form-error hidden"></div>
-        <p class="text-sm text-gray-500 mt-1">Select the student to enroll</p>
-    </div>
-</div>
-
-<!-- Bulk Students Mode -->
-<div id="bulk-mode-fields" class="{% if mode != 'bulk' %}hidden{% endif %}">
-    <!-- Class Selection for Bulk Mode -->
-    <div class="form-field">
-        <label for="bulk-class-select" class="form-label">
-            Class <span class="text-red-500">*</span>
-        </label>
-        <div class="relative">
-            <select name="bulk_class" id="bulk-class-select" class="form-input" {% if mode == 'bulk' %}required{% endif %}>
-                <option value="">Select Class</option>
-            </select>
-            <div id="bulk-class-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-        <p class="text-sm text-gray-500 mt-1">Select the class to load students</p>
-    </div>
-
-    <!-- Student Selection for Bulk Mode -->
-    <div class="form-field">
-        <label class="form-label">
-            Select Students <span class="text-red-500">*</span>
-        </label>
-        <div class="flex items-center justify-between mb-2">
-            <div class="flex space-x-2">
-                <button type="button" onclick="selectAllStudents()" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
-                    Select All
-                </button>
-                <button type="button" onclick="deselectAllStudents()" class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200">
-                    Deselect All
-                </button>
-            </div>
-            <span id="selected-count" class="text-sm text-gray-600">0 selected</span>
-        </div>
-        <div id="students-list" class="student-list hidden">
-            <div class="p-4 text-center text-gray-500">
-                Select a class to load students
-            </div>
-        </div>
-        <input type="hidden" name="selected_students" id="selected-students-input">
-        <div id="bulk-students-error" class="form-error hidden"></div>
-    </div>
-</div>
+                            <div id="single-mode-fields" class="{% if mode != 'single' %}hidden{% endif %}">
+                                <!-- Class Selection for Single Mode -->
+                                <div class="form-field">
+                                    <label for="single-class-select" class="form-label">
+                                        Class (Optional) <span class="text-gray-400">- Filter students by class</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select name="single_class" id="single-class-select" class="form-input">
+                                            <option value="">All Students</option>
+                                        </select>
+                                        <div id="single-class-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                                            <div class="loading-spinner"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Student Selection for Single Mode -->
+                                <div class="form-field">
+                                    <label for="single-student" class="form-label">
+                                        Student <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select name="single_student" id="single-student" class="form-input" {% if mode == 'single' %}required{% endif %}>
+                                            <option value="">Loading students...</option>
+                                        </select>
+                                        <div id="single-student-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                                            <div class="loading-spinner"></div>
+                                        </div>
+                                    </div>
+                                    <div id="single-student-error" class="form-error hidden"></div>
+                                    <p class="text-sm text-gray-500 mt-1">Select the student to enroll</p>
+                                </div>
+                            </div>
+                            <!-- Bulk Students Mode -->
+                            <div id="bulk-mode-fields" class="{% if mode != 'bulk' %}hidden{% endif %}">
+                                <!-- Class Selection for Bulk Mode -->
+                                <div class="form-field">
+                                    <label for="bulk-class-select" class="form-label">
+                                        Class <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select name="bulk_class" id="bulk-class-select" class="form-input" {% if mode == 'bulk' %}required{% endif %}>
+                                            <option value="">Select Class</option>
+                                        </select>
+                                        <div id="bulk-class-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                                            <div class="loading-spinner"></div>
+                                        </div>
+                                    </div>
+                                        <p class="text-sm text-gray-500 mt-1">Select the class to load students</p>
+                                    </div>
+                                <!-- Student Selection for Bulk Mode -->
+                                <div class="form-field">
+                                    <label class="form-label">
+                                        Select Students <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex space-x-2">
+                                            <button type="button" onclick="selectAllStudents()" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                                                Select All
+                                            </button>
+                                            <button type="button" onclick="deselectAllStudents()" class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200">
+                                                Deselect All
+                                            </button>
+                                        </div>
+                                        <span id="selected-count" class="text-sm text-gray-600">0 selected</span>
+                                    </div>
+                                    <div id="students-list" class="student-list hidden">
+                                        <div class="p-4 text-center text-gray-500">
+                                            Select a class to load students
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="selected_students" id="selected-students-input">
+                                    <div id="bulk-students-error" class="form-error hidden"></div>
+                                </div>
+                            </div>
                             <!-- Form Actions -->
                             <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                                <a href="/person/admin/dashboard/?section=enrollments"
+                                <a href="/admin/dashboard/?section=enrollments"
                                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -470,7 +467,7 @@
 
         async function loadAdminProfile() {
             try {
-                const response = await fetch('/person/admin/api/user-profile/');
+                const response = await fetch('/admin/api/user-profile/');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('admin-initials').textContent = data.initials || 'A';
@@ -484,7 +481,7 @@
 
         function switchMode(mode) {
             // Redirect to the URL with the new mode
-            window.location.href = `/person/admin/enrollments/create/?mode=${mode}`;
+            window.location.href = `/admin/enrollments/create/?mode=${mode}`;
         }
 
         async function loadClassesForSingle() {
@@ -492,7 +489,7 @@
             showLoading('single-class-loading', true);
 
             try {
-                const response = await fetch('/person/admin/api/classes/');
+                const response = await fetch('/admin/api/classes/');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -527,7 +524,7 @@
             showLoading('bulk-class-loading', true);
 
             try {
-                const response = await fetch('/person/admin/api/classes/');
+                const response = await fetch('/admin/api/classes/');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -558,95 +555,205 @@
         }
 
         async function loadAllStudents() {
+    const studentSelect = document.getElementById('single-student');
+    const allocationSelect = document.getElementById('allocationid');
+    const allocationId = allocationSelect.value;
+
+    showLoading('single-student-loading', true);
+
+    try {
+        // Construct URL with allocation_id parameter if selected
+        let url = '/admin/api/all-students/';
+        if (allocationId) {
+            url += `?allocation_id=${allocationId}`;
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const students = await response.json();
+
+        studentSelect.innerHTML = '<option value="">Select Student</option>';
+
+        if (students.length === 0 && allocationId) {
+            studentSelect.innerHTML = '<option value="">No available students for this allocation</option>';
+        } else {
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.student_id;
+                option.textContent = `${student.name} (${student.student_id})${student.class_display ? ' - ' + student.class_display : ''}`;
+                studentSelect.appendChild(option);
+            });
+        }
+
+    } catch (error) {
+        console.error('Error loading students:', error);
+        showError('single-student-error', 'Failed to load students');
+        studentSelect.innerHTML = '<option value="">Error loading students</option>';
+    } finally {
+        showLoading('single-student-loading', false);
+    }
+}
+
+async function loadClassStudents(classId, mode) {
+    const loadingId = mode === 'single' ? 'single-student-loading' : 'bulk-class-loading';
+    const allocationSelect = document.getElementById('allocationid');
+    const allocationId = allocationSelect.value;
+
+    showLoading(loadingId, true);
+
+    try {
+        // Construct URL with allocation_id parameter if selected
+        let url = `/admin/api/class-students/${classId}/`;
+        if (allocationId) {
+            url += `?allocation_id=${allocationId}`;
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const students = await response.json();
+
+        if (mode === 'single') {
             const studentSelect = document.getElementById('single-student');
-            showLoading('single-student-loading', true);
+            studentSelect.innerHTML = '<option value="">Select Student</option>';
 
-            try {
-                const response = await fetch('/person/admin/api/all-students/');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const students = await response.json();
-
-                studentSelect.innerHTML = '<option value="">Select Student</option>';
+            if (students.length === 0 && allocationId) {
+                studentSelect.innerHTML = '<option value="">No available students for this allocation</option>';
+            } else {
                 students.forEach(student => {
                     const option = document.createElement('option');
                     option.value = student.student_id;
-                    option.textContent = `${student.name} (${student.student_id})${student.class_display ? ' - ' + student.class_display : ''}`;
+                    option.textContent = `${student.name} (${student.student_id})`;
                     studentSelect.appendChild(option);
                 });
-
-            } catch (error) {
-                console.error('Error loading students:', error);
-                showError('single-student-error', 'Failed to load students');
-                studentSelect.innerHTML = '<option value="">Error loading students</option>';
-            } finally {
-                showLoading('single-student-loading', false);
             }
+        } else {
+            // Bulk mode - show student list with checkboxes
+            const studentsList = document.getElementById('students-list');
+            studentsList.innerHTML = '';
+
+            if (students.length === 0) {
+                const message = allocationId
+                    ? 'No available students for this allocation in the selected class'
+                    : 'No students found in this class';
+                studentsList.innerHTML = `<div class="p-4 text-center text-gray-500">${message}</div>`;
+            } else {
+                students.forEach(student => {
+                    const studentItem = document.createElement('div');
+                    studentItem.className = 'student-item';
+                    studentItem.innerHTML = `
+                        <input type="checkbox" class="student-checkbox" value="${student.student_id}"
+                               onchange="toggleStudent('${student.student_id}', this.checked)">
+                        <div class="flex-1">
+                            <div class="font-medium">${student.name}</div>
+                            <div class="text-sm text-gray-500">${student.student_id} • ${student.email}</div>
+                        </div>
+                        <div class="text-sm text-gray-400">${student.status}</div>
+                    `;
+                    studentsList.appendChild(studentItem);
+                });
+            }
+
+            studentsList.classList.remove('hidden');
+            selectedStudents.clear();
+            updateSelectedCount();
         }
 
-        async function loadClassStudents(classId, mode) {
-            const loadingId = mode === 'single' ? 'single-student-loading' : 'bulk-class-loading';
-            showLoading(loadingId, true);
-
-            try {
-                const response = await fetch(`/person/admin/api/class-students/${classId}/`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const students = await response.json();
-
-                if (mode === 'single') {
-                    const studentSelect = document.getElementById('single-student');
-                    studentSelect.innerHTML = '<option value="">Select Student</option>';
-                    students.forEach(student => {
-                        const option = document.createElement('option');
-                        option.value = student.student_id;
-                        option.textContent = `${student.name} (${student.student_id})`;
-                        studentSelect.appendChild(option);
-                    });
-                } else {
-                    // Bulk mode - show student list with checkboxes
-                    const studentsList = document.getElementById('students-list');
-                    studentsList.innerHTML = '';
-
-                    if (students.length === 0) {
-                        studentsList.innerHTML = '<div class="p-4 text-center text-gray-500">No students found in this class</div>';
-                    } else {
-                        students.forEach(student => {
-                            const studentItem = document.createElement('div');
-                            studentItem.className = 'student-item';
-                            studentItem.innerHTML = `
-                                <input type="checkbox" class="student-checkbox" value="${student.student_id}"
-                                       onchange="toggleStudent('${student.student_id}', this.checked)">
-                                <div class="flex-1">
-                                    <div class="font-medium">${student.name}</div>
-                                    <div class="text-sm text-gray-500">${student.student_id} • ${student.email}</div>
-                                </div>
-                                <div class="text-sm text-gray-400">${student.status}</div>
-                            `;
-                            studentsList.appendChild(studentItem);
-                        });
-                    }
-
-                    studentsList.classList.remove('hidden');
-                    selectedStudents.clear();
-                    updateSelectedCount();
-                }
-
-            } catch (error) {
-                console.error('Error loading class students:', error);
-                if (mode === 'single') {
-                    showError('single-student-error', 'Failed to load students');
-                    document.getElementById('single-student').innerHTML = '<option value="">Error loading students</option>';
-                } else {
-                    showError('bulk-students-error', 'Failed to load students');
-                    document.getElementById('students-list').innerHTML = '<div class="p-4 text-center text-red-500">Error loading students</div>';
-                }
-            } finally {
-                showLoading(loadingId, false);
-            }
+    } catch (error) {
+        console.error('Error loading class students:', error);
+        if (mode === 'single') {
+            showError('single-student-error', 'Failed to load students');
+            document.getElementById('single-student').innerHTML = '<option value="">Error loading students</option>';
+        } else {
+            showError('bulk-students-error', 'Failed to load students');
+            document.getElementById('students-list').innerHTML = '<div class="p-4 text-center text-red-500">Error loading students</div>';
         }
+    } finally {
+        showLoading(loadingId, false);
+    }
+}
+
+// Add this new function to handle allocation changes
+function handleAllocationChange() {
+    const allocationSelect = document.getElementById('allocationid');
+    const singleClassSelect = document.getElementById('single-class-select');
+    const bulkClassSelect = document.getElementById('bulk-class-select');
+    const singleStudentSelect = document.getElementById('single-student');
+    const studentsList = document.getElementById('students-list');
+
+    if (!allocationSelect.value) {
+        // If no allocation selected, clear everything
+        if (currentMode === 'single') {
+            singleStudentSelect.innerHTML = '<option value="">Select an allocation first</option>';
+        } else {
+            studentsList.innerHTML = '<div class="p-4 text-center text-gray-500">Select an allocation and class first</div>';
+            studentsList.classList.add('hidden');
+        }
+        return;
+    }
+
+    // Reload students based on current selections
+    if (currentMode === 'single') {
+        if (singleClassSelect.value) {
+            loadClassStudents(singleClassSelect.value, 'single');
+        } else {
+            loadAllStudents();
+        }
+    } else {
+        if (bulkClassSelect.value) {
+            loadClassStudents(bulkClassSelect.value, 'bulk');
+        } else {
+            studentsList.innerHTML = '<div class="p-4 text-center text-gray-500">Select an allocation and class first</div>';
+            studentsList.classList.add('hidden');
+        }
+    }
+}
+
+// Update the DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, current mode:', currentMode);
+    loadAdminProfile();
+
+    // Add allocation change listener
+    const allocationSelect = document.getElementById('allocationid');
+    if (allocationSelect) {
+        allocationSelect.addEventListener('change', handleAllocationChange);
+    }
+
+    // Initialize based on current mode
+    if (currentMode === 'single') {
+        loadClassesForSingle();
+        // Don't load all students initially - wait for allocation selection
+        document.getElementById('single-student').innerHTML = '<option value="">Select an allocation first</option>';
+    } else {
+        loadClassesForBulk();
+    }
+
+    // Form validation
+    document.getElementById('enrollment-form').addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+        }
+    });
+
+    // Add change listeners for error clearing
+    const singleStudentSelect = document.getElementById('single-student');
+    if (singleStudentSelect) {
+        singleStudentSelect.addEventListener('change', function() {
+            hideError('single-student-error');
+        });
+    }
+
+    const bulkClassSelect = document.getElementById('bulk-class-select');
+    if (bulkClassSelect) {
+        bulkClassSelect.addEventListener('change', function() {
+            hideError('bulk-students-error');
+        });
+    }
+});
 
         function toggleStudent(studentId, checked) {
             if (checked) {

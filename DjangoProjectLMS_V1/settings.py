@@ -9,10 +9,18 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+# settings.py
+
+# Set your local timezone (UTC+5 for Pakistan/parts of Central Asia)
+TIME_ZONE = 'Asia/Karachi'  # or 'Asia/Tashkent', 'Asia/Yekaterinburg' depending on your location
+
+# Keep timezone support enabled
+USE_TZ = True
+
 
 from pathlib import Path
 import os
-
+os.environ['TZ'] = 'Asia/Karachi'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -174,6 +182,7 @@ STATICFILES_DIRS = [
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For testing - prints to console
+DEFAULT_FROM_EMAIL = 'rhays056@gmail.com'
 # Railway WhiteNoise configuration (commented out for local development)
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

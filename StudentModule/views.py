@@ -83,7 +83,7 @@ def student_list(request):
     graduated_student_count = Student.objects.filter(status='Graduated').count()
 
     # Pagination
-    paginator = Paginator(students, 25)
+    paginator = Paginator(students, 50)
     page = request.GET.get('page')
     students = paginator.get_page(page)
 
@@ -1695,11 +1695,37 @@ def api_get_classes(request):
 def api_get_class_students(request, class_id):
     """API endpoint to get students for a specific class"""
     try:
+        # Get the allocation_id from query parameters
+        allocation_id = request.GET.get('allocation_id')
+
         class_obj = get_object_or_404(Class, classid=class_id)
 
         students = Student.objects.select_related(
             'studentid', 'classid__programid'
-        ).filter(classid=class_obj).order_by('studentid__personid')
+        ).filter(classid=class_obj).order_by('studentid')
+
+        # If allocation_id is provided, exclude already enrolled students
+        if allocation_id:
+            try:
+
+
+                allocation_obj = Courseallocation.objects.get(allocationid=allocation_id)
+
+                # Get list of student IDs already enrolled in this allocation
+                enrolled_student_ids = Enrollment.objects.filter(
+                    allocationid=allocation_obj
+                ).values_list('studentid', flat=True)
+
+                # Exclude already enrolled students
+                students = students.exclude(studentid__in=enrolled_student_ids)
+
+            except (Courseallocation.DoesNotExist, ImportError) as e:
+                # If allocation doesn't exist or import fails, return all students
+                print(f"Warning: {e}")
+                pass
+            except Exception as e:
+                print(f"Error filtering students: {e}")
+                pass
 
         students_data = []
         for student in students:
@@ -1715,6 +1741,9 @@ def api_get_class_students(request, class_id):
         return JsonResponse(students_data, safe=False)
 
     except Exception as e:
+        print(f"API Error in api_get_class_students: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -1722,9 +1751,35 @@ def api_get_class_students(request, class_id):
 def api_get_all_students(request):
     """API endpoint to get all students for single mode"""
     try:
+        # Get the allocation_id from query parameters
+        allocation_id = request.GET.get('allocation_id')
+
         students = Student.objects.select_related(
             'studentid', 'classid__programid'
-        ).all().order_by('studentid__personid')
+        ).all().order_by('studentid')
+
+        # If allocation_id is provided, exclude already enrolled students
+        if allocation_id:
+            try:
+
+
+                allocation_obj = Courseallocation.objects.get(allocationid=allocation_id)
+
+                # Get list of student IDs already enrolled in this allocation
+                enrolled_student_ids = Enrollment.objects.filter(
+                    allocationid=allocation_obj
+                ).values_list('studentid', flat=True)
+
+                # Exclude already enrolled students
+                students = students.exclude(studentid__in=enrolled_student_ids)
+
+            except (Courseallocation.DoesNotExist, ImportError) as e:
+                # If allocation doesn't exist or import fails, return all students
+                print(f"Warning: {e}")
+                pass
+            except Exception as e:
+                print(f"Error filtering students: {e}")
+                pass
 
         students_data = []
         for student in students:
@@ -1744,4 +1799,7 @@ def api_get_all_students(request):
         return JsonResponse(students_data, safe=False)
 
     except Exception as e:
+        print(f"API Error in api_get_all_students: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)

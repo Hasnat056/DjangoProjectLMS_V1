@@ -1,11 +1,11 @@
 # FacultyModule/forms.py - Complete Django Forms for Faculty Module
 from django import forms
 from django.utils import timezone
-from datetime import datetime, date
+from datetime import  date
 from django.core.exceptions import ValidationError
 from datetime import datetime
 # Model imports
-from Person.models import Person, Qualification, Address
+from Person.models import Person,  Address
 from .models import Faculty, Courseallocation, Lecture, Assessment
 from AcademicStructure.models import Department, Course
 
@@ -488,6 +488,7 @@ class CourseAllocationForm(forms.ModelForm):
     Form for creating/updating Course Allocations
     """
 
+
     class Meta:
         model = Courseallocation
         fields = ['teacherid', 'coursecode', 'session', 'status']
@@ -582,6 +583,209 @@ class CourseAllocationForm(forms.ModelForm):
 
         return cleaned_data
 
+
+class BulkCourseAllocationForm(forms.Form):
+    """
+    Form for creating multiple Course Allocations at once
+    """
+
+    BULK_MODE_CHOICES = [
+        ('faculty_to_course', 'Multiple Faculty → Single Course'),
+        ('course_to_faculty', 'Multiple Courses → Single Faculty'),
+    ]
+
+    STATUS_CHOICES = [
+        ('Ongoing', 'Ongoing'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
+    # Mode selection
+    bulk_mode = forms.ChoiceField(
+        choices=BULK_MODE_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'mode-radio'}),
+        label='Allocation Mode',
+        initial='faculty_to_course'
+    )
+
+    # Common fields
+    session = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g., Spring 2025, Fall 2024'
+        }),
+        label='Academic Session',
+        help_text='Academic session for these allocations'
+    )
+
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Allocation Status',
+        initial='Ongoing'
+    )
+
+    # Mode 1: Multiple Faculty → Single Course
+    single_course = forms.ModelChoiceField(
+        queryset=Course.objects.all(),
+        empty_label="Select Course",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Course',
+        required=False
+    )
+
+    multiple_faculty = forms.ModelMultipleChoiceField(
+        queryset=Faculty.objects.select_related('employeeid').all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'faculty-checkbox'}),
+        label='Select Faculty Members',
+        required=False
+    )
+
+    # Mode 2: Multiple Courses → Single Faculty
+    single_faculty = forms.ModelChoiceField(
+        queryset=Faculty.objects.select_related('employeeid').all(),
+        empty_label="Select Faculty Member",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Faculty Member',
+        required=False
+    )
+
+    multiple_courses = forms.ModelMultipleChoiceField(
+        queryset=Course.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'course-checkbox'}),
+        label='Select Courses',
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set default session to current
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+        if current_month >= 8:  # Fall semester
+            self.fields['session'].initial = f"Fall {current_year}"
+        elif current_month >= 1 and current_month <= 5:  # Spring semester
+            self.fields['session'].initial = f"Spring {current_year}"
+        else:  # Summer semester
+            self.fields['session'].initial = f"Summer {current_year}"
+
+        # Customize course choices display
+        course_choices = []
+        for course in Course.objects.all():
+            label = f"{course.coursecode} - {course.coursename}"
+            course_choices.append((course.pk, label))
+
+        if course_choices:
+            self.fields['single_course'].choices = [('', 'Select Course')] + course_choices
+
+        # Customize faculty choices display
+        faculty_choices = []
+        for faculty in Faculty.objects.select_related('employeeid'):
+            label = f"{faculty.employeeid.fname} {faculty.employeeid.lname} ({faculty.designation})"
+            faculty_choices.append((faculty.pk, label))
+
+        if faculty_choices:
+            self.fields['single_faculty'].choices = [('', 'Select Faculty Member')] + faculty_choices
+
+    def clean(self):
+        cleaned_data = super().clean()
+        bulk_mode = cleaned_data.get('bulk_mode')
+        session = cleaned_data.get('session')
+
+        if bulk_mode == 'faculty_to_course':
+            single_course = cleaned_data.get('single_course')
+            multiple_faculty = cleaned_data.get('multiple_faculty')
+
+            if not single_course:
+                raise ValidationError('Please select a course for faculty allocation.')
+
+            if not multiple_faculty:
+                raise ValidationError('Please select at least one faculty member.')
+
+            # Check for existing allocations
+            conflicts = []
+            for faculty in multiple_faculty:
+                existing = Courseallocation.objects.filter(
+                    teacherid=faculty,
+                    coursecode=single_course,
+                    session=session
+                )
+                if existing.exists():
+                    faculty_name = f"{faculty.employeeid.fname} {faculty.employeeid.lname}"
+                    conflicts.append(faculty_name)
+
+            if conflicts:
+                conflict_list = ", ".join(conflicts)
+                raise ValidationError(
+                    f'The following faculty members are already allocated to this course in this session: {conflict_list}')
+
+        elif bulk_mode == 'course_to_faculty':
+            single_faculty = cleaned_data.get('single_faculty')
+            multiple_courses = cleaned_data.get('multiple_courses')
+
+            if not single_faculty:
+                raise ValidationError('Please select a faculty member for course allocation.')
+
+            if not multiple_courses:
+                raise ValidationError('Please select at least one course.')
+
+            # Check for existing allocations
+            conflicts = []
+            for course in multiple_courses:
+                existing = Courseallocation.objects.filter(
+                    teacherid=single_faculty,
+                    coursecode=course,
+                    session=session
+                )
+                if existing.exists():
+                    course_name = f"{course.coursecode} - {course.coursename}"
+                    conflicts.append(course_name)
+
+            if conflicts:
+                conflict_list = ", ".join(conflicts)
+                raise ValidationError(
+                    f'This faculty member is already allocated to the following courses in this session: {conflict_list}')
+
+        return cleaned_data
+
+    def create_allocations(self):
+        """Create the bulk allocations and return the count of created allocations"""
+        cleaned_data = self.cleaned_data
+        bulk_mode = cleaned_data['bulk_mode']
+        session = cleaned_data['session']
+        status = cleaned_data['status']
+
+        created_count = 0
+
+        if bulk_mode == 'faculty_to_course':
+            single_course = cleaned_data['single_course']
+            multiple_faculty = cleaned_data['multiple_faculty']
+
+            for faculty in multiple_faculty:
+                Courseallocation.objects.create(
+                    teacherid=faculty,
+                    coursecode=single_course,
+                    session=session,
+                    status=status
+                )
+                created_count += 1
+
+        elif bulk_mode == 'course_to_faculty':
+            single_faculty = cleaned_data['single_faculty']
+            multiple_courses = cleaned_data['multiple_courses']
+
+            for course in multiple_courses:
+                Courseallocation.objects.create(
+                    teacherid=single_faculty,
+                    coursecode=course,
+                    session=session,
+                    status=status
+                )
+                created_count += 1
+
+        return created_count
 
 class LectureForm(forms.ModelForm):
     """
@@ -965,52 +1169,3 @@ class AllocationSearchForm(forms.Form):
         label='Session'
     )
 
-
-# ===========================================
-# SUMMARY OF FACULTY MODULE FORMS
-# ===========================================
-
-"""
-✅ COMPLETE FACULTY MODULE FORMS:
-
-MAIN CRUD FORMS:
-✅ FacultyForm - Create/Update faculty with Person integration
-✅ CourseAllocationForm - Manage course allocations
-✅ LectureForm - Create/Update lectures
-✅ AssessmentForm - Create/Update assessments
-
-DYNAMIC FORMS:
-✅ AttendanceMarkingForm - Dynamic attendance marking
-✅ GradingForm - Dynamic student grading
-
-SEARCH & FILTER FORMS:
-✅ FacultySearchForm - Search faculty members
-✅ AllocationSearchForm - Search course allocations
-
-FEATURES:
-✅ Bootstrap CSS classes for styling
-✅ Comprehensive validation rules
-✅ User-friendly widgets and placeholders
-✅ Help texts and labels
-✅ Dynamic field population based on relationships
-✅ Custom clean methods for business logic validation
-✅ Integration with Person model for faculty inheritance
-✅ Proper handling of choices and querysets
-✅ Date/time validation with reasonable constraints
-✅ Duplicate prevention logic
-✅ Authorization-aware field filtering
-
-VALIDATION RULES:
-✅ Email uniqueness validation
-✅ Age validation for faculty members
-✅ Time logic validation for lectures
-✅ Marks validation for assessments
-✅ Duplicate prevention across forms
-✅ Business rule enforcement
-
-INTEGRATION:
-✅ Seamless integration with FacultyModule views
-✅ Compatible with model structure
-✅ Supports both create and update operations
-✅ Dynamic queryset filtering based on user permissions
-"""

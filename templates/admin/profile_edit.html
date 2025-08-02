@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Admin Profile - {{ admin.employeeid.fname }} {{ admin.employeeid.lname }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d5f5a, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .readonly-field {
+            background-color: #f9fafb;
+            color: #6b7280;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Admin Profile (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="font-medium">Edit Profile</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">
+                            {% if admin.employeeid.fname and admin.employeeid.lname %}
+                                {{ admin.employeeid.fname.0 }}{{ admin.employeeid.lname.0 }}
+                            {% else %}
+                                A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">{{ admin.employeeid.fname }} {{ admin.employeeid.lname }}</p>
+                        <p class="text-xs text-white/70">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/dashboard/?section=profile" class="hover:text-emerald-600">Admin Profile</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">Edit Profile</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">
+                            Edit Profile
+                        </h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/admin/dashboard/?section=profile" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Cancel</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-4xl mx-auto space-y-6">
+
+                    <!-- Read-only Information Card -->
+                    <div class="card-gradient rounded-xl">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900">Personal Information</h2>
+                            <p class="text-gray-600 mt-1">Your basic information (read-only)</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- Name -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <div class="readonly-field">{{ admin.employeeid.fname }} {{ admin.employeeid.lname }}</div>
+                                </div>
+
+                                <!-- Gender -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                    <div class="readonly-field">
+                                        {% if admin.employeeid.gender == 'M' %}Male
+                                        {% elif admin.employeeid.gender == 'F' %}Female
+                                        {% elif admin.employeeid.gender == 'O' %}Other
+                                        {% else %}Not specified{% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Date of Birth -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                    <div class="readonly-field">
+                                        {% if admin.employeeid.dob %}{{ admin.employeeid.dob|date:"M d, Y" }}{% else %}Not provided{% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- CNIC -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">CNIC</label>
+                                    <div class="readonly-field">
+                                        {% if admin.employeeid.cnic %}{{ admin.employeeid.cnic }}{% else %}Not provided{% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Institutional Email -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Institutional Email</label>
+                                    <div class="readonly-field">{{ admin.employeeid.institutionalemail }}</div>
+                                </div>
+
+                                <!-- Joining Date -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Joining Date</label>
+                                    <div class="readonly-field">{{ admin.joiningdate|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editable Information Form -->
+                    <div class="card-gradient rounded-xl">
+                        <form method="POST" action="/admin/profile/edit/">
+                            {% csrf_token %}
+
+                            <!-- Form Header -->
+                            <div class="p-6 border-b border-gray-200">
+                                <h2 class="text-xl font-semibold text-gray-900">Editable Information</h2>
+                                <p class="text-gray-600 mt-1">Update your contact details and address information</p>
+                            </div>
+
+                            <div class="p-6 space-y-8">
+                                <!-- Contact Information -->
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                        </svg>
+                                        Contact Information
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Personal Email -->
+                                        <div>
+                                            <label for="id_personalemail" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Personal Email
+                                            </label>
+                                            {{ form.personalemail }}
+                                            {% if form.personalemail.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.personalemail.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Contact Number -->
+                                        <div>
+                                            <label for="id_cnumber" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Contact Number
+                                            </label>
+                                            {{ form.cnumber }}
+                                            {% if form.cnumber.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.cnumber.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Work Information -->
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                                        <svg class="w-5 h-5 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Work Information
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Office Location -->
+                                        <div>
+                                            <label for="id_officelocation" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Office Location
+                                            </label>
+                                            {{ form.officelocation }}
+                                            {% if form.officelocation.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.officelocation.errors.0 }}</div>
+                                            {% endif %}
+                                            {% if form.officelocation.help_text %}
+                                                <p class="mt-1 text-xs text-gray-500">{{ form.officelocation.help_text }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Leaving Date -->
+                                        <div>
+                                            <label for="id_leavingdate" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Leaving Date
+                                            </label>
+                                            {{ form.leavingdate }}
+                                            {% if form.leavingdate.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.leavingdate.errors.0 }}</div>
+                                            {% endif %}
+                                            {% if form.leavingdate.help_text %}
+                                                <p class="mt-1 text-xs text-gray-500">{{ form.leavingdate.help_text }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Address Information -->
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                                        <svg class="w-5 h-5 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Address Information
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Street Address -->
+                                        <div class="md:col-span-2">
+                                            <label for="id_streetaddress" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Street Address
+                                            </label>
+                                            {{ form.streetaddress }}
+                                            {% if form.streetaddress.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.streetaddress.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- City -->
+                                        <div>
+                                            <label for="id_city" class="block text-sm font-medium text-gray-700 mb-2">
+                                                City
+                                            </label>
+                                            {{ form.city }}
+                                            {% if form.city.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.city.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Province -->
+                                        <div>
+                                            <label for="id_province" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Province
+                                            </label>
+                                            {{ form.province }}
+                                            {% if form.province.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.province.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Country -->
+                                        <div>
+                                            <label for="id_country" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Country
+                                            </label>
+                                            {{ form.country }}
+                                            {% if form.country.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.country.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- ZIP Code -->
+                                        <div>
+                                            <label for="id_zipcode" class="block text-sm font-medium text-gray-700 mb-2">
+                                                ZIP Code
+                                            </label>
+                                            {{ form.zipcode }}
+                                            {% if form.zipcode.errors %}
+                                                <div class="mt-1 text-sm text-red-600">{{ form.zipcode.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Footer -->
+                            <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm text-gray-500">
+                                        <p>Only editable fields are shown in this form</p>
+                                        <p class="mt-1">Contact IT support to change read-only information</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <a href="/admin/dashboard/?section=profile" class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                            Cancel
+                                        </a>
+                                        <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg flex items-center space-x-2">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>Save Changes</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+
+            // Phone number format validation
+            const phoneField = document.getElementById('id_cnumber');
+            if (phoneField) {
+                phoneField.addEventListener('input', function() {
+                    validatePhone(this);
+                });
+            }
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                `;
+                submitBtn.disabled = true;
+
+                // Restore button if submission fails
+                setTimeout(() => {
+                    if (submitBtn.disabled) {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }, 5000);
+            });
+        });
+
+        function validatePhone(field) {
+            const value = field.value.trim();
+
+            field.classList.remove('border-red-500', 'border-green-500');
+
+            if (value && value.length > 0) {
+                // Basic phone validation - at least 10 digits
+                const phonePattern = /[\d\-\+\s\(\)]{10,}/;
+                if (phonePattern.test(value)) {
+                    field.classList.add('border-green-500');
+                    return true;
+                } else {
+                    field.classList.add('border-red-500');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Show error message
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+            errorDiv.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50';
+            successDiv.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(successDiv);
+
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+
+        // Handle form errors display
+        const errors = document.querySelectorAll('.text-red-600');
+        if (errors.length > 0) {
+            showErrorMessage('Please correct the errors below and try again.');
+        }
+    </script>
+</body>
+</html>

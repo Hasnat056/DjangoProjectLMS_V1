@@ -479,8 +479,13 @@
                                 <p class="text-sm font-medium text-gray-900">Administrator</p>
                                 <p class="text-xs text-gray-500">System Admin</p>
                             </div>
-                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
-                                <span class="text-white text-sm font-bold">A</span>
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center shadow-lg relative overflow-hidden group transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/25 hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                                <div class="absolute inset-0 rounded-full bg-emerald-400/20 scale-0 group-hover:scale-150 group-hover:opacity-0 transition-all duration-500"></div>
+                                <a href="/admin/dashboard/?section=profile" class="relative z-10">
+                                    <span class="text-white text-sm font-bold transition-all duration-300 group-hover:scale-125 group-hover:text-emerald-100 group-hover:drop-shadow-lg group-hover:-translate-y-0.5">A</span>
+                                </a>
+                                <div class="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/0 to-teal-400/0 group-hover:from-emerald-400/30 group-hover:to-teal-400/30 transition-all duration-300"></div>
                             </div>
                         </div>
                     </div>
@@ -905,34 +910,6 @@
     </div>
 
 
-    <!-- Delete Confirmation Modal for Allocations -->
-<div id="delete-allocation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="p-6">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Delete Course Allocation</h3>
-                    <p class="mt-1 text-sm text-gray-500" id="delete-allocation-message">
-                        Are you sure you want to delete this allocation? This action cannot be undone.
-                    </p>
-                </div>
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button onclick="closeDeleteAllocationModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                    Cancel
-                </button>
-                <button onclick="proceedDeleteAllocation()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
-                    Delete
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
     <!-- Enhanced JavaScript -->
     <script>
@@ -989,6 +966,7 @@
             // Update breadcrumb and title
             updatePageTitle(sectionName);
             currentSection = sectionName;
+             updateBrowserURL(sectionName);
 
             // Load section content
             if (sectionName === 'dashboard') {
@@ -1059,20 +1037,60 @@
 
                  if (sectionName === 'programs') {
                      loadProgramSection(targetSection);
+                     return;
                  }
 
                  if (sectionName === 'courses') {
                      loadCourseSection(targetSection);
+                     return;
                  }
                  if (sectionName === 'allocations') {
                      loadAllocationSection(targetSection);
+                     return;
                  }
                  if (sectionName === 'enrollments') {
                      loadEnrollmentSection(targetSection);
+                     return;
                  }
                  if (sectionName === 'semesters') {
                      loadSemesterSection(targetSection);
+                     return;
                  }
+                 if (sectionName === 'profile') {
+                     loadAdminProfile(targetSection);
+                     return;
+                 }
+                 if (sectionName === 'bulk-operations') {
+                     loadBulkOperations(targetSection);
+                     return;
+                 }
+
+                 if (sectionName === 'data-integrity') {
+                    loadDataIntegritySection(targetSection);
+                    return;
+                 }
+
+                if (sectionName === 'system-health') {
+                    loadSystemHealthSection(targetSection);
+                    return;
+                }
+                if (sectionName === 'export-data') {
+                    loadExportDataSection(targetSection);
+                    return;
+                }
+                if (sectionName === 'reports') {
+                    loadReportsSection(targetSection);
+                    return;
+                }
+                if (sectionName === 'audit-trail') {
+                    loadAuditTrailSection(targetSection);
+                    return;
+                }
+                if (sectionName === 'departments') {
+                    loadDepartmentSection(targetSection);
+                    return;
+                }
+
                 // For demo purposes, just show the section with placeholder content
                 // In a real application, you would fetch content from the server
                 targetSection.classList.remove('section-hidden');
@@ -1087,6 +1105,33 @@
                 showNotification('Error loading section content', 'error');
             }
             finally {
+                hideLoading();
+            }
+        }
+
+        async function loadDepartmentSection(targetSection, url = '/admin/departments/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                // IMPORTANT: Initialize faculty page functionality after loading
+                setTimeout(() => {
+                    initializeFacultyPageForDashboard();
+                }, 100);
+
+
+            } catch (error) {
+                console.error('Error loading department section:', error);
+                targetSection.innerHTML = createErrorContent('faculty', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading department section', 'error');
+            } finally {
                 hideLoading();
             }
         }
@@ -1107,7 +1152,7 @@
                     initializeFacultyPageForDashboard();
                 }, 100);
 
-                showNotification('Faculty section loaded successfully', 'success');
+               // showNotification('Faculty section loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading faculty section:', error);
                 targetSection.innerHTML = createErrorContent('faculty', error.message);
@@ -1162,7 +1207,7 @@
                     if (search) params.append('search', search);
                     if (department) params.append('department', department);
                     if (designation) params.append('designation', designation);
-                    const url = '/person/admin/faculty/?' + params.toString();
+                    const url = '/admin/faculty/?' + params.toString();
                     // Reload faculty section with pagination
                     const targetSection = document.getElementById('faculty-section');
                     loadFacultySection(targetSection, url);
@@ -1233,7 +1278,7 @@
                 setTimeout(() => {
                     initializeStudentPageForDashboard();
                 }, 100);
-                showNotification('Student section loaded successfully', 'success');
+               // showNotification('Student section loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading student section:', error);
                 targetSection.innerHTML = createErrorContent('students', error.message);
@@ -1286,7 +1331,7 @@
                     if (program) params.append('program', program);
                     if (classFilter) params.append('class', classFilter);
                     if (status) params.append('status', status);
-                    const url = '/person/admin/students/?' + params.toString();
+                    const url = '/admin/students/?' + params.toString();
                     // Reload student section with pagination
                     const targetSection = document.getElementById('students-section');
                     loadStudentSection(targetSection, url);
@@ -1363,7 +1408,7 @@
                 setTimeout(() => {
                     initializeClassPageForDashboard();
                 }, 100);
-                showNotification('Class section loaded successfully', 'success');
+               // showNotification('Class section loaded successfully', 'success');
             }
             catch (error) {
                 console.error('Error loading class section:', error);
@@ -1396,7 +1441,7 @@
                         params.delete(key);
                     }
                 }
-                const url = '/academic/classes/?' + params.toString();
+                const url = '/admin/classes/?' + params.toString();
                 const targetSection = document.getElementById('classes-section');
                 loadClassSection(targetSection, url);
             });
@@ -1483,7 +1528,7 @@
                     initializeProgramPageForDashboard();
                 }, 100);
 
-                showNotification('Program section loaded successfully', 'success');
+                //showNotification('Program section loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading program section:', error);
                 targetSection.innerHTML = createErrorContent('programs', error.message);
@@ -1625,7 +1670,7 @@
                 setTimeout(() => {
                     initializeCoursePageForDashboard();
                 }, 100);
-                showNotification('Course section loaded successfully', 'success');
+               // showNotification('Course section loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading course section:', error);
                 targetSection.innerHTML = createErrorContent('courses', error.message);
@@ -1763,7 +1808,7 @@
                 if (credits) filterParams.append('credits', credits);
                 if (codePrefix) filterParams.append('code_prefix', codePrefix);
                 if (page) filterParams.append('page', page);
-                const url = '/person/admin/academic/courses/?' + filterParams.toString();
+                const url = '/admin/academic/courses/?' + filterParams.toString();
                 const targetSection = document.getElementById('courses-section');
                 console.log('Applying URL filters to courses:', url);
                 loadCourseSection(targetSection, url);
@@ -1785,7 +1830,7 @@
                 setTimeout(() => {
                     initializeAllocationPageForDashboard();
                 }, 100);
-                showNotification('Allocation section loaded successfully', 'success');
+                //showNotification('Allocation section loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading allocation section:', error);
                 targetSection.innerHTML = createErrorContent('allocations', error.message);
@@ -1828,7 +1873,7 @@
                     if (session) params.append('session', session);
                     if (status) params.append('status', status);
                     if (faculty) params.append('faculty', faculty);
-                    const url = '/person/admin/academic/allocations/?' + params.toString();
+                    const url = '/admin/academic/allocations/?' + params.toString();
                     const targetSection = document.getElementById('allocations-section');
                     loadAllocationSection(targetSection, url);
                 });
@@ -1880,7 +1925,7 @@
                 setTimeout(() => {
                     initializeEnrollmentPageForDashboard();
                 }, 100);
-                showNotification('Enrollment section loaded successfully', 'success');
+                //showNotification('Enrollment section loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading enrollment section:', error);
                 targetSection.innerHTML = createErrorContent('enrollments', error.message);
@@ -1976,203 +2021,255 @@
             const searchInput = document.getElementById('enrollment-search');
             if (searchInput) {
                 let searchTimeout;
-                 searchInput.addEventListener('input', function() {
-                     clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const event = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(event);
-            }, 1000);
-        });
-    }
-
-    // Filter change handlers
-    ['enrollment-class', 'enrollment-course', 'enrollment-session', 'enrollment-status'].forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-            select.addEventListener('change', function() {
-                const event = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(event);
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        const event = new Event('submit', { bubbles: true, cancelable: true });
+                        form.dispatchEvent(event);
+                    }, 1000);
+                });
+            }
+            // Filter change handlers
+            ['enrollment-class', 'enrollment-course', 'enrollment-session', 'enrollment-status'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.addEventListener('change', function() {
+                        const event = new Event('submit', { bubbles: true, cancelable: true });
+                        form.dispatchEvent(event);
+                    });
+                }
             });
+            // Hover effects for enrollment rows
+            document.querySelectorAll('.enrollment-row').forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.classList.add('shadow-sm');
+                });
+                row.addEventListener('mouseleave', function() {
+                    this.classList.remove('shadow-sm');
+                });
+            });
+            console.log('Enrollment page initialization complete');
         }
-    });
 
-    // Hover effects for enrollment rows
-    document.querySelectorAll('.enrollment-row').forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.classList.add('shadow-sm');
-        });
-        row.addEventListener('mouseleave', function() {
-            this.classList.remove('shadow-sm');
-        });
-    });
+        // Function to apply URL filters to enrollments section
+        function applyUrlFiltersToEnrollments(urlParams) {
+            const search = urlParams.get('search');
+            const classFilter = urlParams.get('class');
+            const course = urlParams.get('course');
+            const session = urlParams.get('session');
+            const status = urlParams.get('status');
+            const page = urlParams.get('page');
 
-    console.log('Enrollment page initialization complete');
-}
+            if (search || classFilter || course || session || status || page) {
+                // Build the filter URL
+                const filterParams = new URLSearchParams();
+                if (search) filterParams.append('search', search);
+                if (classFilter) filterParams.append('class', classFilter);
+                if (course) filterParams.append('course', course);
+                if (session) filterParams.append('session', session);
+                if (status) filterParams.append('status', status);
+                if (page) filterParams.append('page', page);
 
-// Function to apply URL filters to enrollments section
-function applyUrlFiltersToEnrollments(urlParams) {
-    const search = urlParams.get('search');
-    const classFilter = urlParams.get('class');
-    const course = urlParams.get('course');
-    const session = urlParams.get('session');
-    const status = urlParams.get('status');
-    const page = urlParams.get('page');
-
-    if (search || classFilter || course || session || status || page) {
-        // Build the filter URL
-        const filterParams = new URLSearchParams();
-        if (search) filterParams.append('search', search);
-        if (classFilter) filterParams.append('class', classFilter);
-        if (course) filterParams.append('course', course);
-        if (session) filterParams.append('session', session);
-        if (status) filterParams.append('status', status);
-        if (page) filterParams.append('page', page);
-
-        const url = '/admin/enrollments/?' + filterParams.toString();
-        const targetSection = document.getElementById('enrollments-section');
-        console.log('Applying URL filters to enrollments:', url);
-        loadEnrollmentSection(targetSection, url);
-    }
-}
-async function loadSemesterSection(targetSection, url = '/admin/semesters/') {
-    try {
-        showLoading();
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const html = await response.text();
-        targetSection.innerHTML = html;
-        targetSection.classList.remove('section-hidden');
-
-        // Initialize semester page functionality after loading
-        setTimeout(() => {
-            initializeSemesterPageForDashboard();
-        }, 100);
-
-        showNotification('Semester section loaded successfully', 'success');
-    } catch (error) {
-        console.error('Error loading semester section:', error);
-        targetSection.innerHTML = createErrorContent('semesters', error.message);
-        targetSection.classList.remove('section-hidden');
-        showNotification('Error loading semester section', 'error');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Initialize semester page functionality for dashboard integration
-function initializeSemesterPageForDashboard() {
-    console.log('Semester page initialized for dashboard integration');
-    const form = document.getElementById('semester-filter-form');
-    const clearBtn = document.getElementById('clear-semester-filters-btn');
-
-    if (!form) {
-        console.warn('Semester filter form not found');
-        return;
-    }
-
-    // Override form submission to prevent page reload and stay in dashboard
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const params = new URLSearchParams(formData);
-
-        // Remove empty values
-        for (let [key, value] of params.entries()) {
-            if (!value.trim()) {
-                params.delete(key);
+                const url = '/admin/enrollments/?' + filterParams.toString();
+                const targetSection = document.getElementById('enrollments-section');
+                console.log('Applying URL filters to enrollments:', url);
+                loadEnrollmentSection(targetSection, url);
             }
         }
 
-        const url = '/admin/semesters/?' + params.toString();
-        const targetSection = document.getElementById('semesters-section');
-        loadSemesterSection(targetSection, url);
-    });
+        async function loadSemesterSection(targetSection, url = '/admin/semesters/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
 
-    // Handle pagination clicks to stay within dashboard
-    document.querySelectorAll('.semester-pagination-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const page = this.getAttribute('data-page');
-            const search = this.getAttribute('data-search') || '';
-            const session = this.getAttribute('data-session') || '';
-            const semesterNo = this.getAttribute('data-semester-no') || '';
-            const classFilter = this.getAttribute('data-class') || '';
+                // Initialize semester page functionality after loading
+                setTimeout(() => {
+                    initializeSemesterPageForDashboard();
+                }, 100);
 
-            const params = new URLSearchParams();
-            if (page) params.append('page', page);
-            if (search) params.append('search', search);
-            if (session) params.append('session', session);
-            if (semesterNo) params.append('semester_no', semesterNo);
-            if (classFilter) params.append('class', classFilter);
-
-            const url = '/admin/semesters/?' + params.toString();
-            const targetSection = document.getElementById('semesters-section');
-            loadSemesterSection(targetSection, url);
-        });
-    });
-
-    // Handle clear filters button
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetSection = document.getElementById('semesters-section');
-            loadSemesterSection(targetSection, '/admin/semesters/');
-        });
-    }
-
-    // Real-time search functionality
-    const searchInput = document.getElementById('semester-search');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const event = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(event);
-            }, 1000);
-        });
-    }
-
-    // Add immediate filter change handling for dropdowns
-    ['semester-session', 'semester-number', 'semester-class'].forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-            select.addEventListener('change', function() {
-                const event = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(event);
-            });
+                showNotification('Semester section loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading semester section:', error);
+                targetSection.innerHTML = createErrorContent('semesters', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading semester section', 'error');
+            } finally {
+                hideLoading();
+            }
         }
-    });
 
-    // Add hover effects for semester rows
-    document.querySelectorAll('.semester-row').forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.classList.add('shadow-sm');
-        });
-        row.addEventListener('mouseleave', function() {
-            this.classList.remove('shadow-sm');
-        });
-    });
+        // Initialize semester page functionality for dashboard integration
+        function initializeSemesterPageForDashboard() {
+            console.log('Semester page initialized for dashboard integration');
+            const form = document.getElementById('semester-filter-form');
+            const clearBtn = document.getElementById('clear-semester-filters-btn');
 
-    console.log('Semester page initialization complete');
-}
+            if (!form) {
+                console.warn('Semester filter form not found');
+                return;
+            }
+
+            // Override form submission to prevent page reload and stay in dashboard
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData);
+
+                // Remove empty values
+                for (let [key, value] of params.entries()) {
+                    if (!value.trim()) {
+                        params.delete(key);
+                    }
+                }
+
+                const url = '/admin/semesters/?' + params.toString();
+                const targetSection = document.getElementById('semesters-section');
+                loadSemesterSection(targetSection, url);
+            });
+
+            // Handle pagination clicks to stay within dashboard
+            document.querySelectorAll('.semester-pagination-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    const search = this.getAttribute('data-search') || '';
+                    const session = this.getAttribute('data-session') || '';
+                    const semesterNo = this.getAttribute('data-semester-no') || '';
+                    const classFilter = this.getAttribute('data-class') || '';
+
+                    const params = new URLSearchParams();
+                    if (page) params.append('page', page);
+                    if (search) params.append('search', search);
+                    if (session) params.append('session', session);
+                    if (semesterNo) params.append('semester_no', semesterNo);
+                    if (classFilter) params.append('class', classFilter);
+
+                    const url = '/admin/semesters/?' + params.toString();
+                    const targetSection = document.getElementById('semesters-section');
+                    loadSemesterSection(targetSection, url);
+                });
+            });
+
+            // Handle clear filters button
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetSection = document.getElementById('semesters-section');
+                    loadSemesterSection(targetSection, '/admin/semesters/');
+                });
+            }
+
+            // Real-time search functionality
+            const searchInput = document.getElementById('semester-search');
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        const event = new Event('submit', {bubbles: true, cancelable: true});
+                        form.dispatchEvent(event);
+                    }, 1000);
+                });
+            }
+
+            // Add immediate filter change handling for dropdowns
+            ['semester-session', 'semester-number', 'semester-class'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.addEventListener('change', function () {
+                        const event = new Event('submit', {bubbles: true, cancelable: true});
+                        form.dispatchEvent(event);
+                    });
+                }
+            });
+
+            // Add hover effects for semester rows
+            document.querySelectorAll('.semester-row').forEach(row => {
+                row.addEventListener('mouseenter', function () {
+                    this.classList.add('shadow-sm');
+                });
+                row.addEventListener('mouseleave', function () {
+                    this.classList.remove('shadow-sm');
+                });
+            });
+
+            console.log('Semester page initialization complete');
+        }
+
+        // Add to your dashboard's JavaScript section
+
+        // Load admin profile section
+        async function loadAdminProfile(targetSection, url = '/admin/profile/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                showNotification('Profile loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                targetSection.innerHTML = createErrorContent('profile', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading profile', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Change password function
+        function changePassword() {
+            alert('Password change functionality will be implemented separately.');
+        }
+
+        // Add to your dashboard's JavaScript section
+
+        // Load bulk operations main page
+        async function loadBulkOperations(targetSection, url = '/admin/bulk-operations/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                showNotification('Bulk operations loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading bulk operations:', error);
+                targetSection.innerHTML = createErrorContent('bulk-operations', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading bulk operations', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
 
         // Create error content for failed loads
         function createErrorContent(sectionName, errorMessage) {
             return '<div class="text-center py-12">' +
-                   '<svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">' +
-                   '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>' +
-                   '</svg>' +
-                   '<h3 class="text-lg font-medium text-gray-900 mb-2">Failed to Load ' + sectionName + '</h3>' +
-                   '<p class="text-gray-500 mb-4">' + errorMessage + '</p>' +
-                   '<button onclick="loadSectionContent(\'' + sectionName + '\')" class="btn-primary text-white px-4 py-2 rounded-lg">' +
-                   'Try Again' +
-                   '</button>' +
-                   '</div>';
+                '<svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">' +
+                '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>' +
+                '</svg>' +
+                '<h3 class="text-lg font-medium text-gray-900 mb-2">Failed to Load ' + sectionName + '</h3>' +
+                '<p class="text-gray-500 mb-4">' + errorMessage + '</p>' +
+                '<button onclick="loadSectionContent(\'' + sectionName + '\')" class="btn-primary text-white px-4 py-2 rounded-lg">' +
+                'Try Again' +
+                '</button>' +
+                '</div>';
         }
-
 
 
         // Initialize section-specific features
@@ -2200,10 +2297,10 @@ function initializeSemesterPageForDashboard() {
                 icon.style.transform = 'rotate(0deg)';
             } else {
                 // Close all other submenus
-                document.querySelectorAll('.submenu.open').forEach(function(menu) {
+                document.querySelectorAll('.submenu.open').forEach(function (menu) {
                     menu.classList.remove('open');
                 });
-                document.querySelectorAll('[id$="-submenu-icon"]').forEach(function(ic) {
+                document.querySelectorAll('[id$="-submenu-icon"]').forEach(function (ic) {
                     ic.style.transform = 'rotate(0deg)';
                 });
 
@@ -2255,6 +2352,7 @@ function initializeSemesterPageForDashboard() {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
+
 
         // Enhanced Quick add modal
         function showQuickAddModal() {
@@ -2350,28 +2448,27 @@ function initializeSemesterPageForDashboard() {
         // Quick add function
         async function quickAdd(type) {
             if (type === 'faculty') {
-            // Faculty create goes to separate page
-            window.location.href = '/admin/faculty/create/';
-            return;
+                // Faculty create goes to separate page
+                window.location.href = '/admin/faculty/create/';
+                return;
             }
             if (type === 'student') {
-            // Student create goes to separate page
-            window.location.href = '/admin/students/create/';
-            return;
+                // Student create goes to separate page
+                window.location.href = '/admin/students/create/';
+                return;
             }
 
-            if (type === 'program')
-            {
+            if (type === 'program') {
                 window.location.href = '/admin/programs/create/';
                 return;
             }
-            if (type === 'course'){
+            if (type === 'course') {
                 window.location.href = '/admin/courses/create/';
             }
-            if (type === 'enrollment'){
+            if (type === 'enrollment') {
                 window.location.href = '/admin/enrollments/create/';
             }
-            if (type === 'allocation'){
+            if (type === 'allocation') {
                 window.location.href = '/admin/allocations/create/';
             }
 
@@ -2382,7 +2479,7 @@ function initializeSemesterPageForDashboard() {
         function initializeGlobalSearch() {
             const searchInput = document.getElementById('global-search');
 
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
 
                 if (searchTimeout) {
@@ -2390,13 +2487,13 @@ function initializeSemesterPageForDashboard() {
                 }
 
                 if (query.length >= 2) {
-                    searchTimeout = setTimeout(function() {
+                    searchTimeout = setTimeout(function () {
                         performGlobalSearch(query);
                     }, 300);
                 }
             });
 
-            searchInput.addEventListener('keypress', function(e) {
+            searchInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const query = e.target.value.trim();
@@ -2440,11 +2537,11 @@ function initializeSemesterPageForDashboard() {
             // Students
             if (results.students && results.students.length > 0) {
                 content += '<div><h4 class="font-semibold text-gray-900 mb-2">Students</h4><div class="space-y-2">';
-                results.students.forEach(function(student) {
+                results.students.forEach(function (student) {
                     content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'students\')">' +
-                               '<p class="font-medium">' + student.name + '</p>' +
-                               '<p class="text-sm text-gray-500">' + student.email + '</p>' +
-                               '</div>';
+                        '<p class="font-medium">' + student.name + '</p>' +
+                        '<p class="text-sm text-gray-500">' + student.email + '</p>' +
+                        '</div>';
                 });
                 content += '</div></div>';
             }
@@ -2452,11 +2549,11 @@ function initializeSemesterPageForDashboard() {
             // Faculty
             if (results.faculty && results.faculty.length > 0) {
                 content += '<div><h4 class="font-semibold text-gray-900 mb-2">Faculty</h4><div class="space-y-2">';
-                results.faculty.forEach(function(faculty) {
+                results.faculty.forEach(function (faculty) {
                     content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'faculty\')">' +
-                               '<p class="font-medium">' + faculty.name + '</p>' +
-                               '<p class="text-sm text-gray-500">' + faculty.designation + '</p>' +
-                               '</div>';
+                        '<p class="font-medium">' + faculty.name + '</p>' +
+                        '<p class="text-sm text-gray-500">' + faculty.designation + '</p>' +
+                        '</div>';
                 });
                 content += '</div></div>';
             }
@@ -2464,11 +2561,11 @@ function initializeSemesterPageForDashboard() {
             // Courses
             if (results.courses && results.courses.length > 0) {
                 content += '<div><h4 class="font-semibold text-gray-900 mb-2">Courses</h4><div class="space-y-2">';
-                results.courses.forEach(function(course) {
+                results.courses.forEach(function (course) {
                     content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'courses\')">' +
-                               '<p class="font-medium">' + course.name + '</p>' +
-                               '<p class="text-sm text-gray-500">' + course.code + ' - ' + course.credits + ' credits</p>' +
-                               '</div>';
+                        '<p class="font-medium">' + course.name + '</p>' +
+                        '<p class="text-sm text-gray-500">' + course.code + ' - ' + course.credits + ' credits</p>' +
+                        '</div>';
                 });
                 content += '</div></div>';
             }
@@ -2476,11 +2573,11 @@ function initializeSemesterPageForDashboard() {
             // Programs (ADD THIS SECTION)
             if (results.programs && results.programs.length > 0) {
                 content += '<div><h4 class="font-semibold text-gray-900 mb-2">Programs</h4><div class="space-y-2">';
-                results.programs.forEach(function(program) {
+                results.programs.forEach(function (program) {
                     content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'programs\')">' +
-                   '<p class="font-medium">' + program.name + '</p>' +
-                   '<p class="text-sm text-gray-500">' + program.department + ' - ' + program.semesters + ' semesters</p>' +
-                   '</div>';
+                        '<p class="font-medium">' + program.name + '</p>' +
+                        '<p class="text-sm text-gray-500">' + program.department + ' - ' + program.semesters + ' semesters</p>' +
+                        '</div>';
                 });
                 content += '</div></div>';
             }
@@ -2488,22 +2585,22 @@ function initializeSemesterPageForDashboard() {
             // Enrollments (ADD THIS SECTION)
             if (results.enrollments && results.enrollments.length > 0) {
                 content += '<div><h4 class="font-semibold text-gray-900 mb-2">Enrollments</h4><div class="space-y-2">';
-                results.enrollments.forEach(function(enrollment) {
-                content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'enrollments\')">' +
-                   '<p class="font-medium">' + enrollment.student_name + '</p>' +
-                   '<p class="text-sm text-gray-500">' + enrollment.course_name + ' (' + enrollment.status + ')</p>' +
-                   '</div>';
+                results.enrollments.forEach(function (enrollment) {
+                    content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'enrollments\')">' +
+                        '<p class="font-medium">' + enrollment.student_name + '</p>' +
+                        '<p class="text-sm text-gray-500">' + enrollment.course_name + ' (' + enrollment.status + ')</p>' +
+                        '</div>';
                 });
-            content += '</div></div>';
+                content += '</div></div>';
             }
             // Allocations (ADD THIS SECTION)
             if (results.allocations && results.allocations.length > 0) {
                 content += '<div><h4 class="font-semibold text-gray-900 mb-2">Course Allocations</h4><div class="space-y-2">';
-                results.allocations.forEach(function(allocation) {
-                content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'allocations\')">' +
-                   '<p class="font-medium">' + allocation.teacher_name + '</p>' +
-                   '<p class="text-sm text-gray-500">' + allocation.course_name + ' (' + allocation.session + ')</p>' +
-                   '</div>';
+                results.allocations.forEach(function (allocation) {
+                    content += '<div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showSection(\'allocations\')">' +
+                        '<p class="font-medium">' + allocation.teacher_name + '</p>' +
+                        '<p class="text-sm text-gray-500">' + allocation.course_name + ' (' + allocation.session + ')</p>' +
+                        '</div>';
                 });
                 content += '</div></div>';
             }
@@ -2519,50 +2616,50 @@ function initializeSemesterPageForDashboard() {
 
         // Chart initialization
         async function initializeDashboardCharts() {
-        try {
-        const response = await fetch('/admin/api/dashboard-stats/'); // FIXED URL
-        const data = await response.json();
+            try {
+                const response = await fetch('/admin/api/dashboard-stats/'); // FIXED URL
+                const data = await response.json();
 
-        const ctx = document.getElementById('enrollmentChart');
-        if (!ctx || charts.enrollmentChart) return;
+                const ctx = document.getElementById('enrollmentChart');
+                if (!ctx || charts.enrollmentChart) return;
 
-        // Generate last 6 months labels
-        const months = [];
-        const enrollmentData = [];
-        const now = new Date();
+                // Generate last 6 months labels
+                const months = [];
+                const enrollmentData = [];
+                const now = new Date();
 
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            months.push(date.toLocaleDateString('en-US', { month: 'short' }));
-            enrollmentData.push(Math.floor(data.overview.active_enrollments / 6)); // FIXED DATA
-        }
-
-        charts.enrollmentChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [{
-                    label: 'Enrollments',
-                    data: enrollmentData,
-                    borderColor: '#059669',
-                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-                    x: { grid: { display: false } }
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    months.push(date.toLocaleDateString('en-US', {month: 'short'}));
+                    enrollmentData.push(Math.floor(data.overview.active_enrollments / 6)); // FIXED DATA
                 }
-            }
-        });
 
-        } catch (error) {
+                charts.enrollmentChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Enrollments',
+                            data: enrollmentData,
+                            borderColor: '#059669',
+                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {legend: {display: false}},
+                        scales: {
+                            y: {beginAtZero: true, grid: {color: '#f3f4f6'}},
+                            x: {grid: {display: false}}
+                        }
+                    }
+                });
+
+            } catch (error) {
                 console.error('Error loading chart data:', error);
             }
         }
@@ -2584,23 +2681,23 @@ function initializeSemesterPageForDashboard() {
             notification.id = 'notification-' + id;
             notification.className = 'notification ' + colors[type] + ' text-white px-6 py-4 rounded-lg shadow-lg mb-2';
             notification.innerHTML = '<div class="flex items-center justify-between">' +
-                                   '<span>' + message + '</span>' +
-                                   '<button onclick="hideNotification(' + id + ')" class="ml-4 text-white hover:text-gray-200">' +
-                                   '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">' +
-                                   '<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>' +
-                                   '</svg>' +
-                                   '</button>' +
-                                   '</div>';
+                '<span>' + message + '</span>' +
+                '<button onclick="hideNotification(' + id + ')" class="ml-4 text-white hover:text-gray-200">' +
+                '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">' +
+                '<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>' +
+                '</svg>' +
+                '</button>' +
+                '</div>';
 
             container.appendChild(notification);
 
             // Show notification
-            setTimeout(function() {
+            setTimeout(function () {
                 notification.classList.add('show');
             }, 100);
 
             // Auto hide after 5 seconds
-            setTimeout(function() {
+            setTimeout(function () {
                 hideNotification(id);
             }, 5000);
         }
@@ -2609,7 +2706,7 @@ function initializeSemesterPageForDashboard() {
             const notification = document.getElementById('notification-' + id);
             if (notification) {
                 notification.classList.remove('show');
-                setTimeout(function() {
+                setTimeout(function () {
                     notification.remove();
                 }, 300);
             }
@@ -2633,13 +2730,13 @@ function initializeSemesterPageForDashboard() {
         function initializeDataTables() {
             // Add sorting, filtering, and pagination to tables
             const tables = document.querySelectorAll('table');
-            tables.forEach(function(table) {
+            tables.forEach(function (table) {
                 // Add sorting functionality
                 const headers = table.querySelectorAll('th');
-                headers.forEach(function(header, index) {
+                headers.forEach(function (header, index) {
                     if (header.textContent.trim()) {
                         header.style.cursor = 'pointer';
-                        header.addEventListener('click', function() {
+                        header.addEventListener('click', function () {
                             sortTable(table, index);
                         });
                     }
@@ -2654,7 +2751,7 @@ function initializeSemesterPageForDashboard() {
             const isAscending = table.dataset.sortOrder !== 'asc';
             table.dataset.sortOrder = isAscending ? 'asc' : 'desc';
 
-            rows.sort(function(a, b) {
+            rows.sort(function (a, b) {
                 const aText = a.cells[columnIndex] ? a.cells[columnIndex].textContent.trim() : '';
                 const bText = b.cells[columnIndex] ? b.cells[columnIndex].textContent.trim() : '';
 
@@ -2672,7 +2769,7 @@ function initializeSemesterPageForDashboard() {
 
             // Clear and re-append sorted rows
             tbody.innerHTML = '';
-            rows.forEach(function(row) {
+            rows.forEach(function (row) {
                 tbody.appendChild(row);
             });
         }
@@ -2715,7 +2812,7 @@ function initializeSemesterPageForDashboard() {
 
         // Keyboard shortcuts
         function initializeKeyboardShortcuts() {
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 // Ctrl/Cmd + K for global search
                 if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                     e.preventDefault();
@@ -2736,11 +2833,11 @@ function initializeSemesterPageForDashboard() {
         }
 
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Add this to your dashboard DOMContentLoaded function
             const urlParams = new URLSearchParams(window.location.search);
             const section = urlParams.get('section');
-             if (section) {
+            if (section) {
                 console.log('Found section parameter:', section);
                 // Add a small delay to ensure DOM is ready
                 setTimeout(() => {
@@ -2758,15 +2855,16 @@ function initializeSemesterPageForDashboard() {
             initializeDashboardCharts();
             loadQuickStats();
             loadAdminUserProfile();
+            handlePageRefreshWithSection();
 
             // Show welcome notification
-            setTimeout(function() {
+            setTimeout(function () {
                 showNotification('Welcome to Namal LMS Admin Dashboard', 'success');
             }, 1000);
         });
 
         // Close modal when clicking outside
-        document.getElementById('modal').addEventListener('click', function(e) {
+        document.getElementById('modal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeModal();
             }
@@ -2774,64 +2872,62 @@ function initializeSemesterPageForDashboard() {
 
         async function loadDashboardStats() {
             try {
-                    const response = await fetch('/admin/api/dashboard-stats/');
-                    const data = await response.json();
+                const response = await fetch('/admin/api/dashboard-stats/');
+                const data = await response.json();
 
-                    // Update statistics
-                    document.getElementById('total-students').textContent = data.overview.total_students;
-                    document.getElementById('total-faculty').textContent = data.overview.total_faculty;
-                    document.getElementById('total-programs').textContent = data.overview.total_programs;
-                    document.getElementById('total-courses').textContent = data.overview.total_courses;
-                    document.getElementById('total-departments').textContent = data.overview.total_departments + ' departments';
-                    //document.getElementById('total-enrollments').textContent = data.overview.enrollments.total + 'enrollments';
+                // Update statistics
+                document.getElementById('total-students').textContent = data.overview.total_students;
+                document.getElementById('total-faculty').textContent = data.overview.total_faculty;
+                document.getElementById('total-programs').textContent = data.overview.total_programs;
+                document.getElementById('total-courses').textContent = data.overview.total_courses;
+                document.getElementById('total-departments').textContent = data.overview.total_departments + ' departments';
+                //document.getElementById('total-enrollments').textContent = data.overview.enrollments.total + 'enrollments';
 
-                    if (data.overview && data.overview.active_enrollments !== undefined) {
+                if (data.overview && data.overview.active_enrollments !== undefined) {
                     document.getElementById('total-enrollments').textContent = data.overview.active_enrollments + ' active enrollments';
-                    }
+                }
 
-                   // Update performance metrics
-                    document.getElementById('avg-gpa').textContent = data.performance.avg_gpa;
-                    document.getElementById('high-performers').textContent = data.performance.high_performers;
-                    document.getElementById('success-rate').textContent = data.performance.high_performer_percentage + '%';
+                // Update performance metrics
+                document.getElementById('avg-gpa').textContent = data.performance.avg_gpa;
+                document.getElementById('high-performers').textContent = data.performance.high_performers;
+                document.getElementById('success-rate').textContent = data.performance.high_performer_percentage + '%';
 
             } catch (error) {
                 console.error('Error loading dashboard stats:', error);
                 showNotification('Failed to load dashboard statistics', 'error');
-             }
+            }
         }
 
-       async function loadDepartmentStats() {
-        try {
-        const response = await fetch('/admin/api/dashboard-stats/');
-        const data = await response.json();
+        async function loadDepartmentStats() {
+            try {
+                const response = await fetch('/admin/api/dashboard-stats/');
+                const data = await response.json();
+                const container = document.getElementById('department-stats');
+                container.innerHTML = '';
 
-        const container = document.getElementById('department-stats');
-        container.innerHTML = '';
-
-        if (data.departments && data.departments.length > 0) {
-            data.departments.slice(0,4).forEach(dept => {
-                const div = document.createElement('div');
-                div.className = 'space-y-1 mb-3 p-2 bg-gray-50 rounded-lg';
-                div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-900">${dept.department_name}</span>
-                        <span class="text-xs text-gray-500">${dept.program_count} programs</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-gray-600">👥 ${dept.student_count} students</span>
-                        <span class="text-gray-600">👨‍🏫 ${dept.faculty_count} faculty</span>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-            } else {
-            container.innerHTML = '<div class="text-sm text-gray-500">No departments found</div>';
-            }
-
+                if (data.departments && data.departments.length > 0) {
+                    data.departments.slice(0, 4).forEach(dept => {
+                        const div = document.createElement('div');
+                        div.className = 'space-y-1 mb-3 p-2 bg-gray-50 rounded-lg';
+                        div.innerHTML = `
+                             <div class="flex justify-between items-center">
+                                 <span class="text-sm font-medium text-gray-900">${dept.department_name}</span>
+                                 <span class="text-xs text-gray-500">${dept.program_count} programs</span>
+                             </div>
+                             <div class="flex justify-between items-center text-xs">
+                                  <span class="text-gray-600">👥 ${dept.student_count} students</span>
+                                  <span class="text-gray-600">👨‍🏫 ${dept.faculty_count} faculty</span>
+                             </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<div class="text-sm text-gray-500">No departments found</div>';
+                }
             } catch (error) {
                 console.error('Error loading department stats:', error);
-            container.innerHTML = '<div class="text-sm text-red-500">Error loading department data</div>';
-             }
+                container.innerHTML = '<div class="text-sm text-red-500">Error loading department data</div>';
+            }
         }
 
         async function loadRecentActivities() {
@@ -2889,6 +2985,27 @@ function initializeSemesterPageForDashboard() {
             }
         }
 
+        function handlePageRefreshWithSection() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const section = urlParams.get('section');
+
+            if (section) {
+                console.log('Found section parameter on page load:', section);
+                // Update URL to maintain the section parameter
+                const newUrl = `/admin/dashboard/?section=${section}`;
+                window.history.replaceState({}, '', newUrl);
+                // Load the appropriate section
+                setTimeout(() => {
+                    showSection(section);
+                }, 100);
+            }
+        }
+
+        function updateBrowserURL(sectionName) {
+            const newUrl = `/admin/dashboard/?section=${sectionName}`;
+            window.history.pushState({}, '', newUrl);
+        }
+
         async function loadAdminUserProfile() {
             try {
                 const response = await fetch('/admin/api/user-profile/');
@@ -2935,6 +3052,368 @@ function initializeSemesterPageForDashboard() {
             } catch (error) {
                 console.error('Error loading user profile:', error);
             }
+        }
+
+
+        async function loadDataIntegritySection(targetSection, url = '/admin/system/data-integrity/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                // Initialize data integrity functionality after loading
+                setTimeout(() => {
+                    initializeDataIntegrityForDashboard();
+                }, 100);
+
+                showNotification('Data integrity check loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading data integrity section:', error);
+                targetSection.innerHTML = createErrorContent('data-integrity', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading data integrity section', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Initialize data integrity functionality for dashboard integration
+        function initializeDataIntegrityForDashboard() {
+            console.log('Data integrity page initialized for dashboard integration');
+
+            // Override the existing refreshIntegrityCheck function to work within dashboard
+            window.refreshIntegrityCheck = async function () {
+                try {
+                    showLoading();
+                    const targetSection = document.getElementById('data-integrity-section');
+                    const response = await fetch('/admin/system/data-integrity/', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    const html = await response.text();
+                    targetSection.innerHTML = html;
+
+                    // Re-initialize after refresh
+                    setTimeout(() => {
+                        initializeDataIntegrityForDashboard();
+                    }, 100);
+
+                    showNotification('Data integrity check refreshed', 'success');
+                } catch (error) {
+                    console.error('Error refreshing integrity check:', error);
+                    showNotification('Error refreshing integrity check', 'error');
+                } finally {
+                    hideLoading();
+                }
+            };
+
+            // Override the existing fixDataIssue function to work within dashboard
+            window.fixDataIssue = async function (issueType) {
+                const confirmMessage = `Are you sure you want to fix ${issueType} issues? This action cannot be undone.`;
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                try {
+                    showLoading();
+                    const response = await fetch(`/admin/system/fix-data-issue/${issueType}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCSRFToken()
+                        }
+                    });
+                    if (response.ok) {
+                        showNotification(`${issueType} issues fix initiated`, 'success');
+                        // Refresh the integrity check
+                        setTimeout(() => {
+                            refreshIntegrityCheck();
+                        }, 2000);
+                    } else {
+                        throw new Error('Failed to initiate fix');
+                    }
+                } catch (error) {
+                    console.error('Error fixing data issue:', error);
+                    showNotification('Error fixing data issue', 'error');
+                } finally {
+                    hideLoading();
+                }
+            };
+
+            console.log('Data integrity page initialization complete');
+        }
+
+        // Load System Health Check section
+        async function loadSystemHealthSection(targetSection, url = '/admin/system/health-check/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+                // Initialize system health functionality after loading
+                setTimeout(() => {
+                    initializeSystemHealthForDashboard();
+                }, 100);
+                showNotification('System health check loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading system health section:', error);
+                targetSection.innerHTML = createErrorContent('system-health', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading system health section', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Initialize system health functionality for dashboard integration
+        function initializeSystemHealthForDashboard() {
+            console.log('System health page initialized for dashboard integration');
+
+            // Override the existing refreshHealthCheck function to work within dashboard
+            window.refreshHealthCheck = async function () {
+                try {
+                    showLoading();
+                    const targetSection = document.getElementById('system-health-section');
+                    const response = await fetch('/admin/system/health-check/', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const html = await response.text();
+                    targetSection.innerHTML = html;
+
+                    // Re-initialize after refresh
+                    setTimeout(() => {
+                        initializeSystemHealthForDashboard();
+                    }, 100);
+
+                    showNotification('System health check refreshed', 'success');
+                } catch (error) {
+                    console.error('Error refreshing health check:', error);
+                    showNotification('Error refreshing health check', 'error');
+                } finally {
+                    hideLoading();
+                }
+            };
+
+            // Override the existing quick action functions to work within dashboard
+            window.runDataIntegrityCheck = function () {
+                showSection('data-integrity');
+            };
+
+            window.viewSystemLogs = function () {
+                showNotification('System logs feature coming soon', 'info');
+            };
+
+            window.runPerformanceCheck = function () {
+                showNotification('Performance check feature coming soon', 'info');
+            };
+
+            window.backupDatabase = async function () {
+                if (confirm('Are you sure you want to create a database backup? This may take several minutes.')) {
+                    try {
+                        showLoading();
+                        const response = await fetch('/admin/system/backup-database/', {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': getCSRFToken()
+                            }
+                        });
+                        if (response.ok) {
+                            showNotification('Database backup initiated successfully', 'success');
+                        } else {
+                            throw new Error('Failed to initiate backup');
+                        }
+                    } catch (error) {
+                        console.error('Error creating backup:', error);
+                        showNotification('Error creating database backup', 'error');
+                    } finally {
+                        hideLoading();
+                    }
+                }
+            };
+
+            console.log('System health page initialization complete');
+        }
+
+        async function loadExportDataSection(targetSection, url = '/admin/system/export-data/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                showNotification('Export section loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading export section:', error);
+                targetSection.innerHTML = createErrorContent('export-data', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading export section', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function loadReportsSection(targetSection, url = '/admin/reports/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                //showNotification('Report section loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading report section:', error);
+                targetSection.innerHTML = createErrorContent('reports', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading report section', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function loadAuditTrailSection(targetSection, url = '/admin/audit-trail/') {
+            try {
+                showLoading();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const html = await response.text();
+                targetSection.innerHTML = html;
+                targetSection.classList.remove('section-hidden');
+
+                // Initialize audit trail functionality after loading
+                setTimeout(() => {
+                    initializeAuditTrailForDashboard();
+                }, 100);
+
+                //showNotification('Audit trail loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading audit trail section:', error);
+                targetSection.innerHTML = createErrorContent('audit-trail', error.message);
+                targetSection.classList.remove('section-hidden');
+                showNotification('Error loading audit trail section', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Add this function for audit trail dashboard integration
+        function initializeAuditTrailForDashboard() {
+            console.log('Audit trail page initialized for dashboard integration');
+
+            const form = document.getElementById('audit-filter-form');
+            const clearBtn = document.getElementById('clear-audit-filters-btn');
+
+            if (!form) {
+                console.warn('Audit filter form not found');
+                return;
+            }
+
+            // Override form submission to prevent page reload and stay in dashboard
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData);
+
+                // Remove empty values
+                for (let [key, value] of params.entries()) {
+                    if (!value.trim()) {
+                        params.delete(key);
+                    }
+                }
+
+                const url = '/admin/audit-trail/?' + params.toString();
+                const targetSection = document.getElementById('audit-trail-section');
+                loadAuditTrailSection(targetSection, url);
+            });
+
+            // Handle pagination clicks
+            document.querySelectorAll('.audit-pagination-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    const action = this.getAttribute('data-action') || '';
+                    const table = this.getAttribute('data-table') || '';
+                    const user = this.getAttribute('data-user') || '';
+                    const startDate = this.getAttribute('data-start-date') || '';
+                    const endDate = this.getAttribute('data-end-date') || '';
+
+                    const params = new URLSearchParams();
+                    if (page) params.append('page', page);
+                    if (action) params.append('action', action);
+                    if (table) params.append('table', table);
+                    if (user) params.append('user', user);
+                    if (startDate) params.append('start_date', startDate);
+                    if (endDate) params.append('end_date', endDate);
+
+                    const url = '/admin/audit-trail/?' + params.toString();
+                    const targetSection = document.getElementById('audit-trail-section');
+                    loadAuditTrailSection(targetSection, url);
+                });
+            });
+
+            // Handle clear filters button
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetSection = document.getElementById('audit-trail-section');
+                    loadAuditTrailSection(targetSection, '/admin/audit-trail/');
+                });
+            }
+
+            // Real-time search for user filter
+            const userInput = document.getElementById('audit-user');
+            if (userInput) {
+                let searchTimeout;
+                userInput.addEventListener('input', function () {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        const event = new Event('submit', {bubbles: true, cancelable: true});
+                        form.dispatchEvent(event);
+                    }, 1000);
+                });
+            }
+
+            // Filter change handlers for dropdowns and date inputs
+            ['audit-action', 'audit-table', 'audit-start-date', 'audit-end-date'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', function () {
+                        const event = new Event('submit', {bubbles: true, cancelable: true});
+                        form.dispatchEvent(event);
+                    });
+                }
+            });
+
+            console.log('Audit trail page initialization complete');
         }
     </script>
 </body>

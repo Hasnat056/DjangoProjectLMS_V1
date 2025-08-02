@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ department.departmentname }} - Students - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .student-card {
+            transition: all 0.3s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .program-filter {
+            transition: all 0.2s ease;
+        }
+
+        .program-filter.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .search-highlight {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Departments (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                        </svg>
+                        <span class="font-medium">Departments</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/dashboard/?section=departments" class="hover:text-emerald-600">Departments</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">{{ department.departmentname }}</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Department Students</h2>
+                        <p class="text-gray-600">Student enrollment and academic information for {{ department.departmentname }}</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/admin/dashboard/?section=departments"
+                           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Departments</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Search and Filters -->
+                    <div class="card-gradient rounded-xl p-6 mb-8">
+                        <form method="get" class="space-y-6">
+                            <!-- Search Bar -->
+                            <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+                                <div class="flex-1">
+                                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Students</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <input type="text"
+                                               id="search"
+                                               name="search"
+                                               value="{{ request.GET.search|default:'' }}"
+                                               placeholder="Search by name, student ID, or email..."
+                                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    </div>
+                                </div>
+                                <div class="flex space-x-3">
+                                    <button type="submit"
+                                            class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>Search</span>
+                                    </button>
+                                    <a href="?"
+                                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg transition-colors flex items-center space-x-2">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>Clear</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Program Filters -->
+                            {% if programs %}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Filter by Program</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <button type="button"
+                                            onclick="filterByProgram('all')"
+                                            id="filter-all"
+                                            class="program-filter active px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50">
+                                        All Programs
+                                        <span class="ml-2 text-xs opacity-75">({{ students.paginator.count }})</span>
+                                    </button>
+                                    {% for program, program_students in programs.items %}
+                                    <button type="button"
+                                            onclick="filterByProgram('{{ program.programid }}')"
+                                            id="filter-{{ program.programid }}"
+                                            class="program-filter px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50">
+                                        {{ program.programname }}
+                                        <span class="ml-2 text-xs opacity-75">({{ program_students|length }})</span>
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </form>
+                    </div>
+
+                    <!-- Statistics Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="card-gradient rounded-xl p-6 text-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                </svg>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-600">{{ students.paginator.count }}</div>
+                            <div class="text-sm text-gray-600">Total Students</div>
+                        </div>
+                        <div class="card-gradient rounded-xl p-6 text-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                                </svg>
+                            </div>
+                            <div class="text-2xl font-bold text-green-600">{{ programs|length }}</div>
+                            <div class="text-sm text-gray-600">Active Programs</div>
+                        </div>
+                        <div class="card-gradient rounded-xl p-6 text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="text-2xl font-bold text-purple-600">
+                                {% for student in students %}{% if student.status == 'Enrolled' %}1{% endif %}{% endfor %}
+                            </div>
+                            <div class="text-sm text-gray-600">Enrolled Students</div>
+                        </div>
+                        <div class="card-gradient rounded-xl p-6 text-center">
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="text-2xl font-bold text-orange-600">
+                                {% for student in students %}{% if student.status == 'Graduated' %}1{% endif %}{% endfor %}
+                            </div>
+                            <div class="text-sm text-gray-600">Graduated</div>
+                        </div>
+                    </div>
+
+                    <!-- Students Grid -->
+                    {% if students %}
+                    <div class="space-y-6">
+                        <!-- Search Results Info -->
+                        {% if request.GET.search %}
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="text-yellow-800">
+                                    Showing {{ students.paginator.count }} result{{ students.paginator.count|pluralize }} for
+                                    <span class="search-highlight font-medium">"{{ request.GET.search }}"</span>
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Student Cards Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="students-grid">
+                            {% for student in students %}
+                            <div class="student-card card-gradient rounded-xl p-6 student-item"
+                                 data-program="{{ student.programid.programid|default:'none' }}"
+                                 data-status="{{ student.status|lower }}">
+                                <!-- Student Header -->
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-lg font-bold">
+                                            {{ student.studentid.fname|first }}{{ student.studentid.lname|first }}
+                                        </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-semibold text-gray-900">
+                                            <a href="/admin/students/{{ student.studentid.personid }}/"
+                                               class="hover:text-emerald-600 transition-colors">
+                                                {{ student.studentid.fname }} {{ student.studentid.lname }}
+                                            </a>
+                                        </h3>
+                                        <p class="text-sm text-gray-600">{{ student.studentid.personid }}</p>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                                            {% if student.status == 'Enrolled' %}bg-green-100 text-green-800
+                                            {% elif student.status == 'Graduated' %}bg-purple-100 text-purple-800
+                                            {% elif student.status == 'Dropped' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ student.status }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Student Details -->
+                                <div class="space-y-3">
+                                    <div class="flex items-center text-sm">
+                                        <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                        </svg>
+                                        <span class="text-gray-600 truncate">{{ student.studentid.email|default:"No email" }}</span>
+                                    </div>
+
+                                    {% if student.programid %}
+                                    <div class="flex items-center text-sm">
+                                        <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                                        </svg>
+                                        <span class="text-gray-600">{{ student.programid.programname }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if student.classid %}
+                                    <div class="flex items-center text-sm">
+                                        <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-gray-600">
+                                            Class: {{ student.classid.programid.programid }}-{{ student.classid.batchyear }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if student.studentid.phone %}
+                                    <div class="flex items-center text-sm">
+                                        <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                                        </svg>
+                                        <span class="text-gray-600">{{ student.studentid.phone }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="mt-6 flex space-x-2">
+                                    <a href="/admin/students/{{ student.studentid.personid }}/"
+                                       class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                        View Profile
+                                    </a>
+                                    <button onclick="viewEnrollments('{{ student.studentid.personid }}')"
+                                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                        Enrollments
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if students.has_other_pages %}
+                        <div class="mt-8 flex items-center justify-between">
+                            <div class="text-sm text-gray-700">
+                                Showing <span class="font-medium">{{ students.start_index }}</span> to
+                                <span class="font-medium">{{ students.end_index }}</span> of
+                                <span class="font-medium">{{ students.paginator.count }}</span> results
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                {% if students.has_previous %}
+                                <a href="?page={{ students.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                                   class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+                                    Previous
+                                </a>
+                                {% else %}
+                                <span class="bg-white border border-gray-300 text-gray-400 px-3 py-2 rounded-lg text-sm cursor-not-allowed">
+                                    Previous
+                                </span>
+                                {% endif %}
+
+                                {% for num in students.paginator.page_range %}
+                                    {% if students.number == num %}
+                                    <span class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm">{{ num }}</span>
+                                    {% elif num > students.number|add:'-3' and num < students.number|add:'3' %}
+                                    <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                                       class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+                                        {{ num }}
+                                    </a>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if students.has_next %}
+                                <a href="?page={{ students.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                                   class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+                                    Next
+                                </a>
+                                {% else %}
+                                <span class="bg-white border border-gray-300 text-gray-400 px-3 py-2 rounded-lg text-sm cursor-not-allowed">
+                                    Next
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                        <div class="text-center py-20">
+                            <svg class="w-24 h-24 mx-auto mb-6 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                            </svg>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">No Students Found</h3>
+                            <p class="text-gray-600 mb-8">
+                                {% if request.GET.search %}
+                                    No students match your search criteria. Try a different search term.
+                                {% else %}
+                                    This department doesn't have any students enrolled yet.
+                                {% endif %}
+                            </p>
+                            {% if request.GET.search %}
+                            <a href="?"
+                               class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors">
+                                Clear Search
+                            </a>
+                            {% else %}
+                            <a href="/admin/dashboard/?section=departments"
+                               class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors">
+                                Return to Departments
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        }
+
+        function filterByProgram(programId) {
+            const allCards = document.querySelectorAll('.student-item');
+            const allFilters = document.querySelectorAll('.program-filter');
+
+            // Remove active class from all filters
+            allFilters.forEach(filter => filter.classList.remove('active'));
+
+            // Add active class to clicked filter
+            document.getElementById(`filter-${programId}`).classList.add('active');
+
+            // Show/hide student cards
+            allCards.forEach(card => {
+                if (programId === 'all' || card.dataset.program === programId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function viewEnrollments(studentId) {
+            window.location.href = `/admin/students/${studentId}/enrollments/`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminProfile();
+        });
+    </script>
+</body>
+</html>

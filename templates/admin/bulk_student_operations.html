@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Student Operations - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d5f5a, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .student-row {
+            transition: all 0.2s ease;
+        }
+
+        .student-row:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- CSRF Token -->
+    {% csrf_token %}
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Bulk Operations (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                        <span class="font-medium">Bulk Student Operations</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/dashboard/?section=bulk-operations" class="hover:text-emerald-600">Bulk Operations</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">Student Operations</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">
+                            Bulk Student Operations
+                        </h2>
+                        <p class="text-gray-600">Perform actions on multiple students at once</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/admin/dashboard/?section=bulk-operations" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Bulk Operations</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-7xl mx-auto space-y-6">
+
+                    <!-- Filters Section -->
+                    <div class="card-gradient rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"></path>
+                            </svg>
+                            Filter Students
+                        </h3>
+                        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="program" class="block text-sm font-medium text-gray-700 mb-2">Program</label>
+                                <select name="program" id="program" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="">All Programs</option>
+                                    {% for program in programs %}
+                                        <option value="{{ program.programid }}" {% if current_filters.program == program.programid|stringformat:"s" %}selected{% endif %}>
+                                            {{ program.programname }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                <select name="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="">All Statuses</option>
+                                    <option value="Enrolled" {% if current_filters.status == "Enrolled" %}selected{% endif %}>Enrolled</option>
+                                    <option value="Dropped" {% if current_filters.status == "Dropped" %}selected{% endif %}>Dropped</option>
+                                    <option value="Graduated" {% if current_filters.status == "Graduated" %}selected{% endif %}>Graduated</option>
+                                    <option value="Transferred" {% if current_filters.status == "Transferred" %}selected{% endif %}>Transferred</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end space-x-2">
+                                <button type="submit" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Filter</span>
+                                </button>
+                                <a href="{% url 'management:bulk_student_operations' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                                    Clear
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Bulk Operations Form -->
+                    <form method="POST" id="bulk-operations-form">
+                        {% csrf_token %}
+
+                        <!-- Operation Selection -->
+                        <div class="card-gradient rounded-xl p-6 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                    <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Select Operation
+                                </h3>
+                                <div class="text-sm text-gray-500">
+                                    <span id="selected-count">0</span> students selected
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="operation" value="activate" class="mr-3 text-emerald-600 focus:ring-emerald-500">
+                                    <div>
+                                        <div class="font-medium text-gray-900">Activate Students</div>
+                                        <div class="text-sm text-gray-500">Set status to Enrolled</div>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="operation" value="deactivate" class="mr-3 text-emerald-600 focus:ring-emerald-500">
+                                    <div>
+                                        <div class="font-medium text-gray-900">Deactivate Students</div>
+                                        <div class="text-sm text-gray-500">Set status to Dropped</div>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="operation" value="graduate" class="mr-3 text-emerald-600 focus:ring-emerald-500">
+                                    <div>
+                                        <div class="font-medium text-gray-900">Graduate Students</div>
+                                        <div class="text-sm text-gray-500">Set status to Graduated</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="mt-6 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="select-all" class="mr-2 text-emerald-600 focus:ring-emerald-500">
+                                        <span class="text-sm font-medium text-gray-700">Select All</span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2" id="execute-btn" disabled>
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Execute Operation</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Students List -->
+                        <div class="card-gradient rounded-xl overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                    <svg class="w-5 h-5 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                    </svg>
+                                    Students
+                                    <span class="ml-2 text-sm text-gray-500">({{ students.paginator.count }} total)</span>
+                                </h3>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left">
+                                                <input type="checkbox" id="select-all-header" class="text-emerald-600 focus:ring-emerald-500">
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Student ID
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Student Name
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Program
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Class
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        {% for student in students %}
+                                        <tr class="student-row hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <input type="checkbox" name="student_ids" value="{{ student.studentid.pk }}" class="student-checkbox text-emerald-600 focus:ring-emerald-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <a href="/admin/students/{{ student.studentid.pk }}/" class="text-emerald-600 hover:text-emerald-900 font-medium">
+                                                    {{ student.studentid.pk }}
+                                                </a>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                                        <span class="text-white text-sm font-bold">
+                                                            {{ student.studentid.fname.0 }}{{ student.studentid.lname.0 }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ student.studentid.fname }} {{ student.studentid.lname }}
+                                                        </div>
+                                                        <div class="text-sm text-gray-500">{{ student.studentid.institutionalemail }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                {% if student.programid %}
+                                                    <div class="text-sm font-medium text-gray-900">{{ student.programid.programname }}</div>
+                                                    <div class="text-sm text-gray-500">{{ student.programid.departmentid.departmentname }}</div>
+                                                {% else %}
+                                                    <span class="text-gray-400">No program assigned</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                {% if student.status == 'Enrolled' %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        Enrolled
+                                                    </span>
+                                                {% elif student.status == 'Graduated' %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        Graduated
+                                                    </span>
+                                                {% elif student.status == 'Dropped' %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        Dropped
+                                                    </span>
+                                                {% elif student.status == 'Transferred' %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        Transferred
+                                                    </span>
+                                                {% else %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {{ student.status|default:"N/A" }}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                {% if student.classid %}
+                                                    <a href="/admin/classes/{{ student.classid.classid }}/" class="text-blue-600 hover:text-blue-900 font-medium">
+                                                        {{ student.classid.programid.programid }}-{{ student.classid.batchyear }}
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-gray-400">No class assigned</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                                <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                                </svg>
+                                                <p>No students found matching your criteria</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if students.has_other_pages %}
+                            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                                <div class="text-sm text-gray-500">
+                                    Showing {{ students.start_index }} to {{ students.end_index }} of {{ students.paginator.count }} students
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    {% if students.has_previous %}
+                                        <a href="?page={{ students.previous_page_number }}{% if current_filters.program %}&program={{ current_filters.program }}{% endif %}{% if current_filters.status %}&status={{ current_filters.status }}{% endif %}"
+                                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                            Previous
+                                        </a>
+                                    {% endif %}
+
+                                    <span class="px-3 py-2 text-sm font-medium text-gray-700">
+                                        Page {{ students.number }} of {{ students.paginator.num_pages }}
+                                    </span>
+
+                                    {% if students.has_next %}
+                                        <a href="?page={{ students.next_page_number }}{% if current_filters.program %}&program={{ current_filters.program }}{% endif %}{% if current_filters.status %}&status={{ current_filters.status }}{% endif %}"
+                                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                            Next
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </form>
+
+                    <!-- Warning Notice -->
+                    <div class="card-gradient rounded-xl p-6 border-l-4 border-yellow-500">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-yellow-800 mb-2">Important Notice</h3>
+                                <div class="text-sm text-yellow-700 space-y-2">
+                                    <p><strong>Before performing bulk operations:</strong></p>
+                                    <ul class="list-disc list-inside space-y-1 ml-4">
+                                        <li>Review your selection carefully - operations cannot be undone</li>
+                                        <li>Consider creating a database backup for large operations</li>
+                                        <li>Test with a small batch first if unsure</li>
+                                        <li>Verify that all selected students should receive the same operation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminProfile();
+            initializeBulkOperations();
+
+            // Check for Django messages and display them
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        showSuccessMessage('{{ message|escapejs }}');
+                    {% elif message.tags == 'error' %}
+                        showErrorMessage('{{ message|escapejs }}');
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
+
+        function initializeBulkOperations() {
+            const selectAllCheckboxes = document.querySelectorAll('#select-all, #select-all-header');
+            const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+            const selectedCountElement = document.getElementById('selected-count');
+            const executeBtn = document.getElementById('execute-btn');
+            const form = document.getElementById('bulk-operations-form');
+
+            // Handle select all functionality
+            selectAllCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    studentCheckboxes.forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                    // Sync both select-all checkboxes
+                    selectAllCheckboxes.forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                    updateSelectedCount();
+                });
+            });
+
+            // Handle individual checkbox changes
+            studentCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateSelectedCount();
+
+                    // Update select-all checkboxes based on individual selections
+                    const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+                    const totalCount = studentCheckboxes.length;
+
+                    selectAllCheckboxes.forEach(selectAll => {
+                        selectAll.checked = checkedCount === totalCount;
+                        selectAll.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+                    });
+                });
+            });
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const selectedStudents = document.querySelectorAll('.student-checkbox:checked');
+                const selectedOperation = document.querySelector('input[name="operation"]:checked');
+
+                if (selectedStudents.length === 0) {
+                    showErrorMessage('Please select at least one student');
+                    return;
+                }
+
+                if (!selectedOperation) {
+                    showErrorMessage('Please select an operation to perform');
+                    return;
+                }
+
+                const operationText = selectedOperation.parentElement.querySelector('.font-medium').textContent;
+                const confirmMessage = `Are you sure you want to ${operationText.toLowerCase()} ${selectedStudents.length} student(s)? This action cannot be undone.`;
+
+                if (confirm(confirmMessage)) {
+                    this.submit();
+                }
+            });
+
+            function updateSelectedCount() {
+                const selectedCount = document.querySelectorAll('.student-checkbox:checked').length;
+                selectedCountElement.textContent = selectedCount;
+
+                // Enable/disable execute button based on selection and operation
+                const hasSelection = selectedCount > 0;
+                const hasOperation = document.querySelector('input[name="operation"]:checked');
+                executeBtn.disabled = !(hasSelection && hasOperation);
+
+                if (executeBtn.disabled) {
+                    executeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    executeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Enable execute button when operation is selected
+            document.querySelectorAll('input[name="operation"]').forEach(radio => {
+                radio.addEventListener('change', updateSelectedCount);
+            });
+
+            // Initial update
+            updateSelectedCount();
+        }
+
+        function showSuccessMessage(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 100);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+            errorDiv.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${message}</span>
+                    <button onclick="this.remove()" class="ml-4 text-red-700 hover:text-red-900">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Load admin profile via API
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+                // Keep default values if API fails
+            }
+        }
+    </script>
+</body>
+</html>

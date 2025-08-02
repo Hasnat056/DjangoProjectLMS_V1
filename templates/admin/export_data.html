@@ -1,0 +1,429 @@
+<!-- Data Export Section for Dashboard Integration -->
+<div class="p-6">
+
+    <!-- Stats Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="export-card rounded-xl p-6 border-l-4 border-blue-500">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-2xl font-bold text-gray-900" id="export-total-students">{{ total_students|default:"Loading..." }}</p>
+                    <p class="text-gray-600 text-sm">Students</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-card rounded-xl p-6 border-l-4 border-emerald-500">
+            <div class="flex items-center">
+                <div class="p-3 bg-emerald-100 rounded-lg">
+                    <svg class="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-2xl font-bold text-gray-900" id="export-total-faculty">{{ total_faculty|default:"Loading..." }}</p>
+                    <p class="text-gray-600 text-sm">Faculty</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-card rounded-xl p-6 border-l-4 border-purple-500">
+            <div class="flex items-center">
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-2xl font-bold text-gray-900" id="export-total-enrollments">{{ total_enrollments|default:"Loading..." }}</p>
+                    <p class="text-gray-600 text-sm">Enrollments</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-card rounded-xl p-6 border-l-4 border-orange-500">
+            <div class="flex items-center">
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-2xl font-bold text-gray-900" id="export-total-courses">{{ total_courses|default:"Loading..." }}</p>
+                    <p class="text-gray-600 text-sm">Courses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Form -->
+    <form id="export-form" method="post" action="/admin/system/export-data/" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- Export Configuration -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Data Type Selection -->
+            <div class="export-card rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                    </svg>
+                    Select Data Type
+                </h4>
+                <div class="grid grid-cols-1 gap-3" id="data-type-options">
+                    <label class="data-type-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all">
+                        <input type="radio" name="data_type" value="students" class="sr-only" required>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-medium text-gray-900">Students</h5>
+                                <p class="text-sm text-gray-500">Student records with personal info and enrollment details</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="data-type-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-all">
+                        <input type="radio" name="data_type" value="faculty" class="sr-only">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-medium text-gray-900">Faculty</h5>
+                                <p class="text-sm text-gray-500">Faculty records with personal info and qualifications</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="data-type-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all">
+                        <input type="radio" name="data_type" value="enrollments" class="sr-only">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-medium text-gray-900">Enrollments</h5>
+                                <p class="text-sm text-gray-500">Student course enrollments and status</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Export Format & Options -->
+            <div class="export-card rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    Export Format
+                </h4>
+
+                <!-- Format Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Format</label>
+                    <div class="grid grid-cols-2 gap-3" id="format-options">
+                        <label class="format-option p-3 border-2 border-gray-200 rounded-lg text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all">
+                            <input type="radio" name="export_type" value="csv" class="sr-only" required>
+                            <div class="w-8 h-8 mx-auto mb-2 text-green-600">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path>
+                                </svg>
+                            </div>
+                            <div class="font-medium text-sm">CSV</div>
+                            <div class="text-xs text-gray-500">Excel compatible</div>
+                        </label>
+
+                        <label class="format-option p-3 border-2 border-gray-200 rounded-lg text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all">
+                            <input type="radio" name="export_type" value="excel" class="sr-only">
+                            <div class="w-8 h-8 mx-auto mb-2 text-green-600">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path>
+                                </svg>
+                            </div>
+                            <div class="font-medium text-sm">Excel</div>
+                            <div class="text-xs text-gray-500">With formatting</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Export Button -->
+                <button type="submit" id="export-btn" class="w-full btn-primary text-white px-6 py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-emerald-700 transition-colors">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Export Data</span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Export Progress (Hidden by default) -->
+    <div id="export-progress" class="export-card rounded-xl p-6 hidden">
+        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+            </svg>
+            Export Progress
+        </h4>
+
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <span id="progress-text" class="text-sm font-medium text-gray-700">Preparing export...</span>
+                <span id="progress-percentage" class="text-sm text-gray-500">0%</span>
+            </div>
+
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <div id="progress-details" class="text-sm text-gray-600">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span>Processing data...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        <div class="space-y-3">
+            {% for message in messages %}
+                <div class="export-card rounded-xl p-4 border-l-4 {% if message.tags == 'success' %}border-green-500 bg-green-50{% elif message.tags == 'error' %}border-red-500 bg-red-50{% else %}border-blue-500 bg-blue-50{% endif %}">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'success' %}
+                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                            {% elif message.tags == 'error' %}
+                                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                </svg>
+                            {% else %}
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium {% if message.tags == 'success' %}text-green-800{% elif message.tags == 'error' %}text-red-800{% else %}text-blue-800{% endif %}">
+                                {{ message }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+
+<style>
+.export-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.export-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.format-option:has(input:checked) {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+}
+
+.data-type-card:has(input:checked) {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #047857, #059669);
+}
+</style>
+
+<script>
+// Export-specific JavaScript for dashboard integration
+document.addEventListener('DOMContentLoaded', function() {
+    initializeExportSection();
+});
+
+function initializeExportSection() {
+    console.log('Initializing export section...');
+
+    const form = document.getElementById('export-form');
+    if (form) {
+        form.addEventListener('submit', handleExportSubmit);
+    }
+
+    // Add selection styling for radio buttons
+    setupRadioButtonStyling();
+}
+
+function setupRadioButtonStyling() {
+    // Handle data type selection styling
+    const dataTypeInputs = document.querySelectorAll('input[name="data_type"]');
+    dataTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Remove active class from all cards
+            document.querySelectorAll('.data-type-card').forEach(card => {
+                card.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-white');
+                card.classList.add('border-gray-200');
+            });
+
+            // Add active class to selected card
+            if (this.checked) {
+                const card = this.closest('.data-type-card');
+                card.classList.remove('border-gray-200');
+                card.classList.add('border-emerald-500', 'bg-emerald-50');
+            }
+        });
+    });
+
+    // Handle format selection styling
+    const formatInputs = document.querySelectorAll('input[name="export_type"]');
+    formatInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Remove active class from all cards
+            document.querySelectorAll('.format-option').forEach(card => {
+                card.classList.remove('border-green-500', 'bg-green-50');
+                card.classList.add('border-gray-200');
+            });
+
+            // Add active class to selected card
+            if (this.checked) {
+                const card = this.closest('.format-option');
+                card.classList.remove('border-gray-200');
+                card.classList.add('border-green-500', 'bg-green-50');
+            }
+        });
+    });
+}
+
+function handleExportSubmit(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const dataType = formData.get('data_type');
+    const exportType = formData.get('export_type');
+
+    if (!dataType || !exportType) {
+        showNotification('Please select both data type and export format', 'error');
+        return;
+    }
+
+    // Show progress
+    showExportProgress();
+
+    // Submit the form
+    fetch('/admin/system/export-data/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Check if it's a file download
+            const contentType = response.headers.get('content-type');
+            if (contentType && (contentType.includes('text/csv') || contentType.includes('application/vnd.ms-excel'))) {
+                return response.blob().then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `${dataType}_export_${new Date().toISOString().split('T')[0]}.${exportType}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    hideExportProgress();
+                    showNotification(`${dataType} exported successfully as ${exportType.toUpperCase()}`, 'success');
+                });
+            } else {
+                return response.text().then(html => {
+                    // Reload the section with new content
+                    document.getElementById('export-data-section').innerHTML = html;
+                    initializeExportSection();
+                    hideExportProgress();
+                });
+            }
+        } else {
+            throw new Error('Export failed');
+        }
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        hideExportProgress();
+        showNotification('Export failed. Please try again.', 'error');
+    });
+}
+
+function showExportProgress() {
+    const progressDiv = document.getElementById('export-progress');
+    const form = document.getElementById('export-form');
+
+    if (progressDiv && form) {
+        progressDiv.classList.remove('hidden');
+        form.style.opacity = '0.5';
+        form.style.pointerEvents = 'none';
+
+        // Simulate progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 20;
+            if (progress > 90) progress = 90;
+
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-percentage').textContent = Math.round(progress) + '%';
+
+            if (progress >= 90) {
+                clearInterval(interval);
+            }
+        }, 500);
+    }
+}
+
+function hideExportProgress() {
+    const progressDiv = document.getElementById('export-progress');
+    const form = document.getElementById('export-form');
+
+    if (progressDiv && form) {
+        progressDiv.classList.add('hidden');
+        form.style.opacity = '1';
+        form.style.pointerEvents = 'auto';
+
+        // Reset progress
+        document.getElementById('progress-bar').style.width = '0%';
+        document.getElementById('progress-percentage').textContent = '0%';
+    }
+}
+
+</script>

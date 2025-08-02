@@ -16,69 +16,19 @@ from datetime import datetime
 from .models import Person, Admin, Address, Qualification
 
 
-class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
+class AdminProfileForm(forms.Form):
     """
-    Form for Admin to edit their own profile - FIXED VERSION
+    Simplified form for Admin to edit their own profile
+    Only editable fields are included as form fields
     """
-    # Person fields
-    fname = forms.CharField(
-        max_length=50,
-        label='First Name',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter first name'
-        })
-    )
 
-    lname = forms.CharField(
-        max_length=50,
-        label='Last Name',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter last name'
-        })
-    )
-
-    institutionalemail = forms.EmailField(
-        label='Institutional Email',
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'readonly': True
-        }),
-        help_text='Institutional email cannot be changed'
-    )
-
+    # Editable fields only
     personalemail = forms.EmailField(
         required=False,
         label='Personal Email',
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'personal@email.com'
-        })
-    )
-
-    cnic = forms.CharField(
-        max_length=15,
-        required=False,
-        label='CNIC',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': '12345-1234567-1'
-        })
-    )
-
-    gender = forms.ChoiceField(
-        choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')],
-        label='Gender',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
-    dob = forms.DateField(
-        required=False,
-        label='Date of Birth',
-        widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date'
         })
     )
 
@@ -90,17 +40,6 @@ class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
             'class': 'form-control',
             'placeholder': '+92-300-1234567'
         })
-    )
-
-    # Admin fields
-    joiningdate = forms.DateField(
-        label='Joining Date',
-        widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date',
-            'readonly': True
-        }),
-        help_text='Joining date cannot be changed'
     )
 
     leavingdate = forms.DateField(
@@ -168,68 +107,6 @@ class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
         })
     )
 
-    # Qualification fields
-    degreetitle = forms.CharField(
-        max_length=50,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g., Master in Business Administration'
-        })
-    )
-
-    educationboard = forms.CharField(
-        max_length=20,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g., HEC, University Board'
-        })
-    )
-
-    institution = forms.CharField(
-        max_length=50,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Institution name'
-        })
-    )
-
-    passingyear = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Year of passing'
-        })
-    )
-
-    totalmarks = forms.IntegerField(
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Total marks'
-        })
-    )
-
-    obtainedmarks = forms.IntegerField(
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Obtained marks'
-        })
-    )
-
-    iscurrent = forms.BooleanField(
-        required=False,
-        initial=False,
-        widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-        }),
-        label='Currently Pursuing',
-        help_text='Check if this qualification is currently being pursued'
-    )
-
     def __init__(self, *args, **kwargs):
         # Extract the admin instance
         self.instance = kwargs.pop('instance', None)
@@ -239,22 +116,15 @@ class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
         if self.instance and self.instance.pk:
             person = self.instance.employeeid
 
-            # Pre-populate Person fields
-            self.fields['fname'].initial = person.fname
-            self.fields['lname'].initial = person.lname
-            self.fields['institutionalemail'].initial = person.institutionalemail
+            # Pre-populate editable fields
             self.fields['personalemail'].initial = person.personalemail
-            self.fields['cnic'].initial = person.cnic
-            self.fields['gender'].initial = person.gender
-            self.fields['dob'].initial = person.dob
             self.fields['cnumber'].initial = person.cnumber
 
             # Pre-populate Admin fields
-            self.fields['joiningdate'].initial = self.instance.joiningdate
             self.fields['leavingdate'].initial = self.instance.leavingdate
             self.fields['officelocation'].initial = self.instance.officelocation
 
-            # Pre-populate Address fields - FIXED
+            # Pre-populate Address fields
             try:
                 address = Address.objects.get(personid=person)
                 self.fields['country'].initial = address.country
@@ -265,31 +135,9 @@ class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
             except Address.DoesNotExist:
                 self.fields['country'].initial = 'Pakistan'
 
-            # Pre-populate Qualification fields - FIXED
-            try:
-                qualification = Qualification.objects.filter(personid=person).latest('qualificationid')
-                self.fields['degreetitle'].initial = qualification.degreetitle
-                self.fields['educationboard'].initial = qualification.educationboard
-                self.fields['institution'].initial = qualification.institution
-                self.fields['passingyear'].initial = qualification.passingyear
-                self.fields['totalmarks'].initial = qualification.totalmarks
-                self.fields['obtainedmarks'].initial = qualification.obtainedmarks
-                # FIXED: Handle IntegerField to BooleanField conversion
-                self.fields['iscurrent'].initial = bool(qualification.iscurrent) if qualification.iscurrent else False
-            except Qualification.DoesNotExist:
-                pass
-
-    def clean_cnic(self):
-        cnic = self.cleaned_data.get('cnic')
-        if cnic:
-            import re
-            if not re.match(r'^\d{5}-\d{7}-\d{1}$', cnic):
-                raise ValidationError('CNIC should be in format: 12345-1234567-1')
-        return cnic
-
     def save(self, commit=True):
         """
-        Custom save method to handle multiple models - REQUIRED FIX
+        Custom save method to handle multiple models
         """
         if not self.instance or not self.instance.pk:
             raise ValueError("This form requires an existing Admin instance")
@@ -299,14 +147,8 @@ class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
 
         if commit:
             with transaction.atomic():
-                # Update Person fields
-                person.fname = self.cleaned_data['fname']
-                person.lname = self.cleaned_data['lname']
-                person.institutionalemail = self.cleaned_data['institutionalemail']
+                # Update only editable Person fields
                 person.personalemail = self.cleaned_data.get('personalemail', '')
-                person.cnic = self.cleaned_data.get('cnic', '')
-                person.gender = self.cleaned_data['gender']
-                person.dob = self.cleaned_data.get('dob')
                 person.cnumber = self.cleaned_data.get('cnumber', '')
                 person.save()
 
@@ -333,30 +175,6 @@ class AdminProfileForm(forms.Form):  # Changed from ModelForm to Form
                     address.zipcode = self.cleaned_data.get('zipcode', 0)
                     address.streetaddress = self.cleaned_data.get('streetaddress', '')
                     address.save()
-
-                # Update qualification if provided
-                if self.cleaned_data.get('degreetitle'):
-                    qualification, created = Qualification.objects.get_or_create(
-                        personid=person,
-                        degreetitle=self.cleaned_data['degreetitle'],
-                        defaults={
-                            'educationboard': self.cleaned_data.get('educationboard', ''),
-                            'institution': self.cleaned_data.get('institution', ''),
-                            'passingyear': self.cleaned_data.get('passingyear', ''),
-                            'totalmarks': self.cleaned_data.get('totalmarks'),
-                            'obtainedmarks': self.cleaned_data.get('obtainedmarks'),
-                            # FIXED: Convert Boolean to Integer
-                            'iscurrent': 1 if self.cleaned_data.get('iscurrent') else 0,
-                        }
-                    )
-                    if not created:
-                        qualification.educationboard = self.cleaned_data.get('educationboard', '')
-                        qualification.institution = self.cleaned_data.get('institution', '')
-                        qualification.passingyear = self.cleaned_data.get('passingyear', '')
-                        qualification.totalmarks = self.cleaned_data.get('totalmarks')
-                        qualification.obtainedmarks = self.cleaned_data.get('obtainedmarks')
-                        qualification.iscurrent = 1 if self.cleaned_data.get('iscurrent') else 0
-                        qualification.save()
 
         return admin
 

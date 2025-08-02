@@ -1,6 +1,9 @@
 from django.db import models
 from StudentModule.models import *
+from FacultyModule.models import Faculty
+from AcademicStructure.models import Department
 from django.contrib.auth.models import User
+import uuid
 
 class Person(models.Model):
     personid = models.CharField(db_column='personID', primary_key=True, max_length=20)
@@ -118,3 +121,43 @@ class Salary(models.Model):
     class Meta:
         db_table = 'salary'
         unique_together = (('employeeid', 'year', 'month'),)
+
+
+class ChangeRequest(models.Model):
+    CHANGE_TYPES = [
+        ('hod_change', 'HOD Change'),
+        ('faculty_delete', 'Faculty Delete'),
+        ('student_delete', 'Student Delete'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('declined', 'Declined'),
+        ('applied', 'Applied'),
+        ('expired', 'Expired'),
+    ]
+
+    # Core fields
+    change_type = models.CharField(max_length=20, choices=CHANGE_TYPES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    confirmation_token = models.UUIDField(default=uuid.uuid4, unique=True)
+
+    # For HOD changes
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
+    new_hod = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True, blank=True)
+
+    # For deletions (future use)
+    target_faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True, blank=True,
+                                       related_name='deletion_requests')
+    target_student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True,
+                                       related_name='deletion_requests')
+
+    # Tracking
+    requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    applied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'change_request'

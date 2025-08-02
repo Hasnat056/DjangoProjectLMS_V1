@@ -9,10 +9,10 @@ from django.contrib import messages
 # Model imports
 from .models import Department, Program, Course, Semester, Semesterdetails, Class
 from FacultyModule.models import Faculty, Courseallocation
-from StudentModule.models import Student, Enrollment, Transcript
+from StudentModule.models import Student, Enrollment, Transcript, Result
 
 # Form imports
-from .forms import ProgramForm, CourseForm, SemesterForm, SemesterdetailsForm, ClassForm
+from .forms import ProgramForm, CourseForm, ClassForm
 
 
 def is_admin(user):
@@ -42,18 +42,27 @@ def department_list(request):
             Q(hod__employeeid__lname__icontains=search)
         )
 
+    from Person.models import ChangeRequest
     # Add statistics to each department
     dept_data = []
     for dept in departments:
         faculty_count = Faculty.objects.filter(departmentid=dept).count()
         program_count = Program.objects.filter(departmentid=dept).count()
         student_count = Student.objects.filter(programid__departmentid=dept).count()
+        department_faculty = Faculty.objects.filter(departmentid=dept).select_related('employeeid')
+        pending_change = ChangeRequest.objects.filter(
+            change_type='hod_change',
+            department=dept,
+            status__in=['pending', 'confirmed', 'declined', 'expired']  # All non-applied statuses
+        ).first()
 
         dept_data.append({
             'department': dept,
             'faculty_count': faculty_count,
             'program_count': program_count,
-            'student_count': student_count
+            'student_count': student_count,
+            'faculty_list': department_faculty,
+            'pending_hod_change': pending_change,
         })
 
     # Pagination
@@ -66,30 +75,227 @@ def department_list(request):
     })
 
 
+
 @login_required
 @user_passes_test(is_admin)
 def department_detail(request, department_id):
-    """View department details with related data (VIEW ONLY)"""
+    """Enhanced hierarchical view: Department → Programs → Classes → Scheme of Studies"""
+
     department = get_object_or_404(Department, departmentid=department_id)
+    programs = Program.objects.filter(departmentid=department).order_by('programname')
 
-    # Get related data
-    programs = Program.objects.filter(departmentid=department)
-    faculty = Faculty.objects.filter(departmentid=department).select_related('employeeid')
-    students = Student.objects.filter(programid__departmentid=department).select_related('studentid')
+    def get_class_current_semester(class_obj):
+        """Determine current semester for a class using majority rule"""
+        from StudentModule.models import Student
+        students = Student.objects.filter(classid=class_obj)
 
-    # Statistics
-    total_programs = programs.count()
-    total_faculty = faculty.count()
-    total_students = students.count()
+        if not students.exists():
+            return None, "No Students"
+
+        # Get active enrollments for students in this class
+        active_enrollments = Enrollment.objects.filter(
+            studentid__classid=class_obj,
+            status='Active',
+            allocationid__status='Ongoing'
+        ).select_related('allocationid__coursecode')
+
+        if not active_enrollments.exists():
+            # Check if all students are graduated
+            graduated_count = students.filter(status='Graduated').count()
+            if graduated_count == students.count():
+                return None, "Graduated"
+            else:
+                return None, "Inactive"
+
+        # Count students per semester
+        semester_counts = {}
+        for enrollment in active_enrollments:
+            course = enrollment.allocationid.coursecode
+
+            # Find semester via semesterdetails
+            semester_detail = Semesterdetails.objects.filter(
+                coursecode=course,
+                classid=class_obj
+            ).select_related('semesterid').first()
+
+            if semester_detail and semester_detail.semesterid.status == 'Active':
+                sem_no = semester_detail.semesterid.semesterno
+                if sem_no not in semester_counts:
+                    semester_counts[sem_no] = {
+                        'count': 0,
+                        'semester': semester_detail.semesterid
+                    }
+                semester_counts[sem_no]['count'] += 1
+
+        if semester_counts:
+            # Get semester with maximum students
+            max_sem_no = max(semester_counts.keys(), key=lambda x: semester_counts[x]['count'])
+            return semester_counts[max_sem_no]['semester'], f"Semester {max_sem_no}"
+
+        return None, "No Active Semester"
+
+    def get_semester_enrollment_count(semester, class_obj):
+        """Get enrollment count for active semester via course allocations"""
+        if not semester or semester.status != 'Active':
+            return 0
+
+        # Get courses for this semester and class
+        semester_details = Semesterdetails.objects.filter(
+            semesterid=semester,
+            classid=class_obj
+        )
+
+        course_codes = [sd.coursecode for sd in semester_details]
+
+        # Get allocations for these courses
+        allocations = Courseallocation.objects.filter(
+            coursecode__in=course_codes,
+            status='Ongoing'
+        )
+
+        # Count enrollments from this class only
+        total_enrollments = Enrollment.objects.filter(
+            allocationid__in=allocations,
+            studentid__classid=class_obj,
+            status='Active'
+        ).count()
+
+        return total_enrollments
+
+    def get_completed_semester_data(class_obj):
+        """Get completed semesters with highest achiever and average CGPA"""
+        completed_semesters = []
+
+        # Get all transcripts for this class
+        transcripts = Transcript.objects.filter(
+            studentid__classid=class_obj
+        ).select_related('semesterid', 'studentid__studentid__personid')
+
+        if not transcripts.exists():
+            return completed_semesters
+
+        # Group by semester
+        semester_transcripts = {}
+        for transcript in transcripts:
+            sem_id = transcript.semesterid.semesterid
+            if sem_id not in semester_transcripts:
+                semester_transcripts[sem_id] = {
+                    'semester': transcript.semesterid,
+                    'transcripts': []
+                }
+            semester_transcripts[sem_id]['transcripts'].append(transcript)
+
+        # Process each completed semester
+        for sem_data in semester_transcripts.values():
+            semester = sem_data['semester']
+            semester_transcripts_list = sem_data['transcripts']
+
+            # Only include if majority of class has transcripts (indicating completion)
+            from StudentModule.models import Student
+            total_class_students = Student.objects.filter(classid=class_obj).count()
+            transcript_count = len(semester_transcripts_list)
+
+            # Majority rule: at least 60% of class should have transcripts
+            if transcript_count >= (total_class_students * 0.6):
+                # Calculate average CGPA
+                gpas = [t.semestergpa for t in semester_transcripts_list if t.semestergpa is not None]
+                avg_cgpa = round(sum(gpas) / len(gpas), 2) if gpas else 0
+
+                # Find highest achieving student
+                highest_achiever = None
+                highest_gpa = 0
+
+                for transcript in semester_transcripts_list:
+                    if transcript.semestergpa and transcript.semestergpa > highest_gpa:
+                        highest_gpa = transcript.semestergpa
+                        highest_achiever = transcript.studentid
+
+                completed_semesters.append({
+                    'semester': semester,
+                    'semester_no': semester.semesterno,
+                    'session': semester.session or 'N/A',
+                    'avg_cgpa': avg_cgpa,
+                    'highest_achiever': highest_achiever,
+                    'highest_gpa': round(highest_gpa, 2),
+                    'transcript_count': transcript_count
+                })
+
+        # Sort by semester number
+        completed_semesters.sort(key=lambda x: x['semester_no'])
+        return completed_semesters
+
+    def get_scheme_of_studies(class_obj):
+        """Get complete scheme of studies for a class"""
+        # Get all semester details for this class
+        semester_details = Semesterdetails.objects.filter(
+            classid=class_obj
+        ).select_related('semesterid', 'coursecode').order_by('semesterid__semesterno', 'coursecode__coursecode')
+
+        # Group by semester
+        semesters = {}
+        for detail in semester_details:
+            sem_no = detail.semesterid.semesterno
+            if sem_no not in semesters:
+                semesters[sem_no] = {
+                    'semester': detail.semesterid,
+                    'courses': [],
+                    'total_credits': 0
+                }
+            semesters[sem_no]['courses'].append(detail.coursecode)
+            semesters[sem_no]['total_credits'] += detail.coursecode.credithours
+
+        return dict(sorted(semesters.items()))
+
+    # Build program data
+    program_data = []
+    for program in programs:
+        classes = Class.objects.filter(programid=program).order_by('-batchyear')
+
+        class_data = []
+        for class_obj in classes:
+            # Get student count
+            from StudentModule.models import Student
+            student_count = Student.objects.filter(classid=class_obj).count()
+            enrolled_count = Student.objects.filter(classid=class_obj, status='Enrolled').count()
+
+            # Get current semester info
+            current_semester, semester_status = get_class_current_semester(class_obj)
+
+            # Get enrollment count for active semester
+            enrollment_count = 0
+            if current_semester and current_semester.status == 'Active':
+                enrollment_count = get_semester_enrollment_count(current_semester, class_obj)
+
+            # Get completed semesters
+            completed_semesters = get_completed_semester_data(class_obj)
+
+            # Get scheme of studies
+            scheme_of_studies = get_scheme_of_studies(class_obj)
+
+            class_data.append({
+                'class_obj': class_obj,
+                'class_display': f"{class_obj.programid.programid}-{class_obj.batchyear}",
+                'student_count': student_count,
+                'enrolled_count': enrolled_count,
+                'current_semester': current_semester,
+                'semester_status': semester_status,
+                'current_enrollment_count': enrollment_count,
+                'completed_semesters': completed_semesters,
+                'scheme_of_studies': scheme_of_studies,
+                'total_scheme_credits': sum(sem['total_credits'] for sem in scheme_of_studies.values())
+            })
+
+        if class_data:  # Only add programs that have classes
+            program_data.append({
+                'program': program,
+                'classes': class_data
+            })
 
     context = {
         'department': department,
-        'programs': programs,
-        'faculty': faculty[:10],  # Show first 10
-        'students': students[:10],  # Show first 10
-        'total_programs': total_programs,
-        'total_faculty': total_faculty,
-        'total_students': total_students,
+        'program_data': program_data,
+        'total_programs': len(program_data),
+        'total_classes': sum(len(p['classes']) for p in program_data)
     }
 
     return render(request, 'academic/department_detail.html', context)
@@ -168,7 +374,7 @@ def program_list(request):
     program_data.sort(key=lambda x: x['program_name'])
 
     # Pagination
-    paginator = Paginator(program_data, 15)
+    paginator = Paginator(program_data, 30)
     page_number = request.GET.get('page', 1)
     programs_page = paginator.get_page(page_number)
 
@@ -470,7 +676,7 @@ def course_list(request):
     course_data.sort(key=lambda x: x['course_code'])
 
     # Pagination
-    paginator = Paginator(course_data, 20)
+    paginator = Paginator(course_data, 50)
     page_number = request.GET.get('page', 1)
     courses_page = paginator.get_page(page_number)
 
@@ -744,100 +950,141 @@ def course_delete(request, course_code):
 # ===========================================
 
 
-# FIXED VIEW - NO DUPLICATES FOR SEMESTERS WITHOUT DETAILS
-
 @login_required
 @user_passes_test(is_admin)
 def semester_list(request):
-    """List all semesters with filtering and statistics"""
+    """List only claimed semesters with filtering and statistics"""
 
-    # Get filter parameters
-    search = request.GET.get('search', '').strip()
-    session_filter = request.GET.get('session', '')
-    semester_no_filter = request.GET.get('semester_no', '')
-    class_filter = request.GET.get('class', '')
+    def apply_filters():
+        """Apply filters to semesterdetails queryset"""
+        # Get filter parameters
+        search = request.GET.get('search', '').strip()
+        session_filter = request.GET.get('session', '')
+        semester_no_filter = request.GET.get('semester_no', '')
+        class_filter = request.GET.get('class', '')
 
-    # START WITH SEMESTERS, NOT SEMESTERDETAILS
-    semesters = Semester.objects.select_related('programid').all()
+        # Start with all semesterdetails (only claimed semesters)
+        queryset = Semesterdetails.objects.select_related(
+            'semesterid', 'classid', 'semesterid__programid'
+        ).all()
 
-    # Apply search filter to semesters
-    if search:
-        semesters = semesters.filter(
-            Q(programid__programname__icontains=search) |
-            Q(programid__programid__icontains=search) |
-            Q(session__icontains=search) |
-            Q(semesterno__icontains=search)
+        # Apply search filter
+        if search:
+            queryset = queryset.filter(
+                Q(semesterid__session__icontains=search) |
+                Q(classid__programid__programname__icontains=search) |
+                Q(classid__programid__programid__icontains=search) |
+                Q(semesterid__semesterno__icontains=search)
+            )
+
+        # Apply session filter
+        if session_filter:
+            queryset = queryset.filter(semesterid__session=session_filter)
+
+        # Apply semester number filter
+        if semester_no_filter:
+            queryset = queryset.filter(semesterid__semesterno=semester_no_filter)
+
+        # Apply class filter
+        if class_filter:
+            queryset = queryset.filter(classid_id=class_filter)
+
+        return queryset, search, session_filter, semester_no_filter, class_filter
+
+    def build_semester_data(filtered_details):
+        """Build semester data grouped by semester"""
+        semester_data = {}
+
+        for detail in filtered_details:
+            semester_id = detail.semesterid.semesterid
+
+            if semester_id not in semester_data:
+                # Count total courses for this semester
+                course_count = Semesterdetails.objects.filter(
+                    semesterid=detail.semesterid
+                ).count()
+
+                semester_data[semester_id] = {
+                    'semester_id': semester_id,
+                    'semester': detail.semesterid,
+                    'class_obj': detail.classid,
+                    'class_display': f"{detail.classid.programid.programid}-{detail.classid.batchyear}",
+                    'semester_no': detail.semesterid.semesterno,
+                    'session': detail.semesterid.session or 'N/A',
+                    'status': detail.semesterid.status,
+                    'course_count': course_count
+                }
+
+        return list(semester_data.values())
+
+    def calculate_stats():
+        """Calculate statistics"""
+        # Total claimed semesters (unique)
+        total_claimed_semesters = Semesterdetails.objects.values_list(
+            'semesterid', flat=True
+        ).distinct().count()
+
+        # Active claimed semesters
+        active_semesters = Semesterdetails.objects.filter(
+            semesterid__status='Active'
+        ).values_list('semesterid', flat=True).distinct().count()
+
+        # Total classes with semester details
+        total_classes = Semesterdetails.objects.values_list(
+            'classid', flat=True
+        ).distinct().count()
+
+        # Total unique courses in semester details
+        total_courses = Semesterdetails.objects.values_list(
+            'coursecode', flat=True
+        ).distinct().count()
+
+        return {
+            'total_semesters': total_claimed_semesters,
+            'active_semesters': active_semesters,
+            'total_classes': total_classes,
+            'total_courses': total_courses,
+        }
+
+    def get_filter_options():
+        """Get filter options for dropdowns"""
+        # Get sessions from claimed semesters only
+        sessions = Semesterdetails.objects.values_list(
+            'semesterid__session', flat=True
+        ).distinct().order_by('semesterid__session')
+
+        # Get semester numbers from claimed semesters only
+        semester_numbers = Semesterdetails.objects.values_list(
+            'semesterid__semesterno', flat=True
+        ).distinct().order_by('semesterid__semesterno')
+
+        # Get classes that have semester details
+        classes = Class.objects.filter(
+            semesterdetails__isnull=False
+        ).select_related('programid').distinct().order_by(
+            'programid__programid', 'batchyear'
         )
 
-    # Apply session filter
-    if session_filter:
-        semesters = semesters.filter(session=session_filter)
+        return {
+            'sessions': [s for s in sessions if s],  # Remove None values
+            'semester_numbers': semester_numbers,
+            'classes': classes,
+        }
 
-    # Apply semester number filter
-    if semester_no_filter:
-        semesters = semesters.filter(semesterno=semester_no_filter)
+    # Main execution
+    filtered_details, search, session_filter, semester_no_filter, class_filter = apply_filters()
+    semester_list_data = build_semester_data(filtered_details)
+    stats = calculate_stats()
+    filter_options = get_filter_options()
 
-    # Build the final data
-    semester_list_data = []
-
-    for semester in semesters:
-        # Get semester details for this semester
-        semester_details = Semesterdetails.objects.filter(
-            semesterid=semester
-        ).select_related('classid__programid')
-
-        # Apply class filter if specified
-        if class_filter:
-            semester_details = semester_details.filter(classid_id=class_filter)
-
-        if semester_details.exists():
-            # Has semester details - group by class
-            classes_in_semester = {}
-            for detail in semester_details:
-                class_id = detail.classid.classid
-                if class_id not in classes_in_semester:
-                    classes_in_semester[class_id] = {
-                        'class_obj': detail.classid,
-                        'course_count': 0
-                    }
-                classes_in_semester[class_id]['course_count'] += 1
-
-            # Add one row per class for this semester
-            for class_id, class_info in classes_in_semester.items():
-                semester_list_data.append({
-                    'semester': semester,
-                    'class_obj': class_info['class_obj'],
-                    'class_display': f"{class_info['class_obj'].programid.programid}-{class_info['class_obj'].batchyear}",
-                    'course_count': class_info['course_count'],
-                    'has_details': True  # Has semester details
-                })
-        else:
-            # No semester details - show ONLY ONCE with N/A
-            # Skip if class filter is applied (since no class info available)
-            if not class_filter:
-                semester_list_data.append({
-                    'semester': semester,
-                    'class_obj': None,  # No class info
-                    'class_display': 'N/A',  # No class info
-                    'course_count': 0,
-                    'has_details': False  # No semester details
-                })
-
-    # Sort by semester number
+    # Sort by semester number, then by class batch year
     semester_list_data.sort(key=lambda x: (
-        x['semester'].semesterno,
-        x['class_obj'].batchyear if x['class_obj'] else 0
+        x['semester_no'],
+        x['class_obj'].batchyear
     ))
 
-    # Calculate statistics
-    all_semester_details = Semesterdetails.objects.all()
-    stats = calculate_semester_stats_fixed(all_semester_details)
-
-    # Get filter options
-    filter_options = get_semester_filter_options()
-
     # Pagination
-    paginator = Paginator(semester_list_data, 20)
+    paginator = Paginator(semester_list_data, 30)
     page_number = request.GET.get('page')
     semesters_page = paginator.get_page(page_number)
 
@@ -865,80 +1112,405 @@ def semester_list(request):
 
     return render(request, 'academic/semester_list.html', context)
 
-# UPDATED HELPER FUNCTIONS
-
-def calculate_semester_stats_fixed(semester_details_queryset):
-    """Calculate statistics for semesters - UPDATED VERSION"""
-
-    # Get unique semesters that have details
-    unique_semesters_with_details = semester_details_queryset.values_list(
-        'semesterid', flat=True
-    ).distinct()
-
-    # Get ALL semesters (including those without details)
-    total_semesters = Semester.objects.count()
-
-    # Count active semesters (from ALL semesters, not just those with details)
-    active_semesters = Semester.objects.filter(status='Active').count()
-
-    # Get unique classes that have semester details
-    unique_classes = semester_details_queryset.values_list(
-        'classid', flat=True
-    ).distinct()
-
-    total_classes = len(unique_classes)
-
-    # Get unique courses in all semester details
-    unique_courses = semester_details_queryset.values_list(
-        'coursecode', flat=True
-    ).distinct()
-
-    total_courses = len(unique_courses)
-
-    return {
-        'total_semesters': total_semesters,  # All semesters, not just those with details
-        'active_semesters': active_semesters,  # All active semesters
-        'total_classes': total_classes,  # Classes that have semester details
-        'total_courses': total_courses,  # Unique courses in semester details
-    }
-
-
-def get_semester_filter_options():
-    """Get filter options for dropdowns - UPDATED VERSION"""
-
-    # Get all sessions from ALL semesters (not just those with details)
-    sessions = Semester.objects.values_list(
-        'session', flat=True
-    ).distinct().order_by('session')
-
-    # Get all semester numbers from ALL semesters
-    semester_numbers = Semester.objects.values_list(
-        'semesterno', flat=True
-    ).distinct().order_by('semesterno')
-
-    # Get all classes (since we might show semesters without details for any class)
-    classes = Class.objects.select_related('programid').all().order_by(
-        'programid__programid', 'batchyear'
-    )
-
-    return {
-        'sessions': [s for s in sessions if s],  # Remove None values
-        'semester_numbers': semester_numbers,
-        'classes': classes,  # All classes, not just those with semester details
-    }
 
 @login_required
 @user_passes_test(is_admin)
-def semester_detail(request, semester_id):
-    """View semester details"""
+def semester_detail_view(request, semester_id):
+    """Semester detail view - basic info, links, and transcript graph"""
+
+    # Get semester and linked class
     semester = get_object_or_404(Semester, semesterid=semester_id)
 
-    return render(request, 'academic/semester_detail.html', {
-        'semester': semester
-    })
+    # Get the class linked to this semester via semesterdetails
+    semester_detail = Semesterdetails.objects.filter(
+        semesterid=semester
+    ).select_related('classid').first()
+
+    linked_class = semester_detail.classid if semester_detail else None
+
+    # Get all courses in this semester
+    semester_details = Semesterdetails.objects.filter(
+        semesterid=semester
+    ).select_related('coursecode').order_by('coursecode__coursecode')
+
+    courses_data = []
+    all_allocations = []
+    total_semester_enrollments = 0
+    class_specific_enrollments = 0
+
+    # Process each course
+    for detail in semester_details:
+        course = detail.coursecode
+
+        # Get all allocations for this course
+        allocations = Courseallocation.objects.filter(
+            coursecode=course
+        ).select_related('teacherid__employeeid')
+
+        allocation_data = []
+
+        for allocation in allocations:
+            # Get enrollments for this allocation
+            all_enrollments = Enrollment.objects.filter(allocationid=allocation)
+
+            # Class-specific enrollments (from the linked class)
+            if linked_class:
+                class_enrollments = all_enrollments.filter(
+                    studentid__classid=linked_class
+                )
+            else:
+                class_enrollments = all_enrollments
+
+            total_semester_enrollments += all_enrollments.count()
+            class_specific_enrollments += class_enrollments.count()
+
+            allocation_data.append({
+                'allocation': allocation,
+                'teacher_name': f"{allocation.teacherid.employeeid.fname} {allocation.teacherid.employeeid.lname}",
+                'total_enrollments': all_enrollments.count(),
+                'class_enrollments': class_enrollments.count(),
+                'status': allocation.status,
+                'session': allocation.session
+            })
+
+        all_allocations.extend(allocations)
+
+        courses_data.append({
+            'course': course,
+            'allocations': allocation_data,
+            'total_allocations': allocations.count()
+        })
+
+    # Get transcript data for completed semesters
+    transcript_data = None
+    transcript_chart_data = None
+
+    if semester.status == 'Completed' and linked_class:
+        # Get transcripts for students in the linked class for this semester
+        transcripts = Transcript.objects.filter(
+            semesterid=semester,
+            studentid__classid=linked_class
+        ).select_related('studentid__studentid__personid')
+
+        if transcripts:
+            # Calculate transcript statistics
+            gpas = [t.semestergpa for t in transcripts if t.semestergpa is not None]
+
+            if gpas:
+                import statistics
+
+                transcript_data = {
+                    'transcripts': transcripts,
+                    'total_transcripts': transcripts.count(),
+                    'average_gpa': round(statistics.mean(gpas), 2),
+                    'highest_gpa': round(max(gpas), 2),
+                    'lowest_gpa': round(min(gpas), 2),
+                    'std_deviation': round(statistics.stdev(gpas) if len(gpas) > 1 else 0, 2),
+                    'excellent_count': len([g for g in gpas if g >= 3.5]),
+                    'good_count': len([g for g in gpas if 3.0 <= g < 3.5]),
+                    'average_count': len([g for g in gpas if 2.5 <= g < 3.0]),
+                    'below_average_count': len([g for g in gpas if g < 2.5])
+                }
+
+                # Prepare chart data for transcript distribution
+                transcript_chart_data = {
+                    'labels': ['0.0-1.0', '1.0-2.0', '2.0-2.5', '2.5-3.0', '3.0-3.5', '3.5-4.0'],
+                    'data': [
+                        len([g for g in gpas if 0.0 <= g < 1.0]),
+                        len([g for g in gpas if 1.0 <= g < 2.0]),
+                        len([g for g in gpas if 2.0 <= g < 2.5]),
+                        len([g for g in gpas if 2.5 <= g < 3.0]),
+                        len([g for g in gpas if 3.0 <= g < 3.5]),
+                        len([g for g in gpas if 3.5 <= g <= 4.0])
+                    ],
+                    'colors': ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#0dcaf0', '#198754']
+                }
+
+    # Summary statistics
+    summary_stats = {
+        'total_courses': semester_details.count(),
+        'total_allocations': len(all_allocations),
+        'total_enrollments': total_semester_enrollments,
+        'class_enrollments': class_specific_enrollments,
+        'semester_status': semester.status,
+        'semester_session': semester.session or 'Not Set',
+        'linked_class_display': f"{linked_class.programid.programid}-{linked_class.batchyear}" if linked_class else 'No Class Linked'
+    }
+
+    # Students in linked class (for reference)
+    class_students = None
+    if linked_class:
+        from StudentModule.models import Student
+        class_students = Student.objects.filter(
+            classid=linked_class
+        ).select_related('studentid').count()
+
+    context = {
+        'semester': semester,
+        'linked_class': linked_class,
+        'courses_data': courses_data,
+        'summary_stats': summary_stats,
+        'transcript_data': transcript_data,
+        'transcript_chart_data': transcript_chart_data,
+        'class_students_count': class_students,
+    }
+
+    return render(request, 'academic/semester_detail.html', context)
 
 
+@login_required
+@user_passes_test(is_admin)
+def semester_performance_report(request, semester_id):
+    """Enhanced semester analytics report with performance analysis"""
 
+    # Get semester and linked class
+    semester = get_object_or_404(Semester, semesterid=semester_id)
+
+    # Get the class linked to this semester
+    semester_detail = Semesterdetails.objects.filter(
+        semesterid=semester
+    ).select_related('classid').first()
+
+    linked_class = semester_detail.classid if semester_detail else None
+
+    if not linked_class:
+        messages.error(request, 'No class is linked to this semester.')
+        return redirect('semester_list')
+
+    # Get all courses and allocations for this semester
+    semester_details = Semesterdetails.objects.filter(
+        semesterid=semester
+    ).select_related('coursecode')
+
+    course_codes = [sd.coursecode for sd in semester_details]
+
+    # Get all course allocations for courses in this semester
+    all_allocations = Courseallocation.objects.filter(
+        coursecode__in=course_codes
+    ).select_related('coursecode', 'teacherid__employeeid')
+
+    # Enhanced allocation performance analysis
+    allocation_performance = {}
+    total_semester_enrollments = 0
+    total_semester_results = 0
+    all_semester_marks = []
+    all_semester_gpas = []
+
+    for allocation in all_allocations:
+        # Get enrollments for this allocation (class-specific only)
+        enrollments = Enrollment.objects.filter(
+            allocationid=allocation,
+            studentid__classid=linked_class
+        )
+
+        total_semester_enrollments += enrollments.count()
+
+        # Get results for these enrollments
+        results = Result.objects.filter(
+            enrollmentid__in=enrollments
+        )
+
+        if results:
+            # Extract marks and GPAs
+            marks_data = []
+            gpa_data = []
+
+            for result in results:
+                if result.obtainedmarks is not None and result.obtainedmarks > 0:
+                    marks_data.append(result.obtainedmarks)
+                    all_semester_marks.append(result.obtainedmarks)
+                if result.coursegpa is not None:
+                    gpa_data.append(result.coursegpa)
+                    all_semester_gpas.append(result.coursegpa)
+
+            total_semester_results += len(marks_data)
+
+            if marks_data:
+                import statistics
+
+                # Calculate detailed performance metrics
+                performance_analysis = {
+                    'allocation': allocation,
+                    'course_name': allocation.coursecode.coursename,
+                    'teacher_name': f"{allocation.teacherid.employeeid.fname} {allocation.teacherid.employeeid.lname}",
+                    'total_enrollments': enrollments.count(),
+                    'total_results': len(marks_data),
+
+                    # Marks-based analysis
+                    'average_marks': round(statistics.mean(marks_data), 2),
+                    'highest_marks': max(marks_data),
+                    'lowest_marks': min(marks_data),
+                    'median_marks': round(statistics.median(marks_data), 2),
+                    'std_deviation': round(statistics.stdev(marks_data) if len(marks_data) > 1 else 0, 2),
+
+                    # Performance distribution
+                    'excellent_count': len([m for m in marks_data if m >= 80]),  # 80+
+                    'good_count': len([m for m in marks_data if 70 <= m < 80]),  # 70-79
+                    'average_count': len([m for m in marks_data if 60 <= m < 70]),  # 60-69
+                    'below_average_count': len([m for m in marks_data if 50 <= m < 60]),  # 50-59
+                    'fail_count': len([m for m in marks_data if m < 50]),  # Below 50
+
+                    # Percentages
+                    'excellent_percent': round((len([m for m in marks_data if m >= 80]) / len(marks_data)) * 100, 1),
+                    'good_percent': round((len([m for m in marks_data if 70 <= m < 80]) / len(marks_data)) * 100, 1),
+                    'average_percent': round((len([m for m in marks_data if 60 <= m < 70]) / len(marks_data)) * 100, 1),
+                    'below_average_percent': round(
+                        (len([m for m in marks_data if 50 <= m < 60]) / len(marks_data)) * 100, 1),
+                    'fail_percent': round((len([m for m in marks_data if m < 50]) / len(marks_data)) * 100, 1),
+
+                    # GPA analysis
+                    'average_gpa': round(statistics.mean(gpa_data), 2) if gpa_data else 0,
+                    'highest_gpa': round(max(gpa_data), 2) if gpa_data else 0,
+                    'lowest_gpa': round(min(gpa_data), 2) if gpa_data else 0,
+
+                    # Raw data for charts
+                    'marks_distribution': marks_data,
+                    'gpa_distribution': gpa_data,
+                }
+
+                # Determine allocation performance category
+                avg_marks = performance_analysis['average_marks']
+                fail_rate = performance_analysis['fail_percent']
+
+                if avg_marks >= 75 and fail_rate <= 10:
+                    performance_analysis['category'] = 'Excellent'
+                    performance_analysis['category_class'] = 'success'
+                    performance_analysis['category_icon'] = 'fas fa-trophy'
+                elif avg_marks >= 65 and fail_rate <= 20:
+                    performance_analysis['category'] = 'Good'
+                    performance_analysis['category_class'] = 'info'
+                    performance_analysis['category_icon'] = 'fas fa-thumbs-up'
+                elif avg_marks >= 55 and fail_rate <= 35:
+                    performance_analysis['category'] = 'Average'
+                    performance_analysis['category_class'] = 'warning'
+                    performance_analysis['category_icon'] = 'fas fa-minus-circle'
+                else:
+                    performance_analysis['category'] = 'Needs Improvement'
+                    performance_analysis['category_class'] = 'danger'
+                    performance_analysis['category_icon'] = 'fas fa-exclamation-triangle'
+
+                allocation_performance[allocation.allocationid] = performance_analysis
+
+    # Overall semester performance (from existing report logic enhanced)
+    semester_summary = {
+        'total_courses': len(course_codes),
+        'total_allocations': all_allocations.count(),
+        'class_enrollments': total_semester_enrollments,
+        'total_results': total_semester_results,
+        'completion_rate': round((total_semester_results / total_semester_enrollments * 100),
+                                 1) if total_semester_enrollments > 0 else 0
+    }
+
+    # Calculate overall semester statistics
+    if all_semester_marks:
+        import statistics
+
+        semester_summary.update({
+            'overall_average': round(statistics.mean(all_semester_marks), 2),
+            'overall_highest': max(all_semester_marks),
+            'overall_lowest': min(all_semester_marks),
+            'overall_std_dev': round(statistics.stdev(all_semester_marks) if len(all_semester_marks) > 1 else 0, 2),
+            'overall_fail_count': len([m for m in all_semester_marks if m < 50]),
+            'overall_fail_rate': round((len([m for m in all_semester_marks if m < 50]) / len(all_semester_marks)) * 100,
+                                       1),
+            'overall_excellent_rate': round(
+                (len([m for m in all_semester_marks if m >= 80]) / len(all_semester_marks)) * 100, 1)
+        })
+
+    # Get transcript data and chart (same as detail view)
+    transcript_data = None
+    transcript_chart_data = None
+
+    if semester.status == 'Completed':
+        transcripts = Transcript.objects.filter(
+            semesterid=semester,
+            studentid__classid=linked_class
+        ).select_related('studentid__studentid__personid')
+
+        if transcripts:
+            gpas = [t.semestergpa for t in transcripts if t.semestergpa is not None]
+
+            if gpas:
+                import statistics
+
+                transcript_data = {
+                    'total_transcripts': transcripts.count(),
+                    'average_gpa': round(statistics.mean(gpas), 2),
+                    'highest_gpa': round(max(gpas), 2),
+                    'lowest_gpa': round(min(gpas), 2),
+                    'std_deviation': round(statistics.stdev(gpas) if len(gpas) > 1 else 0, 2),
+                    'excellent_count': len([g for g in gpas if g >= 3.5]),
+                    'good_count': len([g for g in gpas if 3.0 <= g < 3.5]),
+                    'average_count': len([g for g in gpas if 2.5 <= g < 3.0]),
+                    'below_average_count': len([g for g in gpas if g < 2.5])
+                }
+
+                # Transcript chart data
+                transcript_chart_data = {
+                    'labels': ['0.0-1.0', '1.0-2.0', '2.0-2.5', '2.5-3.0', '3.0-3.5', '3.5-4.0'],
+                    'data': [
+                        len([g for g in gpas if 0.0 <= g < 1.0]),
+                        len([g for g in gpas if 1.0 <= g < 2.0]),
+                        len([g for g in gpas if 2.0 <= g < 2.5]),
+                        len([g for g in gpas if 2.5 <= g < 3.0]),
+                        len([g for g in gpas if 3.0 <= g < 3.5]),
+                        len([g for g in gpas if 3.5 <= g <= 4.0])
+                    ],
+                    'colors': ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#0dcaf0', '#198754']
+                }
+
+    # Prepare chart data for allocations
+    allocation_charts = {}
+    for allocation_id, perf in allocation_performance.items():
+        allocation_charts[allocation_id] = {
+            'marks_histogram': {
+                'labels': ['0-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-100'],
+                'data': [
+                    len([m for m in perf['marks_distribution'] if 0 <= m < 40]),
+                    len([m for m in perf['marks_distribution'] if 40 <= m < 50]),
+                    len([m for m in perf['marks_distribution'] if 50 <= m < 60]),
+                    len([m for m in perf['marks_distribution'] if 60 <= m < 70]),
+                    len([m for m in perf['marks_distribution'] if 70 <= m < 80]),
+                    len([m for m in perf['marks_distribution'] if 80 <= m < 90]),
+                    len([m for m in perf['marks_distribution'] if 90 <= m <= 100])
+                ],
+                'colors': ['#dc3545', '#dc3545', '#ffc107', '#fd7e14', '#20c997', '#0dcaf0', '#198754']
+            },
+            'gpa_line': {
+                'data': perf['gpa_distribution'],
+                'labels': list(range(1, len(perf['gpa_distribution']) + 1))
+            }
+        }
+
+    # Sort allocations by performance (best to worst)
+    sorted_allocations = sorted(
+        allocation_performance.values(),
+        key=lambda x: x['average_marks'],
+        reverse=True
+    )
+    allocation_data = []
+    for allocation_id, perf in allocation_performance.items():
+        chart_data = allocation_charts[allocation_id]
+        allocation_data.append({
+            'allocation_id': allocation_id,
+            'performance': perf,
+            'charts': chart_data
+        })
+
+    context = {
+        'semester': semester,
+        'linked_class': linked_class,
+        'semester_summary': semester_summary,
+        'allocation_data': allocation_data,
+        'allocation_performance': allocation_performance,
+        'sorted_allocations': sorted_allocations,
+        'transcript_data': transcript_data,
+        'transcript_chart_data': transcript_chart_data,
+        'allocation_charts': allocation_charts,
+        'class_display': f"{linked_class.programid.programid}-{linked_class.batchyear}",
+    }
+
+    return render(request, 'academic/semester_report.html', context)
 # ===========================================
 # CLASS CRUD OPERATIONS (Fixed for your model)
 # ===========================================
@@ -1061,7 +1633,7 @@ def class_list(request):
     class_data.sort(key=lambda x: (-int(x['batch_year']), x['program_name']))
 
     # Pagination
-    paginator = Paginator(class_data, 15)
+    paginator = Paginator(class_data, 25)
     page_number = request.GET.get('page', 1)
     classes_page = paginator.get_page(page_number)
 
@@ -1435,12 +2007,22 @@ def scheme_of_studies_create(request, class_id):
             for sem_no in semester_range:
                 session = request.POST.get(f'semester_{sem_no}_session', '').strip()
 
-                # Get or create semester for this program and semester number
-                semester_obj, created = Semester.objects.get_or_create(
+                # Find an available (unclaimed) semester for this program and semester number
+                semester_obj = Semester.objects.filter(
                     programid=class_obj.programid,
-                    semesterno=sem_no,
-                    defaults={'session': session, 'status': 'Inactive'}
-                )
+                    semesterno=sem_no
+                ).exclude(
+                    id__in=Semesterdetails.objects.values_list('semesterid', flat=True)
+                ).first()
+
+                if not semester_obj:
+                    # Create new semester if no available one found
+                    semester_obj = Semester.objects.create(
+                        programid=class_obj.programid,
+                        semesterno=sem_no,
+                        session=session,
+                        status='Inactive'
+                    )
 
                 # Update session if provided and different
                 if session and semester_obj.session != session:

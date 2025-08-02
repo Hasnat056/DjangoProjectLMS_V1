@@ -63,7 +63,7 @@
     <div class="card-gradient p-6 rounded-xl">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Enrollment List</h3>
-            <a href="/person/admin/enrollments/create/"
+            <a href="/admin/enrollments/create/"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
@@ -181,7 +181,7 @@
                     {% for data in enrollment_data %}
                     <tr class="enrollment-row hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="/person/admin/enrollments/{{ data.enrollment.enrollmentid }}/"
+                            <a href="/admin/enrollments/{{ data.enrollment.enrollmentid }}/"
                                class="text-emerald-600 hover:text-emerald-900 font-medium">
                                 #{{ data.enrollment.enrollmentid }}
                             </a>
@@ -195,7 +195,7 @@
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
-                                        <a href="/person/admin/students/{{ data.enrollment.studentid.studentid.personid }}/"
+                                        <a href="/admin/students/{{ data.enrollment.studentid.studentid.personid }}/"
                                            class="hover:text-emerald-600">
                                             {{ data.student_name }}
                                         </a>
@@ -215,7 +215,7 @@
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
-                                        <a href="/person/admin/faculty/{{ data.enrollment.allocationid.teacherid.employeeid.personid }}/"
+                                        <a href="/admin/faculty/{{ data.enrollment.allocationid.teacherid.employeeid.personid }}/"
                                            class="hover:text-emerald-600">
                                             {{ data.teacher_name }}
                                         </a>
@@ -228,7 +228,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">
-                                <a href="/person/admin/academic/courses/{{ data.enrollment.allocationid.coursecode.coursecode }}/"
+                                <a href="/admin/courses/{{ data.enrollment.allocationid.coursecode.coursecode }}/"
                                    class="hover:text-emerald-600">
                                     {{ data.enrollment.allocationid.coursecode.coursecode }}
                                 </a>
@@ -257,7 +257,7 @@
                     {% empty %}
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                            No enrollments found. <a href="/person/admin/enrollments/create/" class="text-emerald-600 hover:text-emerald-900">Create the first enrollment</a>.
+                            No enrollments found. <a href="/admin/enrollments/create/" class="text-emerald-600 hover:text-emerald-900">Create the first enrollment</a>.
                         </td>
                     </tr>
                     {% endfor %}

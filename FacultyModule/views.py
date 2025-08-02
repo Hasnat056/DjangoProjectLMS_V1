@@ -17,7 +17,7 @@ from StudentModule.models import Enrollment, Student
 from Person.models import Qualification
 
 # Form imports
-from .forms import FacultyForm, CourseAllocationForm, LectureForm, AssessmentForm
+from .forms import *
 
 
 def is_admin(user):
@@ -146,7 +146,7 @@ def faculty_list(request):
     ).count()
 
     # Pagination
-    paginator = Paginator(faculties, 25)
+    paginator = Paginator(faculties, 40)
     page = request.GET.get('page')
     faculties = paginator.get_page(page)
 
@@ -1719,3 +1719,37 @@ def faculty_dashboard_stats_api(request):
     }
 
     return JsonResponse(data)
+
+
+@login_required
+@user_passes_test(is_admin)
+def course_allocation_bulk_create(request):
+    """Bulk create view for Course Allocations"""
+
+    if request.method == 'POST':
+        form = BulkCourseAllocationForm(request.POST)
+        if form.is_valid():
+            try:
+                created_count = form.create_allocations()
+
+                if created_count == 1:
+                    messages.success(request, f'Successfully created {created_count} course allocation!')
+                else:
+                    messages.success(request, f'Successfully created {created_count} course allocations!')
+
+                action = request.POST.get('action', 'done')
+                if action == 'add_another':
+                    return redirect('management:allocation_bulk_create')
+                else:
+                    return redirect('/admin/dashboard/?section=allocations')
+
+            except Exception as e:
+                messages.error(request, f'Error creating allocations: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = BulkCourseAllocationForm()
+
+    return render(request, 'admin/bulk_allocation_operations.html', {
+        'form': form
+    })

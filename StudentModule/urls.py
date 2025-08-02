@@ -115,10 +115,8 @@ urlpatterns = [
     # API ENDPOINTS
     # ===========================================
 
-    path('api/program-classes/<str:program_id>/', views.get_program_classes, name='program_classes_api'),
-    path('api/all-students/',views.api_get_all_students),
-    path('api/class-students/<int:class_id>/',views.api_get_class_students),
-    path('api/classes/',views.api_get_classes),
+
+
 
 ]
 

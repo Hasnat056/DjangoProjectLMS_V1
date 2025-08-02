@@ -1,0 +1,308 @@
+<!-- admin/data_integrity_section.html - Data Integrity Check for dashboard (no header) -->
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Action Bar -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="text-gray-600">
+            Verify data consistency and identify issues across the system
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="refreshIntegrityCheck()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Refresh Check</span>
+            </button>
+            <div class="text-sm text-gray-500">
+                Last checked: {{ check_timestamp|date:"M d, Y H:i" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Status Card -->
+    <div class="card-gradient rounded-xl p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                {% if total_issues == 0 %}
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-green-600">Data Integrity: Excellent</h2>
+                        <p class="text-gray-600">No data integrity issues found</p>
+                    </div>
+                {% else %}
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-yellow-600">Issues Found</h2>
+                        <p class="text-gray-600">{{ total_issues }} data integrity issue{{ total_issues|pluralize }} detected</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <div class="text-2xl font-bold text-gray-900">{{ total_issues }}</div>
+                <div class="text-sm text-gray-500">Total Issues</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issues List -->
+    {% if issues %}
+        <div class="space-y-4">
+            {% for issue in issues %}
+                <div class="card-gradient rounded-xl border-l-4
+                    {% if issue.type == 'orphaned_students' %}border-red-500
+                    {% elif issue.type == 'orphaned_faculty' %}border-orange-500
+                    {% elif issue.type == 'orphaned_enrollments' %}border-yellow-500
+                    {% elif issue.type == 'duplicate_persons' %}border-purple-500
+                    {% else %}border-gray-500{% endif %}">
+
+                    <div class="p-6">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    {% if issue.type == 'orphaned_students' %}
+                                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-red-800">Orphaned Students</h3>
+                                    {% elif issue.type == 'orphaned_faculty' %}
+                                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-orange-800">Orphaned Faculty</h3>
+                                    {% elif issue.type == 'orphaned_enrollments' %}
+                                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-yellow-800">Orphaned Enrollments</h3>
+                                    {% elif issue.type == 'duplicate_persons' %}
+                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-purple-800">Duplicate Person IDs</h3>
+                                    {% else %}
+                                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-gray-800">System Error</h3>
+                                    {% endif %}
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if issue.type == 'orphaned_students' %}bg-red-100 text-red-800
+                                        {% elif issue.type == 'orphaned_faculty' %}bg-orange-100 text-orange-800
+                                        {% elif issue.type == 'orphaned_enrollments' %}bg-yellow-100 text-yellow-800
+                                        {% elif issue.type == 'duplicate_persons' %}bg-purple-100 text-purple-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ issue.count }} record{{ issue.count|pluralize }}
+                                    </span>
+                                </div>
+
+                                <p class="text-gray-700 mb-4">{{ issue.description }}</p>
+
+                                <!-- Show sample records -->
+                                {% if issue.records %}
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                        <h4 class="text-sm font-medium text-gray-800 mb-2">Sample Records:</h4>
+                                        <div class="space-y-2">
+                                            {% for record in issue.records|slice:":5" %}
+                                                <div class="text-sm text-gray-600 font-mono bg-white p-2 rounded border">
+                                                    {% if issue.type == 'orphaned_students' %}
+                                                        Student ID: {{ record.studentid.personid }} - {{ record.studentid.fname }} {{ record.studentid.lname }}
+                                                    {% elif issue.type == 'orphaned_faculty' %}
+                                                        Faculty ID: {{ record.employeeid.personid }} - {{ record.employeeid.fname }} {{ record.employeeid.lname }}
+                                                    {% elif issue.type == 'orphaned_enrollments' %}
+                                                        Enrollment ID: {{ record.enrollmentid }} - Student: {{ record.studentid.studentid.fname }} {{ record.studentid.studentid.lname }}
+                                                    {% elif issue.type == 'duplicate_persons' %}
+                                                        Person ID: {{ record.personid }} ({{ record.count }} duplicates)
+                                                    {% else %}
+                                                        {{ record }}
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                            {% if issue.count > 5 %}
+                                                <div class="text-sm text-gray-500 italic">
+                                                    ... and {{ issue.count|add:"-5" }} more record{{ issue.count|add:"-5"|pluralize }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="ml-6">
+                                {% if issue.type != 'error' %}
+                                    <button onclick="fixDataIssue('{{ issue.type }}')"
+                                            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>Fix Issues</span>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- No Issues Found -->
+        <div class="text-center py-12">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Data Integrity: Perfect!</h3>
+            <p class="text-gray-600 mb-6">No data integrity issues were found in your system. All relationships and constraints are properly maintained.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-sm font-medium text-green-800">Students</div>
+                    <div class="text-xs text-green-600">All properly linked</div>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-sm font-medium text-green-800">Enrollments</div>
+                    <div class="text-xs text-green-600">Valid allocations</div>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="text-sm font-medium text-green-800">Person Records</div>
+                    <div class="text-xs text-green-600">No duplicates</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Information Card -->
+    <div class="card-gradient rounded-xl p-6 mt-8">
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Data Integrity Monitoring</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">Automated Checks:</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Orphaned student records without programs</li>
+                            <li>• Faculty without assigned departments</li>
+                            <li>• Enrollments with invalid allocations</li>
+                            <li>• Duplicate person ID entries</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">Recommendations:</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Run integrity checks weekly</li>
+                            <li>• Fix issues immediately when found</li>
+                            <li>• Monitor during data imports</li>
+                            <li>• Keep regular database backups</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Refresh integrity check
+async function refreshIntegrityCheck() {
+    try {
+        showLoading();
+        const targetSection = document.getElementById('data-integrity-section');
+        const response = await fetch('/admin/system/data-integrity/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const html = await response.text();
+        targetSection.innerHTML = html;
+        showNotification('Data integrity check refreshed', 'success');
+    } catch (error) {
+        console.error('Error refreshing integrity check:', error);
+        showNotification('Error refreshing integrity check', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Fix data issue
+async function fixDataIssue(issueType) {
+    const confirmMessage = `Are you sure you want to fix ${issueType} issues? This action cannot be undone.`;
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    try {
+        showLoading();
+        const response = await fetch(`/admin/system/fix-data-issue/${issueType}/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken()
+            }
+        });
+        if (response.ok) {
+            showNotification(`${issueType} issues fix initiated`, 'success');
+            // Refresh the integrity check
+            setTimeout(() => {
+                refreshIntegrityCheck();
+            }, 2000);
+        } else {
+            throw new Error('Failed to initiate fix');
+        }
+    } catch (error) {
+        console.error('Error fixing data issue:', error);
+        showNotification('Error fixing data issue', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Get CSRF token
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+</script>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Appointment Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .button-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .button-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-emerald-50 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Container -->
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden fade-in">
+
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-emerald-600 to-blue-600 p-8 text-center">
+            <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-white mb-2">HOD Appointment</h1>
+            <p class="text-blue-100">Confirmation Required</p>
+        </div>
+
+        <!-- Content Section -->
+        <div class="p-8">
+            {% if error %}
+                <!-- Error State -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">Unable to Process</h2>
+                    <p class="text-gray-600 mb-6">{{ error }}</p>
+                    <a href="/" class="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        Return to Home
+                    </a>
+                </div>
+
+            {% elif success %}
+                <!-- Success State -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">Response Recorded</h2>
+                    <p class="text-gray-600 mb-6">{{ success }}</p>
+                    <a href="/" class="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors">
+                        Return to Home
+                    </a>
+                </div>
+
+            {% else %}
+                <!-- Confirmation Form -->
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-3">Department Assignment</h2>
+                    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                        <p class="text-blue-900 font-medium">{{ change_request.department.departmentname }}</p>
+                        <p class="text-blue-700 text-sm mt-1">You have been selected as the new Head of Department</p>
+                    </div>
+                </div>
+
+                <!-- Faculty Info -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <span class="text-emerald-600 font-semibold">
+                                {{ change_request.new_hod.employeeid.fname|first }}{{ change_request.new_hod.employeeid.lname|first }}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">{{ change_request.new_hod.employeeid.fname }} {{ change_request.new_hod.employeeid.lname }}</p>
+                            <p class="text-sm text-gray-500">{{ change_request.new_hod.employeeid.institutionalemail }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            name="action"
+                            value="confirm"
+                            class="button-hover w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white py-4 px-6 rounded-lg font-semibold text-lg shadow-lg">
+                        ✓ Accept Appointment
+                    </button>
+
+                    <button type="submit"
+                            name="action"
+                            value="decline"
+                            onclick="return confirm('Are you sure you want to decline this appointment?');"
+                            class="button-hover w-full bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white py-3 px-6 rounded-lg font-medium shadow-lg">
+                        ✗ Decline Appointment
+                    </button>
+                </form>
+
+                <!-- Info Note -->
+                <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p class="text-sm text-yellow-800">
+                        <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        Your response will be recorded immediately. If you have questions, please contact the administration before responding.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-10 right-10 w-32 h-32 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
+        <div class="absolute bottom-10 left-10 w-24 h-24 bg-emerald-200 rounded-full opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-purple-200 rounded-full opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+    </div>
+
+</body>
+</html>

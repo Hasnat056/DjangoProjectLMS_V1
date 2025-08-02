@@ -1,0 +1,517 @@
+<!-- Audit Trail List Template for Dashboard Integration -->
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="flex justify-between items-start">
+        <div class="flex space-x-3">
+            <button onclick="refreshAuditTrail()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Refresh</span>
+            </button>
+            <button onclick="exportAuditData()" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Export</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Records</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ audit_records.paginator.count }}</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm2 2h10v6H5v-6z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Today's Activities</p>
+                    <p class="text-2xl font-bold text-green-600">
+                            {{ today_count }}
+                    </p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Users</p>
+                    <p class="text-2xl font-bold text-purple-600">
+                        {% regroup audit_records.object_list by userid as users_grouped %}
+                        {{ users_grouped|length }}
+                    </p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Tables Affected</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ distinct_tables|length }}</p>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <form id="audit-filter-form" method="get" class="space-y-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
+                <button type="button" id="clear-audit-filters-btn" class="text-sm text-gray-500 hover:text-gray-700">
+                    Clear all filters
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                <!-- Action Filter -->
+                <div>
+                    <label for="audit-action" class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+                    <select id="audit-action" name="action" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500">
+                        <option value="">All Actions</option>
+                        {% for action in distinct_actions %}
+                            <option value="{{ action }}" {% if current_filters.action == action %}selected{% endif %}>
+                                {{ action|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Table Filter -->
+                <div>
+                    <label for="audit-table" class="block text-sm font-medium text-gray-700 mb-1">Table</label>
+                    <select id="audit-table" name="table" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500">
+                        <option value="">All Tables</option>
+                        {% for table in distinct_tables %}
+                            <option value="{{ table }}" {% if current_filters.table == table %}selected{% endif %}>
+                                {{ table|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- User Filter -->
+                <div>
+                    <label for="audit-user" class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                    <input type="text" id="audit-user" name="user" value="{{ current_filters.user }}"
+                           placeholder="Search by user name..."
+                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <!-- Start Date Filter -->
+                <div>
+                    <label for="audit-start-date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input type="date" id="audit-start-date" name="start_date" value="{{ current_filters.start_date }}"
+                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <!-- End Date Filter -->
+                <div>
+                    <label for="audit-end-date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" id="audit-end-date" name="end_date" value="{{ current_filters.end_date }}"
+                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-end">
+                    <button type="submit" class="w-full btn-primary text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Filter</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Audit Trail Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Audit Records</h3>
+            <p class="text-sm text-gray-500 mt-1">
+                Showing {{ audit_records.start_index }}-{{ audit_records.end_index }} of {{ audit_records.paginator.count }} records
+            </p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Table</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Record ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ip Address</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for record in audit_records %}
+                    <tr class="audit-row hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex flex-col">
+                                <span class="font-medium">{{ record.timestamp|date:"M d, Y" }}</span>
+                                <span class="text-xs text-gray-500">{{ record.timestamp|time:"H:i:s" }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-8 w-8">
+                                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <span class="text-xs font-medium text-gray-600">
+                                            {% if record.userid %}
+                                                {{ record.userid.fname|slice:":1" }}{{ record.userid.lname|slice:":1" }}
+                                            {% else %}
+                                                SY
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {% if record.userid %}
+                                            {{ record.userid.fname }} {{ record.userid.lname }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </div>
+                                    {% if record.userid %}
+                                    <div class="text-sm text-gray-500">{{ record.userid.institutionalemail }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if record.actiontype == 'INSERT' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Create
+                                </span>
+                            {% elif record.actiontype == 'UPDATE' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                    </svg>
+                                    Update
+                                </span>
+                            {% elif record.actiontype == 'DELETE' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V7a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Delete
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    {{ record.actiontype }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">{{ record.entityname }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if record.auditid %}
+                                <span class="font-mono text-blue-600">#{{ record.auditid }}</span>
+                            {% else %}
+                                <span class="text-gray-400">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {% if record.ipaddress %}
+                                <span class="text-gray-400">{{ record.ipaddress }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button onclick="showAuditDetails('{{ record.auditid }}')" class="text-blue-600 hover:text-blue-900 text-xs bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded">
+                                    View
+                                </button>
+                                {% if record.entityname and record.auditid %}
+                                <button onclick="viewRelatedRecord('{{ record.entityname }}', '{{ record.auditid }}')" class="text-green-600 hover:text-green-900 text-xs bg-green-50 hover:bg-green-100 px-2 py-1 rounded">
+                                    Related
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-gray-300 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
+                                </svg>
+                                <h3 class="text-lg font-medium text-gray-900 mb-1">No audit records found</h3>
+                                <p class="text-gray-500">Try adjusting your filters to see more results.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if audit_records.has_other_pages %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if audit_records.has_previous %}
+                        <button class="audit-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                data-page="{{ audit_records.previous_page_number }}"
+                                data-action="{{ current_filters.action }}"
+                                data-table="{{ current_filters.table }}"
+                                data-user="{{ current_filters.user }}"
+                                data-start-date="{{ current_filters.start_date }}"
+                                data-end-date="{{ current_filters.end_date }}">
+                            Previous
+                        </button>
+                    {% endif %}
+                    {% if audit_records.has_next %}
+                        <button class="audit-pagination-btn ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                data-page="{{ audit_records.next_page_number }}"
+                                data-action="{{ current_filters.action }}"
+                                data-table="{{ current_filters.table }}"
+                                data-user="{{ current_filters.user }}"
+                                data-start-date="{{ current_filters.start_date }}"
+                                data-end-date="{{ current_filters.end_date }}">
+                            Next
+                        </button>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing <span class="font-medium">{{ audit_records.start_index }}</span>
+                            to <span class="font-medium">{{ audit_records.end_index }}</span>
+                            of <span class="font-medium">{{ audit_records.paginator.count }}</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            {% if audit_records.has_previous %}
+                                <button class="audit-pagination-btn relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                        data-page="{{ audit_records.previous_page_number }}"
+                                        data-action="{{ current_filters.action }}"
+                                        data-table="{{ current_filters.table }}"
+                                        data-user="{{ current_filters.user }}"
+                                        data-start-date="{{ current_filters.start_date }}"
+                                        data-end-date="{{ current_filters.end_date }}">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </button>
+                            {% endif %}
+
+                            {% for page_num in audit_records.paginator.page_range %}
+                                {% if page_num == audit_records.number %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-emerald-50 text-sm font-medium text-emerald-600">
+                                        {{ page_num }}
+                                    </span>
+                                {% else %}
+                                    <button class="audit-pagination-btn relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                            data-page="{{ page_num }}"
+                                            data-action="{{ current_filters.action }}"
+                                            data-table="{{ current_filters.table }}"
+                                            data-user="{{ current_filters.user }}"
+                                            data-start-date="{{ current_filters.start_date }}"
+                                            data-end-date="{{ current_filters.end_date }}">
+                                        {{ page_num }}
+                                    </button>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if audit_records.has_next %}
+                                <button class="audit-pagination-btn relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                        data-page="{{ audit_records.next_page_number }}"
+                                        data-action="{{ current_filters.action }}"
+                                        data-table="{{ current_filters.table }}"
+                                        data-user="{{ current_filters.user }}"
+                                        data-start-date="{{ current_filters.start_date }}"
+                                        data-end-date="{{ current_filters.end_date }}">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </button>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Audit Trail specific JavaScript functions
+
+// Refresh audit trail data
+async function refreshAuditTrail() {
+    try {
+        showLoading();
+        const targetSection = document.getElementById('audit-trail-section');
+        const response = await fetch('/admin/audit-trail/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const html = await response.text();
+        targetSection.innerHTML = html;
+
+        // Re-initialize after refresh
+        setTimeout(() => {
+            initializeAuditTrailForDashboard();
+        }, 100);
+
+        showNotification('Audit trail refreshed', 'success');
+    } catch (error) {
+        console.error('Error refreshing audit trail:', error);
+        showNotification('Error refreshing audit trail', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Export audit data
+function exportAuditData() {
+    const form = document.getElementById('audit-filter-form');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+
+    // Add export parameter
+    params.append('export', 'csv');
+
+    // Create download link
+    const url = '/admin/audit-trail/?' + params.toString();
+    window.open(url, '_blank');
+    showNotification('Export started', 'success');
+}
+
+async function showAuditDetails(recordId) {
+    console.log('entering function');
+    try {
+        console.log('About to show loading...');
+        showLoading();
+          console.log('About to fetch data...');
+        const response = await fetch(`/admin/audit-trail/${recordId}/details/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+         console.log('Response received:', response);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data); // Debug log
+
+        let content = '<div class="space-y-4">';
+
+        // Basic Info
+        content += '<div class="bg-gray-50 p-4 rounded-lg">';
+        content += '<h4 class="font-semibold text-gray-900 mb-2">Record Information</h4>';
+        content += '<div class="grid grid-cols-2 gap-4 text-sm">';
+        content += `<div><span class="font-medium">Timestamp:</span> ${data.timestamp}</div>`;
+        content += `<div><span class="font-medium">Action:</span> ${data.action}</div>`;
+        content += `<div><span class="font-medium">Table:</span> ${data.table}</div>`;
+        content += `<div><span class="font-medium">Audit ID:</span> ${data.id}</div>`;
+        content += '</div>';
+        content += '</div>';
+
+        // User Info Section - THIS WAS MISSING!
+        content += '<div class="bg-blue-50 p-4 rounded-lg">';
+        content += '<h4 class="font-semibold text-gray-900 mb-2">User Information</h4>';
+        content += '<div class="grid grid-cols-1 gap-4 text-sm">';
+        content += `<div><span class="font-medium">User:</span> ${data.user.name || 'System'}</div>`;
+        content += `<div><span class="font-medium">Email:</span> ${data.user.email || 'N/A'}</div>`;
+        content += '</div>';
+        content += '</div>';
+
+        // Technical Info Section - THIS WAS MISSING!
+        content += '<div class="bg-green-50 p-4 rounded-lg">';
+        content += '<h4 class="font-semibold text-gray-900 mb-2">Technical Information</h4>';
+        content += '<div class="grid grid-cols-1 gap-4 text-sm">';
+        content += `<div><span class="font-medium">IP Address:</span> ${data.ipaddress || 'N/A'}</div>`;
+        content += `<div><span class="font-medium">User Agent:</span> <span class="break-all">${data.useragent || 'N/A'}</span></div>`;
+        content += '</div>';
+        content += '</div>';
+
+        content += '</div>';
+
+        openModal('Audit Record Details', content, `Record #${recordId}`, true);
+
+    } catch (error) {
+        console.error('Error loading audit details:', error);
+        showNotification('Error loading audit details', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+
+// View related record
+function viewRelatedRecord(tableName, recordId) {
+    // Map table names to sections
+    const tableToSection = {
+        'students': 'students',
+        'faculty': 'faculty',
+        'courses': 'courses',
+        'programs': 'programs',
+        'enrollments': 'enrollments',
+        'allocations': 'allocations'
+    };
+
+    const section = tableToSection[tableName.toLowerCase()];
+    if (section) {
+        showSection(section);
+        showNotification(`Navigated to ${section} section`, 'info');
+    } else {
+        showNotification(`Cannot navigate to ${tableName} records`, 'warning');
+    }
+}
+</script>

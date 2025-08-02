@@ -119,16 +119,9 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-end space-x-2">
-                    <button type="submit"
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-9 py-2 rounded-md transition-colors flex items-center space-x-2 ml-4 min-w-32">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Search</span>
-                    </button>
                     <button type="button" id="clear-semester-filters-btn"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors">
-                        Clear
+                        Clear Search
                     </button>
                 </div>
             </div>
@@ -148,9 +141,6 @@
                             Class ID
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Program
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Session
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -168,40 +158,24 @@
                     {% for semester_info in semesters %}
                     <tr class="semester-row hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ semester_info.semester.semesterid }}</div>
+                            <a href="/admin/semesters/{{ semester_info.semester.semesterid }}/"
+                                   class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors">
+                                    #{{ semester_info.semester.semesterid }}
+                            </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if semester_info.class_obj %}
                                 <a href="/admin/classes/{{ semester_info.class_obj.classid }}/"
                                    class="text-emerald-600 hover:text-emerald-900 font-medium hover:underline transition-colors">
                                     {{ semester_info.class_display }}
                                 </a>
-                            {% else %}
-                                <span class="text-gray-400">N/A</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ semester_info.semester.programid.programname }}</div>
-                            <div class="text-sm text-gray-500">{{ semester_info.semester.programid.programid }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">
-                                {% if semester_info.semester.session %}
                                     {{ semester_info.semester.session }}
-                                {% else %}
-                                    <span class="text-gray-400">N/A</span>
-                                {% endif %}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if semester_info.has_details %}
-                                <a href="/admin/classes/{{ semester_info.class_obj.classid }}/scheme-of-studies/view/"
-                                   class="text-blue-600 hover:text-blue-900 font-medium hover:underline transition-colors">
                                     Semester {{ semester_info.semester.semesterno }}
-                                </a>
-                            {% else %}
-                                <span class="text-gray-400">Semester {{ semester_info.semester.semesterno }}</span>
-                            {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if semester_info.semester.status == 'Active' %}
@@ -220,18 +194,14 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center space-x-2">
-                                {% if semester_info.has_details %}
                                     <span class="text-sm font-medium text-gray-900">{{ semester_info.course_count }}</span>
                                     <span class="text-xs text-gray-500">course{{ semester_info.course_count|pluralize:"s" }}</span>
-                                {% else %}
-                                    <span class="text-gray-400">N/A</span>
-                                {% endif %}
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                             No semesters found.
                         </td>
                     </tr>

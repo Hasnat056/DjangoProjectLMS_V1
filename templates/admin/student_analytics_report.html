@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Analytics Dashboard - Namal University</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .card-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d5f5a, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .alert-card {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .filter-badge {
+            transition: all 0.2s ease;
+        }
+
+        .filter-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .export-dropdown {
+            transform: translateY(-10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .export-dropdown.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .student-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .student-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .risk-high { border-left-color: #ef4444 !important; }
+        .risk-medium { border-left-color: #f59e0b !important; }
+        .risk-low { border-left-color: #10b981 !important; }
+
+        @media print {
+            .print-hidden { display: none !important; }
+            .print-only { display: block !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col print-hidden">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Student Analytics</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/?section=reports'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2V6a1 1 0 112 0v1h2a1 1 0 110 2H9a1 1 0 110-2z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="font-medium">Reports</span>
+                    </div>
+                </div>
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                        <span class="font-medium">Student Analytics</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">AD</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Admin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4 print-hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/dashboard/section=reports" class="hover:text-emerald-600">Reports</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">Student Analytics</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Student Analytics Dashboard</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <!-- Filter Options -->
+                        <div class="flex items-center space-x-2">
+                            <select id="batch-filter" class="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">All Batches</option>
+                                {% for batch in batch_analytics %}
+                                <option value="{{ batch.classid__batchyear }}">{{ batch.classid__batchyear }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="program-filter" class="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">All Programs</option>
+                                {% for program in program_analytics %}
+                                <option value="{{ program.programid__programid }}">{{ program.programid__programname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Export Dropdown -->
+                        <div class="relative">
+                            <button onclick="toggleExportDropdown()" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Export Report</span>
+                            </button>
+                            <div id="export-dropdown" class="export-dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50 border border-gray-200">
+                                <div class="py-1">
+                                    <button onclick="exportToPDF()" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <svg class="w-4 h-4 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Export as PDF
+                                    </button>
+                                    <button onclick="exportToExcel()" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Export as Excel
+                                    </button>
+                                    <button onclick="printReport()" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <svg class="w-4 h-4 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Print Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6" id="report-content">
+                <div class="max-w-7xl mx-auto space-y-6">
+
+                    <!-- Report Header for Print -->
+                    <div class="text-center mb-8 print-only">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png" alt="Namal University" class="h-16 mx-auto mb-4">
+                        <h1 class="text-3xl font-bold text-gray-900">Student Analytics Report</h1>
+                        <p class="text-sm text-gray-500 mt-1" id="print-date">Generated on: December 15, 2024</p>
+                    </div>
+
+                    <!-- Key Metrics Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-6 text-white shadow-xl">
+                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-blue-200 text-sm font-medium">Total</span>
+                                </div>
+                                <div class="text-3xl font-bold mb-2">{{ total_students }}</div>
+                                <div class="text-blue-200 text-sm">Total Students</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-6 text-white shadow-xl">
+                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-emerald-200 text-sm font-medium">Active</span>
+                                </div>
+                                <div class="text-3xl font-bold mb-2">{{ active_students }}</div>
+                                <div class="text-emerald-200 text-sm">Currently Enrolled</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card relative overflow-hidden bg-gradient-to-br from-green-500 to-green-700 rounded-2xl p-6 text-white shadow-xl">
+                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2V6a1 1 0 112 0v1h2a1 1 0 110 2H9a1 1 0 110-2z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-green-200 text-sm font-medium">Success</span>
+                                </div>
+                                <div class="text-3xl font-bold mb-2">{{ graduation_rate|floatformat:1 }}%</div>
+                                <div class="text-green-200 text-sm">Graduation Rate</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card relative overflow-hidden bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-6 text-white shadow-xl">
+                            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-red-200 text-sm font-medium">Attrition</span>
+                                </div>
+                                <div class="text-3xl font-bold mb-2">{{ dropout_rate|floatformat:1 }}%</div>
+                                <div class="text-red-200 text-sm">Dropout Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts Section -->
+                    {% if insights.alerts %}
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            Critical Alerts
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for alert in insights.alerts %}
+                            <div class="alert-card bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="text-red-700 font-medium">{{ alert }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Student Status Distribution -->
+                        <div class="card-gradient rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
+                                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
+                                </svg>
+                                Student Status Distribution
+                            </h3>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Enrollment Trends -->
+                        <div class="card-gradient rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                                </svg>
+                                Monthly Enrollment Trends
+                            </h3>
+                            <div class="chart-container">
+                                <canvas id="enrollmentTrendsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Batch Analytics Table -->
+                    <div class="card-gradient rounded-xl p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            Batch Performance Analysis
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b-2 border-gray-200">
+                                        <th class="text-left py-4 px-6 text-sm font-bold text-gray-700 uppercase tracking-wider">Batch Year</th>
+                                        <th class="text-center py-4 px-4 text-sm font-bold text-blue-700 uppercase tracking-wider">Program</th>
+                                        <th class="text-center py-4 px-4 text-sm font-bold text-purple-700 uppercase tracking-wider">Total Students</th>
+                                        <th class="text-center py-4 px-4 text-sm font-bold text-green-700 uppercase tracking-wider">Enrolled</th>
+                                        <th class="text-center py-4 px-4 text-sm font-bold text-orange-700 uppercase tracking-wider">Graduated</th>
+                                        <th class="text-center py-4 px-4 text-sm font-bold text-red-700 uppercase tracking-wider">Dropped</th>
+                                        <th class="text-center py-4 px-4 text-sm font-bold text-emerald-700 uppercase tracking-wider">Avg GPA</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    {% for batch in batch_analytics %}
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="py-4 px-6 font-medium text-gray-900">{{ batch.classid__batchyear }}</td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                {{ batch.classid__programid|truncatechars:20 }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                {{ batch.total_students }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                {{ batch.enrolled_students }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                {{ batch.graduated_students }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                {{ batch.dropped_students }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                {% if batch.avg_gpa %}{{ batch.avg_gpa|floatformat:2 }}{% else %}N/A{% endif %}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="py-8 text-center text-gray-500">No batch data available</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- At-Risk Students Dashboard -->
+                    <div class="card-gradient rounded-xl p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            At-Risk Students Dashboard
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-red-600">{{ at_risk_analysis.low_gpa_students.count }}</div>
+                                        <div class="text-sm text-red-600 font-medium">Low GPA (< 2.0)</div>
+                                    </div>
+                                    <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-orange-600">{{ at_risk_analysis.failing_students.count }}</div>
+                                        <div class="text-sm text-orange-600 font-medium">Multiple Failures</div>
+                                    </div>
+                                    <svg class="w-8 h-8 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-yellow-600">{{ at_risk_analysis.inactive_students.count }}</div>
+                                        <div class="text-sm text-yellow-600 font-medium">Inactive Students</div>
+                                    </div>
+                                    <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-gray-600">{{ at_risk_analysis.high_dropout_students.count }}</div>
+                                        <div class="text-sm text-gray-600 font-medium">High Dropout Pattern</div>
+                                    </div>
+                                    <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- At-Risk Students List -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-md font-semibold text-gray-900 mb-4">Low GPA Students (Critical)</h4>
+                                <div class="space-y-3 max-h-64 overflow-y-auto">
+                                    {% for student in at_risk_analysis.low_gpa_students|slice:":5" %}
+                                    <div class="student-card risk-high bg-white p-4 rounded-lg border border-gray-200">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h5 class="font-medium text-gray-900">
+                                                    {{ student.studentid.fname }} {{ student.studentid.lname }}
+                                                </h5>
+                                                <p class="text-sm text-gray-600">{{ student.studentid.personid }}</p>
+                                                <p class="text-xs text-gray-500">{{ student.programid.programname }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-lg font-bold text-red-600">{{ student.avg_gpa|floatformat:2 }}</div>
+                                                <div class="text-xs text-red-500">GPA</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-4 text-gray-500">No students with low GPA</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-md font-semibold text-gray-900 mb-4">Inactive Students</h4>
+                                <div class="space-y-3 max-h-64 overflow-y-auto">
+                                    {% for student in at_risk_analysis.inactive_students|slice:":5" %}
+                                    <div class="student-card risk-medium bg-white p-4 rounded-lg border border-gray-200">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h5 class="font-medium text-gray-900">
+                                                    {{ student.studentid.fname }} {{ student.studentid.lname }}
+                                                </h5>
+                                                <p class="text-sm text-gray-600">{{ student.studentid.personid }}</p>
+                                                <p class="text-xs text-gray-500">{{ student.programid.programname }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-sm text-yellow-600">
+                                                    {% if student.last_enrollment %}
+                                                        {{ student.last_enrollment|timesince }} ago
+                                                    {% else %}
+                                                        No enrollments
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-xs text-yellow-500">Last Activity</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-4 text-gray-500">No inactive students</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Program Performance Overview -->
+                    <div class="card-gradient rounded-xl p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+                            </svg>
+                            Program Performance Overview
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {% for program in program_analytics %}
+                            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold text-gray-900">{{ program.programid__programname|truncatechars:25 }}</h4>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        {{ program.programid__programid }}
+                                    </span>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Total Students</span>
+                                        <span class="font-medium text-gray-900">{{ program.student_count }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Currently Enrolled</span>
+                                        <span class="font-medium text-green-600">{{ program.enrolled_count }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Graduated</span>
+                                        <span class="font-medium text-blue-600">{{ program.graduated_count }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Average GPA</span>
+                                        <span class="font-medium {% if program.avg_program_gpa >= 3.5 %}text-green-600{% elif program.avg_program_gpa >= 3.0 %}text-blue-600{% elif program.avg_program_gpa >= 2.5 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                            {% if program.avg_program_gpa %}{{ program.avg_program_gpa|floatformat:2 }}{% else %}N/A{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Course Analytics -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Popular Courses -->
+                        <div class="card-gradient rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                                </svg>
+                                Most Popular Courses
+                            </h3>
+                            <div class="space-y-4">
+                                {% for course in course_analytics.popular_courses|slice:":8" %}
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">{{ course.allocationid__coursecode__coursename|truncatechars:30 }}</h4>
+                                        <p class="text-sm text-gray-600">{{ course.allocationid__coursecode__coursecode }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-blue-600">{{ course.enrollment_count }}</div>
+                                        <div class="text-xs text-blue-500">Enrollments</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Challenging Courses -->
+                        <div class="card-gradient rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                Most Challenging Courses
+                            </h3>
+                            <div class="space-y-4">
+                                {% for course in course_analytics.challenging_courses|slice:":8" %}
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">{{ course.allocationid__coursecode__coursename|truncatechars:30 }}</h4>
+                                        <p class="text-sm text-gray-600">{{ course.allocationid__coursecode__coursecode }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-red-600">
+                                            {% if course.avg_gpa %}{{ course.avg_gpa|floatformat:2 }}{% else %}N/A{% endif %}
+                                        </div>
+                                        <div class="text-xs text-red-500">Avg GPA</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insights and Recommendations -->
+                    <div class="card-gradient rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-emerald-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
+                            </svg>
+                            Analytics Insights & Recommendations
+                        </h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                                    <h4 class="font-semibold text-gray-900 mb-2">Key Findings</h4>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        {% for finding in insights.key_findings %}
+                                        <li>• {{ finding }}</li>
+                                        {% empty %}
+                                        <li>• Overall student performance is within expected range</li>
+                                        <li>• Most students are actively enrolled and progressing</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                                    <h4 class="font-semibold text-gray-900 mb-2">Recommendations</h4>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        {% for recommendation in insights.recommendations %}
+                                        <li>• {{ recommendation }}</li>
+                                        {% empty %}
+                                        <li>• Continue monitoring student progress regularly</li>
+                                        <li>• Maintain current support systems</li>
+                                        <li>• Focus on student engagement initiatives</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg">
+                                    <h4 class="font-semibold text-gray-900 mb-2">Action Items</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 bg-red-400 rounded-full"></div>
+                                            <span class="text-sm text-gray-600">Review at-risk student interventions</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                                            <span class="text-sm text-gray-600">Analyze challenging course support</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                            <span class="text-sm text-gray-600">Optimize enrollment processes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg">
+                                    <h4 class="font-semibold text-gray-900 mb-2">Next Steps</h4>
+                                    <div class="space-y-1 text-sm text-gray-600">
+                                        <p>• Schedule monthly review meetings</p>
+                                        <p>• Implement early warning system</p>
+                                        <p>• Enhance student support services</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Django template data integration
+        const analyticsData = {
+            statusDistribution: {
+                labels: ['Enrolled', 'Graduated', 'Dropped'],
+                data: [{{ active_students }}, {{ graduated_students }}, {{ dropped_students }}],
+                colors: ['#10B981', '#3B82F6', '#EF4444']
+            },
+            enrollmentTrends: {
+                labels: [{% for month in enrollment_trends.monthly_enrollments %}"{{ month.month_name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+                data: [{% for month in enrollment_trends.monthly_enrollments %}{{ month.enrollments }}{% if not forloop.last %},{% endif %}{% endfor %}]
+            },
+            batchData: [
+                {% for batch in batch_analytics %}
+                {
+                    year: "{{ batch.classid__batchyear }}",
+                    program: "{{ batch.classid__programid__programname }}",
+                    total: {{ batch.total_students }},
+                    enrolled: {{ batch.enrolled_students }},
+                    graduated: {{ batch.graduated_students }},
+                    dropped: {{ batch.dropped_students }},
+                    avgGpa: {% if batch.avg_gpa %}{{ batch.avg_gpa }}{% else %}null{% endif %}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            setupFilters();
+            updatePrintInfo();
+            loadAdminProfile();
+        });
+
+        function initializeCharts() {
+            // Status Distribution Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: analyticsData.statusDistribution.labels,
+                    datasets: [{
+                        data: analyticsData.statusDistribution.data,
+                        backgroundColor: analyticsData.statusDistribution.colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Enrollment Trends Chart
+            const trendsCtx = document.getElementById('enrollmentTrendsChart').getContext('2d');
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: analyticsData.enrollmentTrends.labels,
+                    datasets: [{
+                        label: 'Monthly Enrollments',
+                        data: analyticsData.enrollmentTrends.data,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupFilters() {
+            const batchFilter = document.getElementById('batch-filter');
+            const programFilter = document.getElementById('program-filter');
+
+            batchFilter.addEventListener('change', applyFilters);
+            programFilter.addEventListener('change', applyFilters);
+        }
+
+        function applyFilters() {
+            const batchValue = document.getElementById('batch-filter').value;
+            const programValue = document.getElementById('program-filter').value;
+
+            // Filter batch analytics table
+            const tableRows = document.querySelectorAll('#batch-analytics-table tbody tr');
+            tableRows.forEach(row => {
+                const batchCell = row.cells[0].textContent;
+                const programCell = row.cells[1].textContent;
+
+                const batchMatch = !batchValue || batchCell.includes(batchValue);
+                const programMatch = !programValue || programCell.includes(programValue);
+
+                row.style.display = (batchMatch && programMatch) ? '' : 'none';
+            });
+        }
+
+        function updatePrintInfo() {
+            document.getElementById('print-date').textContent = `Generated on: ${new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}`;
+        }
+
+        // Export functionality
+        function toggleExportDropdown() {
+            const dropdown = document.getElementById('export-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('export-dropdown');
+            const button = event.target.closest('button');
+
+            if (!button || !button.onclick || button.onclick.toString().indexOf('toggleExportDropdown') === -1) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            // Add header
+            pdf.setFontSize(20);
+            pdf.text('Student Analytics Report', 20, 30);
+            pdf.setFontSize(10);
+            pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 40);
+
+            // Add key statistics
+            pdf.setFontSize(12);
+            pdf.text('Key Statistics:', 20, 60);
+            pdf.setFontSize(10);
+            pdf.text(`Total Students: {{ total_students }}`, 20, 70);
+            pdf.text(`Active Students: {{ active_students }}`, 20, 80);
+            pdf.text(`Graduation Rate: {{ graduation_rate|floatformat:1 }}%`, 20, 90);
+            pdf.text(`Dropout Rate: {{ dropout_rate|floatformat:1 }}%`, 20, 100);
+
+            // Add batch analytics
+            let yPos = 120;
+            pdf.setFontSize(12);
+            pdf.text('Batch Performance:', 20, yPos);
+            yPos += 10;
+
+            pdf.setFontSize(9);
+            analyticsData.batchData.forEach(batch => {
+                if (yPos > 270) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text(`${batch.year} - ${batch.program}: ${batch.total} students, GPA: ${batch.avgGpa || 'N/A'}`, 20, yPos);
+                yPos += 8;
+            });
+
+            pdf.save('Student_Analytics_Report.pdf');
+            document.getElementById('export-dropdown').classList.remove('show');
+        }
+
+        function exportToExcel() {
+            let csvContent = "Student Analytics Report\n";
+            csvContent += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+
+            csvContent += "Overall Statistics\n";
+            csvContent += `Total Students,{{ total_students }}\n`;
+            csvContent += `Active Students,{{ active_students }}\n`;
+            csvContent += `Graduated Students,{{ graduated_students }}\n`;
+            csvContent += `Dropped Students,{{ dropped_students }}\n`;
+            csvContent += `Graduation Rate,{{ graduation_rate|floatformat:1 }}%\n`;
+            csvContent += `Dropout Rate,{{ dropout_rate|floatformat:1 }}%\n\n`;
+
+            csvContent += "Batch Performance\n";
+            csvContent += "Batch Year,Program,Total Students,Enrolled,Graduated,Dropped,Average GPA\n";
+
+            analyticsData.batchData.forEach(batch => {
+                csvContent += `"${batch.year}","${batch.program}",${batch.total},${batch.enrolled},${batch.graduated},${batch.dropped},"${batch.avgGpa || 'N/A'}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Student_Analytics_Report.csv';
+            link.click();
+
+            document.getElementById('export-dropdown').classList.remove('show');
+        }
+
+        function printReport() {
+            document.querySelectorAll('.print-only').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('.print-hidden').forEach(el => el.style.display = 'none');
+
+            window.print();
+
+            setTimeout(() => {
+                document.querySelectorAll('.print-only').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.print-hidden').forEach(el => el.style.display = 'block');
+            }, 1000);
+
+            document.getElementById('export-dropdown').classList.remove('show');
+        }
+
+        // Real-time search functionality
+        function searchStudents(query) {
+            const studentCards = document.querySelectorAll('.student-card');
+            studentCards.forEach(card => {
+                const studentName = card.querySelector('h5').textContent.toLowerCase();
+                const studentId = card.querySelector('p').textContent.toLowerCase();
+
+                if (studentName.includes(query.toLowerCase()) || studentId.includes(query.toLowerCase())) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Add search input event listener if search functionality is needed
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('student-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    searchStudents(e.target.value);
+                });
+            }
+        });
+
+        // Auto-refresh functionality
+        function refreshData() {
+            // In a real application, this would fetch updated data from the server
+            console.log('Refreshing analytics data...');
+            // window.location.reload(); // Uncomment for actual refresh
+        }
+
+        // Set up auto-refresh every 5 minutes (optional)
+        // setInterval(refreshData, 300000);
+
+        // Interactive hover effects for cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px) scale(1.02)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+
+        // Notification system for alerts
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'error' ? 'bg-red-500 text-white' :
+                type === 'success' ? 'bg-green-500 text-white' :
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Check for critical alerts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const criticalAlerts = {{ insights.alerts|length }};
+            if (criticalAlerts > 0) {
+                showNotification(`${criticalAlerts} critical alert${criticalAlerts > 1 ? 's' : ''} require attention`, 'error');
+            }
+        });
+
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch('/admin/api/user-profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('admin-initials').textContent = data.initials || 'A';
+                    document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                    document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        }
+    </script>
+
+    <style>
+        @media print {
+            .chart-container {
+                height: 200px !important;
+            }
+            .grid {
+                display: block !important;
+            }
+            .grid > * {
+                margin-bottom: 1rem !important;
+            }
+        }
+
+        /* Enhanced animations */
+        .stat-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .student-card {
+            transition: all 0.3s ease;
+        }
+
+        .student-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Custom scrollbar for overflow areas */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</body>
+</html>

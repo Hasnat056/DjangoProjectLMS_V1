@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester {{ semester.semesterno }} Analytics Report - Namal LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="icon" type="image/png" href="https://namal.edu.pk/uploads/logo4980416.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            margin: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #0f766e, #059669);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+        }
+
+        .analytics-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .analytics-card:nth-child(1) { animation-delay: 0.1s; }
+        .analytics-card:nth-child(2) { animation-delay: 0.2s; }
+        .analytics-card:nth-child(3) { animation-delay: 0.3s; }
+        .analytics-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
+        }
+
+        .course-performance-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-performance-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .performance-excellent {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 4px solid #10b981;
+        }
+
+        .performance-good {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .performance-average {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .performance-needsimprovement {
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border-left: 4px solid #ef4444;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            height: 400px;
+        }
+
+        .ranking-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .top-performer {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 2px solid #10b981;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-performer::before {
+            content: '🏆';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 2rem;
+            opacity: 0.2;
+        }
+
+        .student-ranking-chart {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: 400px;
+        }
+
+        .performance-distribution {
+            display: flex;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .dist-excellent { background: #10b981; }
+        .dist-good { background: #3b82f6; }
+        .dist-average { background: #f59e0b; }
+        .dist-poor { background: #ef4444; }
+
+        .animated-counter {
+            font-weight: 700;
+            font-size: 2rem;
+            color: inherit;
+        }
+
+        .section-header {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        @media (max-width: 768px) {
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 sidebar-gradient text-white flex-shrink-0 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
+                        <img src="https://namal.edu.pk/uploads/logo4980416.png"
+                             alt="Namal University Logo"
+                             class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Namal LMS</h1>
+                        <p class="text-xs text-white/70">Administration Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <div class="nav-item p-3 cursor-pointer" onclick="window.location.href='/admin/dashboard/'">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Analytics (Active) -->
+                <div class="nav-item p-3 cursor-pointer active">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm1 1v10h10V5H4zm2 2h6v2H6V7zm0 4h6v2H6v-2z"></path>
+                        </svg>
+                        <span class="font-medium">Analytics</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold" id="admin-initials">A</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium" id="admin-name">Administrator</p>
+                        <p class="text-xs text-white/70" id="admin-role">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header (Program-style) -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>Admin Panel</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/semesters/" class="hover:text-emerald-600">Semester Management</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="/admin/semesters/{{ semester.semesterid }}/" class="hover:text-emerald-600">Semester {{ semester.semesterno }}</a>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-emerald-600 font-medium">Analytics Report</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Semester {{ semester.semesterno }} Analytics</h2>
+                        <p class="text-gray-600">{{ class_display }} • Performance Analysis & Insights</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/admin/semesters/{{ semester.semesterid }}/"
+                           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Back to Details</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <div class="max-w-7xl mx-auto space-y-8">
+
+                    <!-- Analytics Overview -->
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 section-header">Analytics Overview</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="analytics-card p-6 text-center">
+                                <div class="text-3xl font-bold text-emerald-600 animated-counter" data-target="{{ semester_summary.overall_average|default:0 }}">0</div>
+                                <div class="text-sm text-gray-600 mt-1">Overall Average</div>
+                                <div class="text-xs text-gray-500">Marks (%)</div>
+                            </div>
+                            <div class="analytics-card p-6 text-center">
+                                <div class="text-3xl font-bold text-blue-600 animated-counter" data-target="{{ semester_summary.overall_fail_rate|default:0 }}">0</div>
+                                <div class="text-sm text-gray-600 mt-1">Failure Rate</div>
+                                <div class="text-xs text-gray-500">Percentage (%)</div>
+                            </div>
+                            <div class="analytics-card p-6 text-center">
+                                <div class="text-3xl font-bold text-purple-600 animated-counter" data-target="{{ semester_summary.overall_excellent_rate|default:0 }}">0</div>
+                                <div class="text-sm text-gray-600 mt-1">Excellence Rate</div>
+                                <div class="text-xs text-gray-500">Above 80% (%)</div>
+                            </div>
+                            <div class="analytics-card p-6 text-center">
+                                <div class="text-3xl font-bold text-orange-600 animated-counter" data-target="{{ semester_summary.completion_rate|default:0 }}">0</div>
+                                <div class="text-sm text-gray-600 mt-1">Completion Rate</div>
+                                <div class="text-xs text-gray-500">Results (%)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course Performance Comparison -->
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 section-header">Course Performance Ranking</h2>
+                        <div class="space-y-4">
+                            {% for allocation in sorted_allocations %}
+                            <div class="course-performance-card p-6 performance-{{ allocation.category|lower|cut:' ' }}">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div>
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <h3 class="text-lg font-semibold text-gray-900">{{ allocation.course_name }}</h3>
+                                            <span class="ranking-badge">Rank {{ forloop.counter }}</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-1">{{ allocation.teacher_name }}</p>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium px-2 py-1 rounded-full bg-white/50">{{ allocation.category }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-3xl font-bold text-gray-900">{{ allocation.average_marks }}%</div>
+                                        <div class="text-sm text-gray-600">Average Performance</div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-5 gap-4 mb-4">
+                                    <div class="text-center">
+                                        <div class="text-lg font-bold">{{ allocation.total_enrollments }}</div>
+                                        <div class="text-xs text-gray-600">Students</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-lg font-bold text-green-600">{{ allocation.excellent_count }}</div>
+                                        <div class="text-xs text-gray-600">Excellent</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-lg font-bold text-red-600">{{ allocation.fail_count }}</div>
+                                        <div class="text-xs text-gray-600">Failed</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-lg font-bold text-blue-600">{{ allocation.highest_marks }}%</div>
+                                        <div class="text-xs text-gray-600">Highest</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-lg font-bold text-gray-600">{{ allocation.std_deviation }}</div>
+                                        <div class="text-xs text-gray-600">Std Dev</div>
+                                    </div>
+                                </div>
+
+                                <!-- Performance Distribution Bar -->
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span>Performance Distribution</span>
+                                        <span>{{ allocation.excellent_percent }}% excellent • {{ allocation.fail_percent }}% failed</span>
+                                    </div>
+                                    <div class="performance-distribution">
+                                        <div class="dist-poor" style="width: {{ allocation.fail_percent }}%"></div>
+                                        <div class="dist-average" style="width: {{ allocation.below_average_percent }}%"></div>
+                                        <div class="dist-good" style="width: {{ allocation.good_percent }}%"></div>
+                                        <div class="dist-excellent" style="width: {{ allocation.excellent_percent }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Visual Analytics - Course Distribution Charts -->
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 section-header">Course Performance Analytics</h2>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {% for allocation_data_item in allocation_data %}
+                            <div class="chart-container">
+                                <h3 class="font-semibold text-gray-900 mb-4">{{ allocation_data_item.performance.course_name }} - Standard Deviation Analysis</h3>
+                                <canvas id="distributionChart-{{ allocation_data_item.allocation_id }}" height="300"></canvas>
+                                <div class="text-xs text-gray-500 mt-2">Hover over bars to see student counts in each range</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Student Performance Analytics -->
+                    {% if transcript_data %}
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 section-header">Student Performance Analytics</h2>
+
+                        <!-- Top Performance Insights -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="top-performer">
+                                <h3 class="font-semibold text-green-800 mb-2">🏆 Top Performer</h3>
+                                <div class="text-2xl font-bold text-green-700">{{ transcript_data.highest_gpa }}</div>
+                                <div class="text-sm text-green-600">Highest CGPA</div>
+                            </div>
+                            <div class="analytics-card p-6 text-center border-l-4 border-blue-500">
+                                <h3 class="font-semibold text-blue-800 mb-2">📊 Class Average</h3>
+                                <div class="text-2xl font-bold text-blue-700">{{ transcript_data.average_gpa }}</div>
+                                <div class="text-sm text-blue-600">Average CGPA</div>
+                            </div>
+                            <div class="analytics-card p-6 text-center border-l-4 border-purple-500">
+                                <h3 class="font-semibold text-purple-800 mb-2">📈 Performance Spread</h3>
+                                <div class="text-2xl font-bold text-purple-700">{{ transcript_data.std_deviation }}</div>
+                                <div class="text-sm text-purple-600">Std Deviation</div>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Student Analytics -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                            <!-- Student Ranking Chart -->
+                            <div class="student-ranking-chart">
+                                <h3 class="font-semibold text-gray-900 mb-4">Student Performance Ranking</h3>
+                                <canvas id="studentRankingChart" height="300"></canvas>
+                                <div class="text-xs text-gray-500 mt-2">Interactive: Click on points to see student details</div>
+                            </div>
+
+                            <!-- CGPA Distribution -->
+                            {% if transcript_chart_data %}
+                            <div class="chart-container">
+                                <h3 class="font-semibold text-gray-900 mb-4">CGPA Distribution Analysis</h3>
+                                <canvas id="cgpaDistributionChart" height="300"></canvas>
+                                <div class="text-xs text-gray-500 mt-2">Distribution of student performance across CGPA ranges</div>
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Performance Categories Summary -->
+                        <div class="analytics-card p-6 mt-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">Performance Categories Summary</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center p-4 bg-green-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-green-600">{{ transcript_data.excellent_count }}</div>
+                                    <div class="text-sm text-green-700 font-medium">Excellent</div>
+                                    <div class="text-xs text-gray-600">CGPA ≥ 3.5</div>
+                                </div>
+                                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-blue-600">{{ transcript_data.good_count }}</div>
+                                    <div class="text-sm text-blue-700 font-medium">Good</div>
+                                    <div class="text-xs text-gray-600">3.0 - 3.5</div>
+                                </div>
+                                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-yellow-600">{{ transcript_data.average_count }}</div>
+                                    <div class="text-sm text-yellow-700 font-medium">Average</div>
+                                    <div class="text-xs text-gray-600">2.5 - 3.0</div>
+                                </div>
+                                <div class="text-center p-4 bg-red-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-red-600">{{ transcript_data.below_average_count }}</div>
+                                    <div class="text-sm text-red-700 font-medium">Below Average</div>
+                                    <div class="text-xs text-gray-600">< 2.5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+<script>
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeAnimations();
+        initializeCharts();
+        loadAdminProfile();
+        console.log('Semester Analytics Report initialized successfully!');
+    });
+
+    function initializeAnimations() {
+        // Animate counters
+        const counters = document.querySelectorAll('.animated-counter');
+        counters.forEach(counter => {
+            const target = parseFloat(counter.getAttribute('data-target')) || 0;
+            animateCounter(counter, target);
+        });
+    }
+
+    function animateCounter(element, target) {
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target % 1 === 0 ? target : target.toFixed(1);
+                clearInterval(timer);
+            } else {
+                element.textContent = current % 1 === 0 ? Math.floor(current) : current.toFixed(1);
+            }
+        }, 16);
+    }
+
+    function initializeCharts() {
+        // Initialize course distribution charts
+        {% for allocation_data_item in allocation_data %}
+        initializeDistributionChart('{{ allocation_data_item.allocation_id }}', {{ allocation_data_item.charts.marks_histogram|safe }});
+        {% endfor %}
+
+        // Initialize student analytics charts
+        {% if transcript_data %}
+        initializeStudentRankingChart();
+        {% if transcript_chart_data %}
+        initializeCGPADistributionChart();
+        {% endif %}
+        {% endif %}
+    }
+
+    function initializeDistributionChart(allocationId, chartData) {
+        const ctx = document.getElementById(`distributionChart-${allocationId}`);
+        if (!ctx) return;
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Number of Students',
+                    data: chartData.data,
+                    backgroundColor: [
+                        '#fecaca', '#fed7aa', '#fef3c7',
+                        '#d1fae5', '#dbeafe', '#e0e7ff', '#f3e8ff'
+                    ],
+                    borderColor: [
+                        '#ef4444', '#f59e0b', '#eab308',
+                        '#10b981', '#3b82f6', '#6366f1', '#8b5cf6'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        callbacks: {
+                            title: function(context) {
+                                return `Marks Range: ${context[0].label}%`;
+                            },
+                            label: function(context) {
+                                return `${context.parsed.y} students in this range`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                animation: { duration: 2000, easing: 'easeInOutQuart' }
+            }
+        });
+    }
+
+    {% if transcript_data %}
+    function initializeStudentRankingChart() {
+        const ctx = document.getElementById('studentRankingChart');
+        if (!ctx) return;
+
+        const studentData = [
+            {% for transcript in transcript_data.transcripts %}
+            {
+                name: '{{ transcript.studentid.studentid.fname }} {{ transcript.studentid.studentid.lname }}',
+                gpa: {{ transcript.semestergpa }},
+                rank: {{ forloop.counter }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Student Performance',
+                    data: studentData.map(student => ({
+                        x: student.rank,
+                        y: student.gpa,
+                        studentName: student.name
+                    })),
+                    backgroundColor: '#3b82f6',
+                    borderColor: '#1d4ed8',
+                    borderWidth: 2,
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(59, 130, 246, 0.9)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].raw.studentName;
+                            },
+                            label: function(context) {
+                                return `CGPA: ${context.parsed.y} (Rank: ${context.parsed.x})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Student Ranking (Best to Worst)' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        title: { display: true, text: 'CGPA' },
+                        min: 0,
+                        max: 4.0,
+                        ticks: { stepSize: 0.5 }
+                    }
+                },
+                animation: { duration: 2000, easing: 'easeInOutQuart' }
+            }
+        });
+    }
+
+    {% if transcript_chart_data %}
+    function initializeCGPADistributionChart() {
+        const ctx = document.getElementById('cgpaDistributionChart');
+        if (!ctx) return;
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: {{ transcript_chart_data.labels|safe }},
+                datasets: [{
+                    data: {{ transcript_chart_data.data|safe }},
+                    backgroundColor: [
+                        '#fecaca', '#fed7aa', '#fef3c7',
+                        '#d1fae5', '#dbeafe', '#e0e7ff'
+                    ],
+                    borderColor: [
+                        '#ef4444', '#f59e0b', '#eab308',
+                        '#10b981', '#3b82f6', '#6366f1'
+                    ],
+                    borderWidth: 2,
+                    hoverBorderWidth: 4,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                return `${context.label}: ${context.parsed} students (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: { duration: 2000, easing: 'easeInOutQuart' }
+            }
+        });
+    }
+    {% endif %}
+    {% endif %}
+
+    async function loadAdminProfile() {
+        try {
+            const response = await fetch('/admin/api/user-profile/');
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('admin-initials').textContent = data.initials || 'A';
+                document.getElementById('admin-name').textContent = data.name || 'Administrator';
+                document.getElementById('admin-role').textContent = data.role || 'System Administrator';
+            }
+        } catch (error) {
+            console.error('Error loading admin profile:', error);
+        }
+    }
+
+    // Add interactive hover effects
+    document.querySelectorAll('.course-performance-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(8px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0) scale(1)';
+        });
+    });
+
+    // Add click interactions for better UX
+    document.querySelectorAll('.analytics-card').forEach(card => {
+        card.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+    });
+
+    // Add scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all cards for scroll animations
+    document.querySelectorAll('.analytics-card, .course-performance-card').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Add performance indicators with timing
+    function addPerformanceIndicators() {
+        const performanceCards = document.querySelectorAll('[class*="performance-"]');
+        performanceCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 200);
+            }, index * 100);
+        });
+    }
+
+    // Initialize performance indicators after charts load
+    setTimeout(addPerformanceIndicators, 1500);
+
+    // Error handling for charts
+    window.addEventListener('error', function(e) {
+        console.error('Chart initialization error:', e.error);
+    });
+
+    // Responsive chart resizing
+    window.addEventListener('resize', function() {
+        console.log('Window resized - charts will auto-adjust');
+    });
+</script>
